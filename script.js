@@ -21,7 +21,6 @@ function startApp() {
 
     firebase.initializeApp(firebaseConfig);
     
-    // Enable offline persistence for a seamless experience
     firebase.firestore().enablePersistence().catch(err => {
         if (err.code == 'failed-precondition') {
             console.warn("Firestore persistence could not be enabled. Multiple tabs open?");
@@ -77,18 +76,16 @@ function startApp() {
     let currentDate = new Date();
     let currentUser = null;
     let tasks = [];
-    let subtasks = []; // Holds subtasks for the currently edited task
+    let subtasks = [];
     let selectedColor = '#718096';
     const TASK_COLORS = ['#718096', '#EF4444', '#F59E0B', '#10B981', '#3B82F6', '#8B5CF6'];
 
     // --- 4. Routing ---
     function handleRouting() {
         const hash = window.location.hash.substring(1);
-        if (hash) {
-            const [year, month] = hash.split('-').map(Number);
-            if (!isNaN(year) && !isNaN(month) && month >= 1 && month <= 12) {
-                currentDate = new Date(year, month - 1, 1);
-            }
+        const [year, month] = hash.split('-').map(Number);
+        if (hash && !isNaN(year) && !isNaN(month) && month >= 1 && month <= 12) {
+            currentDate = new Date(year, month - 1, 1);
         }
         renderCalendar();
     }
@@ -106,7 +103,7 @@ function startApp() {
             loginContainer.style.display = 'none';
             appContainer.style.display = 'flex';
             userPhoto.src = user.photoURL || 'default-avatar.png';
-            handleRouting(); // Initial load
+            handleRouting();
             listenForTasks();
         } else {
             currentUser = null;
@@ -141,8 +138,8 @@ function startApp() {
             let todayClass = dayDate.toDateString() === new Date().toDateString() ? 'today' : '';
             
             const dayTasks = tasks
-                .filter(task => task.startAt.toDate().toDateString() === dayDate.toDateString())
-                .sort((a, b) => a.startAt.toMillis() - b.toMillis());
+                .filter(task => task.startAt && task.startAt.toDate().toDateString() === dayDate.toDateString())
+                .sort((a, b) => a.startAt.toMillis() - b.startAt.toMillis());
 
             let tasksHtml = dayTasks.slice(0, MAX_TASKS_VISIBLE).map(task => `
                 <div class="task" data-task-id="${task.id}" style="background-color: ${task.color || '#718096'}">
@@ -163,8 +160,7 @@ function startApp() {
     };
 
     function initializeDragAndDrop() {
-        const taskContainers = document.querySelectorAll('.tasks-container');
-        taskContainers.forEach(container => {
+        document.querySelectorAll('.tasks-container').forEach(container => {
             new Sortable(container, {
                 group: 'tasks',
                 animation: 150,
@@ -172,6 +168,7 @@ function startApp() {
                 onEnd: async (evt) => {
                     const taskId = evt.item.dataset.taskId;
                     const newDayElement = evt.to.closest('.calendar-day');
+                    if (!taskId || !newDayElement) return;
                     const newDateStr = newDayElement.dataset.date;
                     
                     const originalTask = tasks.find(t => t.id === taskId);
@@ -200,12 +197,9 @@ function startApp() {
     }
 
     // --- 8. Event Listeners & Modals ---
-    // Sidebar & Global Create
     hamburgerMenu.addEventListener('click', () => document.body.classList.toggle('sidebar-open'));
     sidebarOverlay.addEventListener('click', () => document.body.classList.remove('sidebar-open'));
     createTaskBtn.addEventListener('click', () => openTaskDetailsModal());
-
-    // Calendar Interactions
     calendarEl.addEventListener('click', (e) => {
         if (e.target.closest('.task')) {
             const taskId = e.target.closest('.task').dataset.taskId;
@@ -215,28 +209,35 @@ function startApp() {
             const date = e.target.closest('.more-tasks-indicator').dataset.date;
             openDayDetailsModal(date);
         } else if (e.target.closest('.calendar-day:not(.other-month)')) {
-            const dayElement = e.target.closest('.calendar-day');
-            openQuickAddPopover(dayElement);
+            openQuickAddPopover(e.target.closest('.calendar-day'));
         }
     });
 
-    // Quick Add Popover
+    // UX IMPROVEMENT: Close popover when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!quickAddPopover.contains(e.target) && !e.target.closest('.calendar-day')) {
+            quickAddPopover.classList.remove('visible');
+        }
+    });
+
     function openQuickAddPopover(dayElement) {
         const rect = dayElement.getBoundingClientRect();
-        quickAddPopover.style.left = `${rect.left}px`;
+        quickAddPopover.style.left = `${Math.min(rect.left, window.innerWidth - 320)}px`;
         quickAddPopover.style.top = `${rect.bottom + 5}px`;
         quickAddPopover.classList.add('visible');
         quickAddTitleEl.value = '';
         quickAddTitleEl.focus();
         quickAddPopover.dataset.date = dayElement.dataset.date;
     }
-    quickAddSaveBtn.addEventListener('click', async () => {
+
+    quickAddSaveBtn.addEventListener('click', async (e) => {
+        e.stopPropagation();
         const text = quickAddTitleEl.value.trim();
         const date = quickAddPopover.dataset.date;
         if (!text || !date) return;
         
         const parsed = parseQuickAddText(text, date);
-        setButtonLoading(quickAddSaveBtn, true);
+        setButtonLoading(quickAddSaveBtn, true, "Save");
         await saveTask({
             title: parsed.title,
             startAt: firebase.firestore.Timestamp.fromDate(parsed.date),
@@ -244,10 +245,12 @@ function startApp() {
             color: selectedColor,
             subtasks: []
         });
-        setButtonLoading(quickAddSaveBtn, false);
+        setButtonLoading(quickAddSaveBtn, false, "Save");
         quickAddPopover.classList.remove('visible');
     });
-    quickAddDetailsBtn.addEventListener('click', () => {
+
+    quickAddDetailsBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
         const text = quickAddTitleEl.value.trim();
         const date = quickAddPopover.dataset.date;
         const parsed = parseQuickAddText(text, date);
@@ -259,13 +262,12 @@ function startApp() {
         });
     });
 
-    // Day Details Modal (+X more)
     function openDayDetailsModal(dateStr) {
         const date = new Date(dateStr + 'T00:00:00');
         dayDetailsTitleEl.textContent = date.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
         const dayTasks = tasks
-            .filter(task => task.startAt.toDate().toDateString() === date.toDateString())
-            .sort((a, b) => a.startAt.toMillis() - b.toMillis());
+            .filter(task => task.startAt && task.startAt.toDate().toDateString() === date.toDateString())
+            .sort((a, b) => a.startAt.toMillis() - b.startAt.toMillis());
 
         dayDetailsListEl.innerHTML = dayTasks.map(task => `
             <div class="task" data-task-id="${task.id}" style="background-color: ${task.color || '#718096'}">
@@ -274,8 +276,9 @@ function startApp() {
             </div>`).join('');
         dayDetailsModal.classList.add('visible');
     }
+
     dayDetailsModal.addEventListener('click', (e) => {
-        if(e.target.closest('.task')) {
+        if (e.target.closest('.task')) {
             const taskId = e.target.closest('.task').dataset.taskId;
             const taskToEdit = tasks.find(t => t.id === taskId);
             if (taskToEdit) {
@@ -285,11 +288,8 @@ function startApp() {
         }
     });
 
-    // Full Task Details Modal
     function openTaskDetailsModal(task = {}) {
         taskDetailsModal.classList.add('visible');
-        renderColorSelector();
-        
         const taskDate = task.startAt ? task.startAt.toDate() : new Date();
         
         taskIdEl.value = task.id || '';
@@ -298,7 +298,8 @@ function startApp() {
         taskTimeEl.value = task.hasTime ? taskDate.toTimeString().substring(0, 5) : '';
         taskDescriptionEl.value = task.description || '';
         
-        subtasks = task.subtasks || [];
+        // BUG FIX: Ensure subtasks array is properly reset for new tasks
+        subtasks = task.subtasks ? [...task.subtasks] : [];
         renderSubtasks();
         
         selectedColor = task.color || TASK_COLORS[0];
@@ -309,7 +310,6 @@ function startApp() {
         deleteTaskBtn.style.display = task.id ? 'block' : 'none';
     }
     
-    // Subtask Logic
     addSubtaskInput.addEventListener('keyup', (e) => {
         if (e.key === 'Enter' && e.target.value.trim()) {
             subtasks.push({ text: e.target.value.trim(), completed: false });
@@ -317,13 +317,17 @@ function startApp() {
             e.target.value = '';
         }
     });
+
     subtasksListEl.addEventListener('click', (e) => {
         if (e.target.type === 'checkbox') {
             const index = parseInt(e.target.dataset.index);
-            subtasks[index].completed = e.target.checked;
-            renderSubtasks();
+            if (subtasks[index]) {
+                subtasks[index].completed = e.target.checked;
+                renderSubtasks();
+            }
         }
     });
+
     function renderSubtasks() {
         subtasksListEl.innerHTML = subtasks.map((sub, index) => `
             <div class="subtask-item ${sub.completed ? 'completed' : ''}">
@@ -332,8 +336,8 @@ function startApp() {
             </div>`).join('');
     }
 
-    // Modal Action Buttons
     saveTaskBtn.addEventListener('click', async () => {
+        setButtonLoading(saveTaskBtn, true, "Save Task"); // BUG FIX: Prevent double-clicks
         const date = taskDateEl.value;
         const time = taskTimeEl.value;
         const dateTime = new Date(`${date}T${time || '00:00:00'}`);
@@ -347,13 +351,16 @@ function startApp() {
             color: selectedColor,
             subtasks: subtasks,
         };
-        if (!taskData.title || !date) return alert('Title and Date are required.');
+        if (!taskData.title || !date) {
+            setButtonLoading(saveTaskBtn, false, "Save Task");
+            return alert('Title and Date are required.');
+        }
         
-        setButtonLoading(saveTaskBtn, true, "Save Task");
         await saveTask(taskData);
         setButtonLoading(saveTaskBtn, false, "Save Task");
         taskDetailsModal.classList.remove('visible');
     });
+
     deleteTaskBtn.addEventListener('click', async () => {
         const id = taskIdEl.value;
         if (id && confirm('Are you sure you want to delete this task?')) {
@@ -362,14 +369,22 @@ function startApp() {
         }
     });
     
-    // Universal Modal Closing
-    [quickAddPopover, taskDetailsModal, dayDetailsModal].forEach(modal => {
+    [taskDetailsModal, dayDetailsModal].forEach(modal => {
         modal.addEventListener('click', (e) => {
             if (e.target === modal || e.target.classList.contains('close-button')) {
                 modal.classList.remove('visible');
-                quickAddPopover.classList.remove('visible'); // Also hide popover
             }
         });
+    });
+
+    // BUG FIX: Moved this listener outside the modal function to prevent duplicates
+    renderColorSelector();
+    taskColorsContainer.addEventListener('click', (e) => {
+        if (e.target.classList.contains('color-option')) {
+            selectedColor = e.target.dataset.color;
+            taskColorsContainer.querySelectorAll('.color-option').forEach(el => el.classList.remove('selected'));
+            e.target.classList.add('selected');
+        }
     });
 
     // --- 9. Core Save & Helper Functions ---
@@ -387,11 +402,12 @@ function startApp() {
     }
     
     function parseQuickAddText(text, referenceDateStr) {
-        let date = new Date(`${referenceDateStr}T00:00:00`);
+        let date = new Date(`${referenceDateStr}T09:00:00`); // Default to 9 AM
         let title = text;
         let hasTime = false;
         
-        const timeRegex = /(\d{1,2}(:\d{2})?)\s*(am|pm)?/i;
+        // BUG FIX: Improved Regex for more flexibility
+        const timeRegex = /\b(\d{1,2}(:\d{2})?)\s*(am|pm)?\b/i;
         const timeMatch = text.match(timeRegex);
 
         if (timeMatch) {
@@ -400,19 +416,17 @@ function startApp() {
             hours = parseInt(hours);
             minutes = parseInt(minutes || '0');
             
-            if (ampm && hours < 12 && ampm.toLowerCase() === 'pm') {
-                hours += 12;
-            } else if (ampm && hours === 12 && ampm.toLowerCase() === 'am') {
-                hours = 0;
-            }
+            if (ampm && hours < 12 && ampm.toLowerCase() === 'pm') hours += 12;
+            if (ampm && hours === 12 && ampm.toLowerCase() === 'am') hours = 0;
             
-            date.setHours(hours, minutes);
+            date.setHours(hours, minutes, 0, 0); // Reset seconds and ms
             hasTime = true;
             title = title.replace(timeMatch[0], '').trim();
         }
 
-        if (/\btomorrow\b/i.test(text)) {
-            date.setDate(date.getDate() + 1);
+        if (/\btomorrow\b/i.test(title)) {
+            const refDate = new Date(`${referenceDateStr}T00:00:00`);
+            date.setDate(refDate.getDate() + 1);
             title = title.replace(/\btomorrow\b/i, '').trim();
         }
 
@@ -421,13 +435,6 @@ function startApp() {
 
     function renderColorSelector() {
         taskColorsContainer.innerHTML = TASK_COLORS.map(color => `<div class="color-option" data-color="${color}" style="background-color: ${color};"></div>`).join('');
-        taskColorsContainer.addEventListener('click', (e) => {
-            if (e.target.classList.contains('color-option')) {
-                selectedColor = e.target.dataset.color;
-                taskColorsContainer.querySelectorAll('.color-option').forEach(el => el.classList.remove('selected'));
-                e.target.classList.add('selected');
-            }
-        });
     }
 
     function setButtonLoading(button, isLoading, defaultText) {

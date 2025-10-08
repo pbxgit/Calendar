@@ -44,7 +44,7 @@
         .d-none { display: none !important; }
 
         /* --- Global Components --- */
-        .btn { border-radius: 8px; padding: 12px; font-weight: 500; border: 1px solid var(--border-color); background-color: var(--bg-base); color: var(--text-primary); transition: var(--transition); display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; }
+        .btn { border-radius: 8px; padding: 12px; font-weight: 500; border: 1px solid var(--border-color); background-color: var(--bg-surface); color: var(--text-primary); transition: var(--transition); display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; }
         .btn:hover { background-color: var(--bg-muted); }
         .btn-primary { background-color: var(--primary-accent); color: white; border-color: var(--primary-accent); }
         .btn-primary:hover { background-color: var(--primary-accent); opacity: 0.9; }
@@ -210,8 +210,24 @@
         }
 
         function setupStaticEventListeners() {
-            document.getElementById('google-login-btn').addEventListener('click', () => auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()));
-            document.getElementById('github-login-btn').addEventListener('click', () => auth.signInWithPopup(new firebase.auth.GithubAuthProvider()));
+            // ** FIXED LOGIN LISTENERS **
+            const googleLoginBtn = document.getElementById('google-login-btn');
+            const githubLoginBtn = document.getElementById('github-login-btn');
+            
+            googleLoginBtn.addEventListener('click', () => {
+                auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(error => {
+                    console.error("Google Sign-In Error:", error);
+                    alert(`Login Failed: ${error.message}`);
+                });
+            });
+
+            githubLoginBtn.addEventListener('click', () => {
+                auth.signInWithPopup(new firebase.auth.GithubAuthProvider()).catch(error => {
+                    console.error("GitHub Sign-In Error:", error);
+                    alert(`Login Failed: ${error.message}`);
+                });
+            });
+
             document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
             document.getElementById('logout-btn').addEventListener('click', () => auth.signOut());
 
@@ -300,12 +316,12 @@
         // --- To-Do List ---
         function loadTodos() {
             if (activeUnsubscribes.todos) activeUnsubscribes.todos();
-            activeUnsubscribes.todos = db.collection('todos').orderBy('createdAt').onSnapshot(snapshot => {
+            activeUnsubscribes.todos = db.collection('todos').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
                 const todoList = document.getElementById('todo-list');
                 todoList.innerHTML = snapshot.docs.map(doc => `
                     <li class="todo-item ${doc.data().completed ? 'completed' : ''}">
-                        <input type="checkbox" data-id="${doc.id}" ${doc.data().completed ? 'checked' : ''} style="width:18px; height:18px;">
-                        <span>${doc.data().task}</span>
+                        <input type="checkbox" data-id="${doc.id}" ${doc.data().completed ? 'checked' : ''} style="width:18px; height:18px; cursor:pointer;">
+                        <span style="flex-grow:1;">${doc.data().task}</span>
                         <i class="bi bi-trash3-fill" data-id="${doc.id}" style="margin-left:auto; cursor:pointer;"></i>
                     </li>
                 `).join('');

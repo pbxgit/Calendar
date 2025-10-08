@@ -187,21 +187,45 @@
         const appContainer = document.getElementById('app-container');
         const detailPanel = document.getElementById('detail-panel');
 
-        // --- App Initialization & Auth ---
-        auth.onAuthStateChanged(user => {
-            if (user && !user.isAnonymous) {
-                currentUser = user;
-                if (appContainer.classList.contains('d-none')) { // Only initialize if the app isn't already running
-                    initializeApp();
-                }
-            } else {
-                currentUser = null;
-                Object.values(activeUnsubscribes).forEach(unsub => unsub());
-                authSection.classList.remove('d-none');
-                appContainer.classList.add('d-none');
-                loadingOverlay.classList.add('d-none');
-            }
+        // --- Core Application Flow ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            setupStaticEventListeners();
+            handleAuthentication();
         });
+
+        function handleAuthentication() {
+            // This function runs once on page load to handle the redirect result
+            auth.getRedirectResult()
+                .then(result => {
+                    if (result.user) {
+                        // User has just signed in via redirect.
+                        // onAuthStateChanged will handle the UI update.
+                        // We just need to keep the loader on.
+                        loadingOverlay.classList.remove('d-none');
+                    }
+                })
+                .catch(error => {
+                    console.error("Redirect Result Error:", error);
+                    alert(`Login failed: ${error.message}`);
+                    loadingOverlay.classList.add('d-none'); // Hide loader on error
+                });
+            
+            // This listener is the single source of truth for auth state
+            auth.onAuthStateChanged(user => {
+                if (user && !user.isAnonymous) {
+                    currentUser = user;
+                    initializeApp();
+                } else {
+                    currentUser = null;
+                    Object.values(activeUnsubscribes).forEach(unsub => unsub());
+                    authSection.classList.remove('d-none');
+                    appContainer.classList.add('d-none');
+                    loadingOverlay.classList.add('d-none');
+                }
+            });
+        }
         
         function initializeApp() {
             document.getElementById('user-profile').innerHTML = `<img src="${currentUser.photoURL}" class="user-avatar"><span class="nav-item-title">${currentUser.displayName}</span>`;
@@ -212,21 +236,13 @@
         }
 
         function setupStaticEventListeners() {
-            // ** FIXED LOGIN LISTENERS **
-            const googleLoginBtn = document.getElementById('google-login-btn');
-            const githubLoginBtn = document.getElementById('github-login-btn');
-            
             const handleLogin = (provider) => {
                 loadingOverlay.classList.remove('d-none'); // Show loader immediately on click
-                auth.signInWithRedirect(provider).catch(error => {
-                    console.error("Sign-In Error:", error);
-                    alert(`Login Failed: ${error.message}`);
-                    loadingOverlay.classList.add('d-none');
-                });
+                auth.signInWithRedirect(provider);
             };
 
-            googleLoginBtn.addEventListener('click', () => handleLogin(new firebase.auth.GoogleAuthProvider()));
-            githubLoginBtn.addEventListener('click', () => handleLogin(new firebase.auth.GithubAuthProvider()));
+            document.getElementById('google-login-btn').addEventListener('click', () => handleLogin(new firebase.auth.GoogleAuthProvider()));
+            document.getElementById('github-login-btn').addEventListener('click', () => handleLogin(new firebase.auth.GithubAuthProvider()));
 
             document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
             document.getElementById('logout-btn').addEventListener('click', () => auth.signOut());
@@ -250,14 +266,12 @@
             loadChatMessages();
         }
 
-        // --- Theme ---
         function toggleTheme() {
             const newTheme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
             localStorage.setItem('theme', newTheme);
             document.documentElement.setAttribute('data-theme', newTheme);
         }
 
-        // --- Calendar & Detail Panel ---
         function initializeCalendar() {
             const calendarEl = document.getElementById('calendar-container');
             if (calendar) calendar.destroy();
@@ -313,7 +327,6 @@
             }
         }
 
-        // --- To-Do List ---
         function loadTodos() {
             if (activeUnsubscribes.todos) activeUnsubscribes.todos();
             activeUnsubscribes.todos = db.collection('todos').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
@@ -339,7 +352,6 @@
             }
         }
 
-        // --- Chat ---
         function loadChatMessages() {
             const chatWindow = document.getElementById('chat-window');
             if (activeUnsubscribes.chat) activeUnsubscribes.chat();
@@ -371,15 +383,6 @@
                 input.value = '';
             }
         }
-
-        // --- Initial Setup ---
-        document.addEventListener('DOMContentLoaded', () => {
-            const savedTheme = localStorage.getItem('theme') || 'light';
-            document.documentElement.setAttribute('data-theme', savedTheme);
-            // This is the crucial line that was missing/incorrect before.
-            // It ensures the login buttons work as soon as the page is ready.
-            setupStaticEventListeners();
-        });
     </script>
 </body>
 </html>

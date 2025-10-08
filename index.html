@@ -20,6 +20,7 @@
     <link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/main.min.css' rel='stylesheet' />
 
     <style>
+        /* --- Premium Design System --- */
         :root {
             --font-family: 'Inter', sans-serif;
             --bg-base: #f7f7f8; --bg-surface: #ffffff; --bg-muted: #f1f1f3;
@@ -34,20 +35,28 @@
             --text-primary: #f9fafb; --text-secondary: #9ca3af;
             --border-color: #374151; --primary-accent: #818cf8; --primary-accent-light: rgba(129, 140, 248, 0.1);
         }
+        
+        /* --- Base & Animations --- */
         *, *::before, *::after { box-sizing: border-box; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes spin { to { transform: rotate(360deg); } }
         body { font-family: var(--font-family); background-color: var(--bg-base); color: var(--text-primary); margin: 0; overflow: hidden; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
         .d-none { display: none !important; }
+
+        /* --- Global Components --- */
         .btn { border-radius: 8px; padding: 12px; font-weight: 500; border: 1px solid var(--border-color); background-color: var(--bg-surface); color: var(--text-primary); transition: var(--transition); display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; }
         .btn:hover { background-color: var(--bg-muted); }
         .btn-primary { background-color: var(--primary-accent); color: white; border-color: var(--primary-accent); }
         .btn-primary:hover { background-color: var(--primary-accent); opacity: 0.9; }
         .form-control { width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border-color); background-color: var(--bg-surface); color: var(--text-primary); font-family: var(--font-family); font-size: 1rem; }
+
+        /* --- Loading & Auth --- */
         .loading-overlay { position: fixed; inset: 0; background-color: var(--bg-base); display: flex; align-items: center; justify-content: center; z-index: 1000; transition: opacity 0.3s; }
         .loading-overlay .spinner { width: 40px; height: 40px; border: 4px solid var(--border-color); border-top-color: var(--primary-accent); border-radius: 50%; animation: spin 1s linear infinite; }
         .auth-container { display: flex; align-items: center; justify-content: center; height: 100vh; animation: fadeIn 0.5s; }
         .login-card { background-color: var(--bg-surface); border-radius: var(--border-radius); padding: 40px; text-align: center; box-shadow: var(--shadow-md); width: 100%; max-width: 400px; border: 1px solid var(--border-color); }
+
+        /* --- Main App Layout --- */
         .app-container { display: grid; height: 100vh; grid-template-columns: 260px 1fr; grid-template-rows: 100%; }
         .sidebar { background-color: var(--bg-surface); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; padding: 24px; animation: fadeIn 0.5s; }
         .main-content { padding: 32px; overflow: hidden; display: flex; flex-direction: column; }
@@ -55,12 +64,16 @@
         .app-view.active { display: flex; }
         .detail-panel { position: fixed; top: 0; right: 0; width: 380px; height: 100%; background-color: var(--bg-base); border-left: 1px solid var(--border-color); z-index: 100; transform: translateX(100%); transition: var(--transition); padding: 24px; }
         .app-container.panel-open .detail-panel { transform: translateX(0); }
+
+        /* --- Sidebar Components --- */
         .sidebar-header { display: flex; align-items: center; gap: 8px; margin-bottom: 40px; }
         .nav-item { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 8px; cursor: pointer; font-weight: 500; font-size: 0.95rem; color: var(--text-secondary); transition: var(--transition); }
         .nav-item:hover, .nav-item.active { color: var(--primary-accent); background-color: var(--primary-accent-light); }
         .sidebar-footer { margin-top: auto; display: flex; flex-direction: column; gap: 8px; }
         .user-profile { display: flex; align-items: center; gap: 10px; padding: 10px 12px; }
         .user-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
+
+        /* --- Feature Components --- */
         .todo-item { display: flex; align-items: center; gap: 12px; padding: 12px; background-color: var(--bg-surface); border-radius: 8px; margin-bottom: 8px; box-shadow: var(--shadow-sm); transition: var(--transition); }
         .todo-item:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
         .todo-item.completed span { text-decoration: line-through; color: var(--text-secondary); }
@@ -69,6 +82,8 @@
         .chat-message.is-user { justify-content: flex-end; }
         .chat-message-bubble { background-color: var(--bg-surface); padding: 10px 14px; border-radius: 18px; max-width: 75%; line-height: 1.5; }
         .chat-message.is-user .chat-message-bubble { background-color: var(--primary-accent); color: white; }
+
+        /* --- Responsive Design --- */
         @media (max-width: 768px) {
             .app-container { grid-template-columns: 1fr; }
             .sidebar { position: fixed; bottom: 0; left: 0; right: 0; height: 60px; width: 100%; flex-direction: row; justify-content: space-around; padding: 0 10px; border-top: 1px solid var(--border-color); z-index: 100; }
@@ -76,6 +91,8 @@
             .main-content { padding: 16px 16px 76px; }
             .detail-panel { width: 100%; }
         }
+
+        /* --- FullCalendar Overrides --- */
         #calendar-container { flex-grow: 1; background-color: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--border-radius); padding: 20px; }
         .fc { border: none !important; height: 100%; }
         .fc .fc-toolbar-title { font-size: 1.5em !important; font-weight: 600; }
@@ -149,7 +166,7 @@
     
     <script>
         const firebaseConfig = {
-            apiKey: "AIzaSyBghGrPLr7_iC46u1Phs_3vd1i-47zstUs",
+            apiKey: "AIzaSyBghGrPLr7_iC46u1Phs83vd1i-47zstUs",
             authDomain: "calendar-pbx21.firebaseapp.com",
             projectId: "calendar-pbx21",
             storageBucket: "calendar-pbx21.appspot.com",
@@ -172,37 +189,26 @@
 
         // --- Core Application Flow ---
         document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
             setupStaticEventListeners();
-            
-            // This is the primary function to handle all authentication logic
             handleAuthentication();
         });
 
         function handleAuthentication() {
-            // First, check if the user is returning from a sign-in redirect
+            // This function runs once on page load to handle the redirect result
             auth.getRedirectResult()
-                .then(result => {
-                    // If result.user exists, it means they just signed in.
-                    // The onAuthStateChanged listener below will handle the UI update.
-                    // We don't need to do anything here, but we keep the loader on.
-                    if (result.user) {
-                        loadingOverlay.classList.remove('d-none');
-                    }
-                })
                 .catch(error => {
-                    // This catches errors from the redirect process itself
                     console.error("Redirect Result Error:", error);
                     alert(`Login failed: ${error.message}`);
                     loadingOverlay.classList.add('d-none'); // Hide loader on error
                 });
             
-            // This listener is the single source of truth for the user's auth state.
-            // It fires on page load, after a redirect, on sign-in, and on sign-out.
+            // This listener is the single source of truth for auth state
             auth.onAuthStateChanged(user => {
                 if (user && !user.isAnonymous) {
-                    currentUser = user;
-                    // If the app isn't already running, initialize it.
-                    if (appContainer.classList.contains('d-none')) {
+                    if (!currentUser) { // Prevents re-initializing if the listener fires multiple times
+                        currentUser = user;
                         initializeApp();
                     }
                 } else {
@@ -216,12 +222,8 @@
         }
         
         function initializeApp() {
-            const savedTheme = localStorage.getItem('theme') || 'light';
-            document.documentElement.setAttribute('data-theme', savedTheme);
             document.getElementById('user-profile').innerHTML = `<img src="${currentUser.photoURL}" class="user-avatar"><span class="nav-item-title">${currentUser.displayName}</span>`;
-            
             loadAllData();
-
             authSection.classList.add('d-none');
             appContainer.classList.remove('d-none');
             loadingOverlay.classList.add('d-none');

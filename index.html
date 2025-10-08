@@ -3,384 +3,465 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chrono - Collaborative Calendar</title>
-
-    <!-- Favicon -->
-    <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/pbxgit/Calendar/main/favicon.png">
-
-    <!-- Preconnect for Font Performance -->
-    <link rel="preconnect" href="https://api.fontshare.com" crossorigin>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-    <!-- Fonts: Satoshi (Primary), Inter (UI) -->
-    <link href="https://api.fontshare.com/v2/css?f[]=satoshi@700,500,400&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600&display=swap" rel="stylesheet">
-
-    <!-- Icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
-
-    <!-- FullCalendar CSS -->
-    <link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/main.min.css' rel='stylesheet' />
-
+    <title>Calm Calendar</title>
+    <link rel="icon" href="https://raw.githubusercontent.com/pbxgit/Calendar/main/favicon.png" type="image/png">
     <style>
-        /* --- 1. DESIGN SYSTEM & CORE STYLES --- */
+        /* --- Base & Typography --- */
         :root {
-            --font-main: 'Satoshi', sans-serif; --font-ui: 'Inter', sans-serif;
-            --c-accent: #3b82f6; --c-accent-light: rgba(59, 130, 246, 0.1);
-            --bg-base: #f5f5f5; --bg-surface: #ffffff; --bg-muted: #e5e5e5;
-            --text-primary: #171717; --text-secondary: #737373;
-            --border-color: #e5e5e5;
-            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-            --radius: 0.75rem; --transition: cubic-bezier(0.4, 0, 0.2, 1);
+            --background: #fdfdfd;
+            --text-primary: #333;
+            --text-secondary: #777;
+            --accent: #007aff;
+            --accent-light: #e6f2ff;
+            --border-color: #eee;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
         }
-        [data-theme="dark"] {
-            --bg-base: #0a0a0a; --bg-surface: #171717; --bg-muted: #262626;
-            --text-primary: #f5f5f5; --text-secondary: #a3a3a3;
-            --border-color: #262626;
-            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.5), 0 2px 4px -2px rgb(0 0 0 / 0.5);
-        }
-        *, *::before, *::after { box-sizing: border-box; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        
+
         body {
-            font-family: var(--font-main); background-color: var(--bg-base); color: var(--text-primary);
-            margin: 0; overflow: hidden; -webkit-font-smoothing: antialiased;
-            transition: background-color 0.3s var(--transition), color 0.3s var(--transition);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--background);
+            color: var(--text-primary);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            -webkit-font-smoothing: antialiased;
+            overflow: hidden;
         }
 
-        /* --- 2. LOADING & AUTHENTICATION --- */
-        .loading-overlay {
-            position: fixed; inset: 0; background-color: var(--bg-base); display: grid;
-            place-items: center; z-index: 1000;
-        }
-        .spinner {
-            width: 40px; height: 40px; border: 4px solid var(--border-color);
-            border-top-color: var(--c-accent); border-radius: 50%; animation: spin 1s linear infinite;
-        }
-        .auth-container {
-            display: grid; place-items: center; height: 100vh; padding: 2rem;
-            position: fixed; inset: 0; opacity: 0; visibility: hidden;
-        }
-        .auth-card {
-            background-color: var(--bg-surface); border-radius: var(--radius); padding: 48px;
-            border: 1px solid var(--border-color); box-shadow: var(--shadow-md);
-            max-width: 420px; width: 100%; text-align: center;
+        /* --- Login Screen --- */
+        #login-screen {
+            text-align: center;
+            transition: opacity 0.3s ease-in-out;
         }
 
-        /* --- 3. MAIN APP LAYOUT --- */
-        .app-container {
-            display: grid; height: 100vh; grid-template-columns: 80px 1fr;
-            opacity: 0; visibility: hidden;
+        #login-screen h1 {
+            font-weight: 600;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
         }
-        .app-rail {
-            background-color: var(--bg-surface); border-right: 1px solid var(--border-color);
-            display: flex; flex-direction: column; align-items: center; padding: 1.5rem 0;
-        }
-        .app-main { padding: 24px; display: flex; flex-direction: column; overflow: hidden; }
-        .page-header { font-size: 2.25rem; font-weight: 700; margin: 0 0 1.5rem 0; }
-        .app-view { display: flex; flex-direction: column; flex-grow: 1; }
 
-        /* --- 4. NAVIGATION & COMPONENTS --- */
-        .nav-footer { margin-top: auto; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; }
-        .nav-item {
-            display: grid; place-items: center; width: 48px; height: 48px;
-            border-radius: 12px; cursor: pointer; color: var(--text-secondary);
-            transition: all 0.2s var(--transition); position: relative;
+        #login-screen p {
+            color: var(--text-secondary);
+            margin-top: 0;
+            margin-bottom: 2.5rem;
+            font-size: 1.1rem;
         }
-        .nav-item i { font-size: 1.5rem; }
-        .nav-item:hover { color: var(--text-primary); background-color: var(--bg-muted); }
-        .user-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
+
+        .login-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 24px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: #fff;
+            cursor: pointer;
+            font-size: 1rem;
+            width: 280px;
+            margin: 0 auto 1rem;
+            transition: all 0.2s ease;
+        }
+
+        .login-button:hover {
+            border-color: #ccc;
+            box-shadow: var(--shadow);
+            transform: translateY(-2px);
+        }
+
+        .login-button img {
+            width: 24px;
+            height: 24px;
+            margin-right: 16px;
+        }
+
+        /* --- App Screen --- */
+        #app-screen {
+            width: 100%;
+            height: 100%;
+            max-width: 1200px;
+            display: flex;
+            flex-direction: column;
+            padding: 2rem;
+            box-sizing: border-box;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease-in-out;
+        }
         
-        .btn {
-            font-family: var(--font-ui); font-weight: 600; border-radius: 10px; padding: 12px 18px;
-            border: 1px solid var(--border-color); background-color: var(--bg-muted); color: var(--text-primary);
-            transition: all 0.2s var(--transition); display: flex; align-items: center; justify-content: center;
-            gap: 10px; cursor: pointer; position: relative;
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
         }
-        .btn:hover { background-color: var(--border-color); transform: translateY(-2px); }
-        .btn-primary { background-color: var(--c-accent); color: white; border-color: var(--c-accent); }
-        .btn-primary:hover { background-color: var(--c-accent); opacity: 0.9; }
-        .btn:disabled { cursor: not-allowed; opacity: 0.6; transform: none; }
-        .btn .btn-spinner {
-            position: absolute; width: 20px; height: 20px; border: 2px solid var(--text-secondary);
-            border-top-color: var(--text-primary); border-radius: 50%; animation: spin 0.8s linear infinite; opacity: 0;
+        
+        header h2 {
+            margin: 0;
+            font-weight: 600;
         }
-        .btn.loading .btn-spinner { opacity: 1; }
-        .btn.loading .btn-content { opacity: 0; }
 
-        /* --- 5. FULLCALENDAR & EVENT MODAL --- */
-        .calendar-wrapper { flex-grow: 1; min-height: 0; }
-        .fc { border: none !important; height: 100%; font-family: var(--font-ui); }
-        .fc .fc-toolbar-title { font-size: 1.5em !important; font-weight: 700; color: var(--text-primary); }
-        .fc .fc-button { background-color: var(--bg-surface) !important; color: var(--text-primary) !important; border-color: var(--border-color) !important; box-shadow: none !important; }
-        .fc-daygrid-day.fc-day-today { background-color: var(--c-accent-light) !important; }
-        .fc-day-header, .fc-col-header-cell, .fc-daygrid-day { border-color: var(--border-color) !important; }
-        .fc-event { cursor: pointer; }
-        .fc-event-main { display: flex; align-items: center; justify-content: space-between; width: 100%; }
-        .fc-event-title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .fc-event .delete-event-btn { opacity: 0; transition: opacity 0.2s; font-size: 0.8rem; padding: 2px 4px; }
-        .fc-event:hover .delete-event-btn { opacity: 1; }
-
-        .modal-overlay {
-            position: fixed; inset: 0; z-index: 500; background-color: rgba(0,0,0,0.5);
-            display: grid; place-items: center; padding: 1rem;
-            opacity: 0; visibility: hidden;
+        .header-controls button {
+            background: none;
+            border: 1px solid var(--border-color);
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s ease;
         }
+
+        .header-controls button:hover {
+            background: #f9f9f9;
+        }
+        
+        #add-event-btn {
+            background-color: var(--accent);
+            color: white;
+            border: none;
+        }
+
+        #add-event-btn:hover {
+             background-color: #0056b3;
+        }
+
+        #calendar-container {
+            flex-grow: 1;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            background: #fff;
+            box-shadow: var(--shadow);
+        }
+        
+        .event-item {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+        }
+        
+        .event-item:last-child {
+            border-bottom: none;
+        }
+        
+        .event-item:hover {
+            background-color: var(--accent-light);
+        }
+
+        .event-title {
+            font-weight: 500;
+            font-size: 1.1rem;
+            margin: 0 0 0.25rem 0;
+        }
+        
+        .event-time {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* --- Modal --- */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 100;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+
         .modal-content {
-            background-color: var(--bg-surface); border-radius: var(--radius); padding: 24px;
-            width: 100%; max-width: 400px; box-shadow: var(--shadow-md);
-            transform: scale(0.95);
-        }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
-        .modal-title { font-size: 1.25rem; font-weight: 600; }
-        .form-control {
-            width: 100%; padding: 12px 14px; border-radius: 8px; font-size: 1rem;
-            border: 1px solid var(--border-color); background-color: var(--bg-base);
-            color: var(--text-primary); font-family: var(--font-ui); margin-bottom: 1rem;
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 24px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
         }
 
-        /* --- 6. RESPONSIVE DESIGN --- */
-        @media (max-width: 768px) {
-            .app-container { grid-template-columns: 1fr; }
-            .app-rail {
-                position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
-                flex-direction: row; justify-content: space-around;
-                height: 65px; border-top: 1px solid var(--border-color); border-right: none; padding: 0;
-            }
-            .app-main { padding: 1rem 1rem 80px 1rem; }
-            .page-header { font-size: 1.75rem; }
-            .fc .fc-toolbar { flex-wrap: wrap; gap: 0.5rem; }
-            .fc .fc-toolbar-chunk:nth-child(2) { order: -1; width: 100%; text-align: left; }
+        .modal h3 {
+            margin-top: 0;
+        }
+        
+        .modal input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+
+        .modal-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        
+        .modal-buttons button {
+             background: none;
+            border: 1px solid var(--border-color);
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+        
+        #save-event-btn {
+            background-color: var(--accent);
+            color: white;
+            border: none;
+        }
+
+        /* --- Utility Classes --- */
+        .hidden {
+            display: none !important;
+            opacity: 0;
+            pointer-events: none;
         }
     </style>
 </head>
 <body>
-    <div class="loading-overlay" id="loading-overlay"><div class="spinner"></div></div>
 
-    <div class="auth-container" id="auth-section">
-        <div class="auth-card">
-            <h1>Chrono</h1>
-            <p>A shared calendar for your team. Real-time, simple, and effective.</p>
-            <div style="display: flex; flex-direction: column; gap: 1rem;">
-                <button id="google-login-btn" class="btn">
-                    <span class="btn-content">Continue with Google</span>
-                    <div class="btn-spinner"></div>
-                </button>
+    <!-- Login Screen -->
+    <div id="login-screen">
+        <h1>Calm Calendar</h1>
+        <p>A shared space for focus and clarity.</p>
+        <button id="google-login-btn" class="login-button">
+            <img src="https://raw.githubusercontent.com/pbxgit/Calendar/main/google-logo.svg" alt="Google Logo">
+            <span>Sign in with Google</span>
+        </button>
+        <button id="github-login-btn" class="login-button">
+            <img src="https://raw.githubusercontent.com/pbxgit/Calendar/main/github-logo.svg" alt="GitHub Logo">
+            <span>Sign in with GitHub</span>
+        </button>
+    </div>
+
+    <!-- Main App Screen -->
+    <div id="app-screen" class="hidden">
+        <header>
+            <h2>Your Schedule</h2>
+            <div class="header-controls">
+                <button id="add-event-btn">Add Event</button>
+                <button id="logout-btn">Logout</button>
             </div>
+        </header>
+        <div id="calendar-container">
+            <!-- Events will be rendered here by JavaScript -->
         </div>
     </div>
 
-    <div class="app-container" id="app-container">
-        <nav class="app-rail">
-            <div class="nav-item"><img src="https://raw.githubusercontent.com/pbxgit/Calendar/main/favicon.png" alt="Chrono Logo" width="32"></div>
-            <div class="nav-footer">
-                <div id="theme-toggle" class="nav-item"><i class="bi bi-moon-stars"></i></div>
-                <div id="user-profile-icon" class="nav-item"></div>
-                <div id="logout-btn" class="nav-item"><i class="bi bi-box-arrow-left"></i></div>
-            </div>
-        </nav>
-        <main class="app-main">
-            <h1 class="page-header">Calendar</h1>
-            <div class="calendar-wrapper" id="calendar-container"></div>
-        </main>
-    </div>
-
-    <div class="modal-overlay" id="event-modal">
+    <!-- Event Modal -->
+    <div id="event-modal" class="modal">
         <div class="modal-content">
-            <div class="modal-header">
-                <h2 id="modal-title" class="modal-title">Add Event</h2>
-                <button id="close-modal-btn" class="nav-item" style="width:36px; height:36px;"><i class="bi bi-x-lg"></i></button>
-            </div>
+            <h3>New Event</h3>
             <form id="event-form">
-                <input type="text" id="event-title-input" class="form-control" placeholder="Event Title" required>
-                <input type="hidden" id="event-date-input">
-                <button type="submit" class="btn btn-primary" style="width: 100%;">Save Event</button>
+                <input type="hidden" id="event-id">
+                <label for="event-title">Title</label>
+                <input type="text" id="event-title-input" required>
+                
+                <label for="event-date">Date</label>
+                <input type="date" id="event-date-input" required>
+                
+                <div class="modal-buttons">
+                    <button type="button" id="cancel-event-btn">Cancel</button>
+                    <button type="submit" id="save-event-btn">Save</button>
+                     <button type="button" id="delete-event-btn" class="hidden" style="background-color: #dc3545; color: white;">Delete</button>
+                </div>
             </form>
         </div>
     </div>
 
-    <!-- Core Libraries -->
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/main.min.js'></script>
-    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
-    
-    <script>
-        // --- 1. CONFIG & INITIALIZATION ---
+    <script type="module">
+        // Import functions from the Firebase SDK
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, GoogleAuthProvider, GithubAuthProvider, signInWithPopup, signOut } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+        import { getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+
+        // --- DANGER: Your web app's Firebase configuration ---
+        // --- THIS IS NOT SECURE FOR A PRODUCTION WEBSITE ---
         const firebaseConfig = {
             apiKey: "AIzaSyBghGrPLr7_iC46u1Phs83vd1i-47zstUs",
             authDomain: "calendar-pbx21.firebaseapp.com",
             projectId: "calendar-pbx21",
-        };
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
-
-        let currentUser = null;
-        let calendar = null;
-
-        const ui = {
-            loadingOverlay: document.getElementById('loading-overlay'),
-            authSection: document.getElementById('auth-section'),
-            appContainer: document.getElementById('app-container'),
-            googleBtn: document.getElementById('google-login-btn'),
-            logoutBtn: document.getElementById('logout-btn'),
-            userProfileIcon: document.getElementById('user-profile-icon'),
-            calendarContainer: document.getElementById('calendar-container'),
-            themeToggle: document.getElementById('theme-toggle'),
-            eventModal: document.getElementById('event-modal'),
-            eventForm: document.getElementById('event-form'),
-            closeModalBtn: document.getElementById('close-modal-btn'),
-            eventDateInput: document.getElementById('event-date-input'),
-            eventTitleInput: document.getElementById('event-title-input'),
+            storageBucket: "calendar-pbx21.appspot.com",
+            messagingSenderId: "304190482123",
+            appId: "1:304190482123:web:2a8415125467565a1e9d4e",
+            measurementId: "G-YCNG7QXRR2"
         };
 
-        // --- 2. AUTHENTICATION (POPUP) ---
-        function initializeAuth() {
-            auth.onAuthStateChanged(user => {
-                if (user) {
-                    if (!currentUser) { currentUser = user; initializeAppUI(); }
-                } else {
-                    currentUser = null;
-                    if (ui.authSection.style.visibility !== 'visible') showLoginScreen();
-                }
-            });
-        }
-        
-        async function handleLoginWithPopup(provider, button) {
-            setButtonLoadingState(button, true);
-            try { await auth.signInWithPopup(provider); } 
-            catch (error) { if (error.code !== 'auth/popup-closed-by-user') alert(`Login failed: ${error.message}`); } 
-            finally { setButtonLoadingState(button, false); }
-        }
-        
-        // --- 3. UI TRANSITIONS & THEME ---
-        function showLoginScreen() {
-            gsap.to(ui.appContainer, { opacity: 0, onComplete: () => ui.appContainer.style.visibility = 'hidden' });
-            ui.authSection.style.visibility = 'visible';
-            gsap.timeline({ delay: 0.1, onComplete: () => ui.loadingOverlay.style.display = 'none' })
-               .to(ui.authSection, { opacity: 1 });
-        }
-        
-        function initializeAppUI() {
-            ui.loadingOverlay.style.display = 'none';
-            ui.userProfileIcon.innerHTML = `<img src="${currentUser.photoURL}" class="user-avatar">`;
-            gsap.to(ui.authSection, { opacity: 0, onComplete: () => ui.authSection.style.visibility = 'hidden' });
-            ui.appContainer.style.visibility = 'visible';
-            gsap.to(ui.appContainer, { opacity: 1, duration: 0.5 });
-            initializeCalendar();
-        }
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
 
-        function applyTheme(theme) {
-            document.documentElement.setAttribute('data-theme', theme);
-            const icon = ui.themeToggle.querySelector('i');
-            icon.className = theme === 'dark' ? 'bi bi-sun' : 'bi bi-moon-stars';
-            localStorage.setItem('theme', theme);
-        }
+        // DOM Elements
+        const loginScreen = document.getElementById('login-screen');
+        const appScreen = document.getElementById('app-screen');
+        const googleLoginBtn = document.getElementById('google-login-btn');
+        const githubLoginBtn = document.getElementById('github-login-btn');
+        const logoutBtn = document.getElementById('logout-btn');
+        const calendarContainer = document.getElementById('calendar-container');
+        const addEventBtn = document.getElementById('add-event-btn');
+        const eventModal = document.getElementById('event-modal');
+        const eventForm = document.getElementById('event-form');
+        const cancelEventBtn = document.getElementById('cancel-event-btn');
+        const deleteEventBtn = document.getElementById('delete-event-btn');
 
-        // --- 4. CALENDAR & EVENT LOGIC ---
-        function initializeCalendar() {
-            if (calendar) calendar.destroy();
-            calendar = new FullCalendar.Calendar(ui.calendarContainer, {
-                initialView: 'dayGridMonth',
-                headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth' },
-                height: '100%',
-                editable: false, // Events are managed via modal
-                selectable: true,
-                select: (info) => openEventModal(info.startStr),
-                eventContent: (arg) => {
-                    let containerEl = document.createElement('div');
-                    containerEl.className = 'fc-event-main';
-                    let titleEl = document.createElement('div');
-                    titleEl.className = 'fc-event-title';
-                    titleEl.innerHTML = arg.event.title;
-                    let deleteBtn = document.createElement('i');
-                    deleteBtn.className = 'bi bi-trash3-fill delete-event-btn';
-                    deleteBtn.onclick = (e) => {
-                        e.stopPropagation();
-                        if (confirm('Are you sure you want to delete this event?')) {
-                            db.collection('events').doc(arg.event.id).delete();
-                        }
-                    };
-                    containerEl.appendChild(titleEl);
-                    containerEl.appendChild(deleteBtn);
-                    return { domNodes: [containerEl] };
-                },
-            });
-            calendar.render();
-            listenForEvents();
-        }
+        // --- Authentication ---
+        const googleProvider = new GoogleAuthProvider();
+        const githubProvider = new GithubAuthProvider();
+
+        googleLoginBtn.onclick = () => signInWithPopup(auth, googleProvider);
+        githubLoginBtn.onclick = () => signInWithPopup(auth, githubProvider);
+        logoutBtn.onclick = () => signOut(auth);
+
+        onAuthStateChanged(auth, user => {
+            if (user) {
+                // User is signed in
+                loginScreen.classList.add('hidden');
+                appScreen.classList.remove('hidden');
+                appScreen.style.opacity = 1;
+                appScreen.style.pointerEvents = 'auto';
+                
+                // Start listening for real-time calendar updates
+                listenForEvents();
+            } else {
+                // User is signed out
+                loginScreen.classList.remove('hidden');
+                appScreen.classList.add('hidden');
+                appScreen.style.opacity = 0;
+                appScreen.style.pointerEvents = 'none';
+                calendarContainer.innerHTML = ''; // Clear calendar on logout
+            }
+        });
+
+        // --- Firestore Real-Time Sync ---
+        let eventsUnsubscribe = null;
 
         function listenForEvents() {
-            db.collection('events').onSnapshot(snapshot => {
-                const events = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                calendar.removeAllEventSources();
-                calendar.addEventSource(events);
-            }, error => console.error("Error fetching events: ", error));
+            // Unsubscribe from previous listener if it exists
+            if (eventsUnsubscribe) {
+                eventsUnsubscribe();
+            }
+            
+            const eventsRef = collection(db, 'events');
+            eventsUnsubscribe = onSnapshot(eventsRef, (snapshot) => {
+                const events = [];
+                snapshot.forEach(doc => {
+                    events.push({ id: doc.id, ...doc.data() });
+                });
+                renderEvents(events);
+            });
+        }
+        
+        function renderEvents(events) {
+            // Sort events by date
+            events.sort((a, b) => new Date(a.date) - new Date(b.date));
+            
+            calendarContainer.innerHTML = ''; // Clear previous events
+            if (events.length === 0) {
+                calendarContainer.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">No events scheduled. Add one to get started!</p>';
+                return;
+            }
+
+            events.forEach(event => {
+                const eventEl = document.createElement('div');
+                eventEl.classList.add('event-item');
+                eventEl.dataset.id = event.id;
+
+                const date = new Date(event.date + 'T00:00:00-07:00'); // Adjust timezone offset as needed
+                const formattedDate = date.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+                eventEl.innerHTML = `
+                    <p class="event-title">${event.title}</p>
+                    <p class="event-time">${formattedDate}</p>
+                `;
+                
+                // Click to edit
+                eventEl.onclick = () => openModal(event);
+                
+                calendarContainer.appendChild(eventEl);
+            });
+        }
+        
+        // --- Modal & Event Management ---
+        function openModal(event = null) {
+            eventForm.reset();
+            const modalTitle = eventModal.querySelector('h3');
+            
+            if (event) {
+                // Editing existing event
+                modalTitle.textContent = 'Edit Event';
+                document.getElementById('event-id').value = event.id;
+                document.getElementById('event-title-input').value = event.title;
+                document.getElementById('event-date-input').value = event.date;
+                deleteEventBtn.classList.remove('hidden');
+            } else {
+                // Creating new event
+                modalTitle.textContent = 'New Event';
+                document.getElementById('event-id').value = '';
+                deleteEventBtn.classList.add('hidden');
+            }
+            eventModal.style.display = 'block';
+        }
+        
+        function closeModal() {
+            eventModal.style.display = 'none';
         }
 
-        function openEventModal(date) {
-            ui.eventForm.reset();
-            ui.eventDateInput.value = date;
-            gsap.to(ui.eventModal, { opacity: 1, visibility: 'visible', duration: 0.3 });
-            gsap.to('.modal-content', { scale: 1, duration: 0.3, ease: 'power2.out' });
-        }
+        addEventBtn.onclick = () => openModal();
+        cancelEventBtn.onclick = closeModal;
+        window.onclick = (event) => {
+            if (event.target == eventModal) {
+                closeModal();
+            }
+        };
 
-        function closeEventModal() {
-             gsap.to('.modal-content', { scale: 0.95, duration: 0.3, ease: 'power2.in' });
-             gsap.to(ui.eventModal, { opacity: 0, visibility: 'hidden', duration: 0.3, delay: 0.1 });
-        }
-
-        async function handleSaveEvent(e) {
+        eventForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const title = ui.eventTitleInput.value.trim();
-            const start = ui.eventDateInput.value;
-            if (!title || !start) return;
+            const id = document.getElementById('event-id').value;
+            const title = document.getElementById('event-title-input').value;
+            const date = document.getElementById('event-date-input').value;
+
+            if (!title || !date) return;
+
+            const eventId = id || doc(collection(db, 'events')).id; // Create new id if none exists
+            const eventRef = doc(db, 'events', eventId);
 
             try {
-                await db.collection('events').add({ title, start, allDay: true });
-                closeEventModal();
+                await setDoc(eventRef, {
+                    title: title,
+                    date: date,
+                    lastUpdated: serverTimestamp()
+                }, { merge: true }); // Merge ensures we don't overwrite other fields when updating
+                closeModal();
             } catch (error) {
-                console.error("Error adding event: ", error);
-                alert("Could not save the event. Please try again.");
+                console.error("Error saving event: ", error);
+                alert("Could not save event.");
             }
-        }
-        
-        // --- 5. EVENT LISTENERS & HELPERS ---
-        function setupEventListeners() {
-            ui.googleBtn.addEventListener('click', () => handleLoginWithPopup(new firebase.auth.GoogleAuthProvider(), ui.googleBtn));
-            ui.logoutBtn.addEventListener('click', () => auth.signOut());
-            ui.themeToggle.addEventListener('click', () => {
-                const newTheme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-                applyTheme(newTheme);
-            });
-            ui.eventForm.addEventListener('submit', handleSaveEvent);
-            ui.closeModalBtn.addEventListener('click', closeEventModal);
-            ui.eventModal.addEventListener('click', (e) => {
-                if (e.target === ui.eventModal) closeEventModal(); // Close on overlay click
-            });
-        }
-        
-        function setButtonLoadingState(button, isLoading) {
-            button.disabled = isLoading;
-            button.classList.toggle('loading', isLoading);
-        }
-
-        // --- 6. APP ENTRY POINT ---
-        document.addEventListener('DOMContentLoaded', () => {
-            setupEventListeners();
-            const savedTheme = localStorage.getItem('theme') || 'dark';
-            applyTheme(savedTheme);
-
-            const unsubscribe = auth.onAuthStateChanged(user => {
-                unsubscribe();
-                if(user) { currentUser = user; initializeAppUI(); } 
-                else { showLoginScreen(); }
-                initializeAuth();
-            });
         });
+
+        deleteEventBtn.onclick = async () => {
+            const id = document.getElementById('event-id').value;
+            if (!id || !confirm('Are you sure you want to delete this event?')) {
+                return;
+            }
+            
+            try {
+                await deleteDoc(doc(db, 'events', id));
+                closeModal();
+            } catch (error) {
+                console.error("Error deleting event: ", error);
+                alert("Could not delete event.");
+            }
+        };
+
     </script>
 </body>
 </html>

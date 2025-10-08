@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OurCal - Awwwards Edition</title>
+    <title>OurCal - Collaborative Suite</title>
 
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/pbxgit/Calendar/main/favicon.png">
@@ -20,145 +20,74 @@
     <link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/main.min.css' rel='stylesheet' />
 
     <style>
-        /* --- Awwwards-Level Design System --- */
+        /* --- Premium Design System --- */
         :root {
             --font-family: 'Manrope', sans-serif;
-            --bg-base: #f9f9fb;
-            --bg-surface: #ffffff;
-            --bg-muted: #f3f4f6;
-            --text-primary: #111827;
-            --text-secondary: #6b7280;
-            --border-color: #e5e7eb;
-            --primary-accent: #4f46e5;
-            --primary-accent-light: #eef2ff;
-            --danger-color: #ef4444;
-            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-            --border-radius: 0.75rem; /* 12px */
-            --transition-curve: cubic-bezier(0.4, 0, 0.2, 1);
-            --transition-speed: 0.3s;
+            --bg-base: #f9f9fb; --bg-surface: #ffffff; --bg-muted: #f3f4f6;
+            --text-primary: #111827; --text-secondary: #6b7280;
+            --border-color: #e5e7eb; --primary-accent: #4f46e5; --primary-accent-light: #eef2ff;
+            --danger-color: #ef4444; --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --border-radius: 0.75rem; --transition-curve: cubic-bezier(0.4, 0, 0.2, 1); --transition-speed: 0.3s;
         }
-
         [data-theme="dark"] {
-            --bg-base: #111827;
-            --bg-surface: #1f2937;
-            --bg-muted: #374151;
-            --text-primary: #f9fafb;
-            --text-secondary: #9ca3af;
-            --border-color: #374151;
-            --primary-accent: #6366f1;
-            --primary-accent-light: rgba(99, 102, 241, 0.15);
-            --danger-color: #f87171;
+            --bg-base: #111827; --bg-surface: #1f2937; --bg-muted: #374151;
+            --text-primary: #f9fafb; --text-secondary: #9ca3af;
+            --border-color: #374151; --primary-accent: #6366f1; --primary-accent-light: rgba(99, 102, 241, 0.15);
         }
         
         /* --- Base & Animations --- */
         *, *::before, *::after { box-sizing: border-box; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes shimmer { 0% { background-position: -468px 0; } 100% { background-position: 468px 0; } }
         @keyframes spin { to { transform: rotate(360deg); } }
-
-        body {
-            font-family: var(--font-family);
-            background-color: var(--bg-base);
-            color: var(--text-primary);
-            margin: 0;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-            overflow: hidden;
-        }
-
-        /* --- Loading Overlay --- */
-        .loading-overlay {
-            position: fixed;
-            inset: 0;
-            background-color: var(--bg-base);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            transition: opacity 0.3s;
-        }
-        .loading-overlay .spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid var(--border-color);
-            border-top-color: var(--primary-accent);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        /* --- Auth Screen --- */
-        .auth-container {
-            display: flex; align-items: center; justify-content: center; height: 100vh; animation: fadeIn 0.5s var(--transition-curve);
-        }
-        .login-card {
-            background-color: var(--bg-surface); border-radius: var(--border-radius); padding: 40px; text-align: center;
-            box-shadow: var(--shadow-md); width: 100%; max-width: 400px; border: 1px solid var(--border-color);
-        }
-        .login-card .btn {
-            width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; border-radius: 8px; padding: 12px; font-weight: 500;
-            border: 1px solid var(--border-color); background-color: var(--bg-base); color: var(--text-primary); transition: background-color 0.2s;
-        }
-        .login-card .btn:hover { background-color: var(--bg-muted); }
+        body { font-family: var(--font-family); background-color: var(--bg-base); color: var(--text-primary); margin: 0; overflow: hidden; }
         .d-none { display: none !important; }
 
+        /* --- Loading & Auth --- */
+        .loading-overlay { position: fixed; inset: 0; background-color: var(--bg-base); display: flex; align-items: center; justify-content: center; z-index: 1000; transition: opacity 0.3s; }
+        .loading-overlay .spinner { width: 40px; height: 40px; border: 4px solid var(--border-color); border-top-color: var(--primary-accent); border-radius: 50%; animation: spin 1s linear infinite; }
+        .auth-container { display: flex; align-items: center; justify-content: center; height: 100vh; animation: fadeIn 0.5s var(--transition-curve); }
+        .login-card { background-color: var(--bg-surface); border-radius: var(--border-radius); padding: 40px; text-align: center; box-shadow: var(--shadow-md); width: 100%; max-width: 400px; border: 1px solid var(--border-color); }
+
         /* --- Main App Layout --- */
-        .app-container {
-            display: grid; height: 100vh;
-            grid-template-columns: 80px 1fr;
-            grid-template-rows: 100%;
-            transition: grid-template-columns var(--transition-speed) var(--transition-curve);
-        }
-        .sidebar {
-            background-color: var(--bg-surface); border-right: 1px solid var(--border-color); display: flex;
-            flex-direction: column; align-items: center; padding: 24px 0; animation: fadeIn 0.5s var(--transition-curve);
-        }
-        .main-content { padding: 24px 32px; overflow: hidden; display: flex; flex-direction: column; }
-        .detail-panel {
-            background-color: var(--bg-base); padding: 24px; overflow-y: auto; position: fixed; top: 0; right: 0;
-            width: 380px; height: 100%; z-index: 100;
-            transform: translateX(100%);
-            transition: transform var(--transition-speed) var(--transition-curve);
-            border-left: 1px solid var(--border-color);
-        }
+        .app-container { display: grid; height: 100vh; grid-template-columns: 260px 1fr; grid-template-rows: 100%; transition: grid-template-columns var(--transition-speed) var(--transition-curve); }
+        .sidebar { background-color: var(--bg-surface); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; padding: 24px; animation: fadeIn 0.5s var(--transition-curve); }
+        .main-content { padding: 32px; overflow: hidden; display: flex; flex-direction: column; }
+        .app-view { display: none; height: 100%; flex-direction: column; }
+        .app-view.active { display: flex; }
+        .detail-panel { position: fixed; top: 0; right: 0; width: 380px; height: 100%; background-color: var(--bg-base); border-left: 1px solid var(--border-color); z-index: 100; transform: translateX(100%); transition: transform var(--transition-speed) var(--transition-curve); padding: 24px; }
         .app-container.panel-open .detail-panel { transform: translateX(0); }
 
         /* --- Components --- */
-        .sidebar-logo { margin-bottom: 40px; }
-        .nav-item {
-            cursor: pointer; color: var(--text-secondary); padding: 12px; border-radius: 10px;
-            line-height: 0; transition: all 0.2s;
-        }
+        .sidebar-header { display: flex; align-items: center; gap: 8px; margin-bottom: 40px; }
+        .nav-item { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 8px; cursor: pointer; font-weight: 500; color: var(--text-secondary); transition: all 0.2s; }
         .nav-item:hover, .nav-item.active { color: var(--primary-accent); background-color: var(--primary-accent-light); }
-        .nav-item i { font-size: 22px; }
-        .sidebar-footer { margin-top: auto; display: flex; flex-direction: column; align-items: center; gap: 12px; }
-        .user-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
-        #calendar-container {
-            flex-grow: 1; background-color: var(--bg-surface); border: 1px solid var(--border-color);
-            border-radius: var(--border-radius); padding: 20px;
-        }
-        .detail-panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-        .detail-panel h5 { font-size: 0.875rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin: 24px 0 12px; }
-        .list-item {
-            display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 8px; margin-bottom: 8px;
-            background-color: var(--bg-surface);
-        }
-        .delete-btn { color: var(--text-secondary); cursor: pointer; opacity: 0; transition: opacity 0.2s; }
-        .list-item:hover .delete-btn { opacity: 1; }
-        .delete-btn:hover { color: var(--danger-color); }
-        .skeleton-loader {
-            background: var(--bg-muted);
-            background-image: linear-gradient(to right, var(--bg-muted) 0%, var(--border-color) 20%, var(--bg-muted) 40%, var(--bg-muted) 100%);
-            background-repeat: no-repeat;
-            background-size: 800px 104px;
-            animation: shimmer 1s linear infinite;
-        }
-        
+        .sidebar-footer { margin-top: auto; }
+        #calendar-container { flex-grow: 1; background-color: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--border-radius); padding: 20px; }
+
+        /* To-Do List */
+        .todo-list { list-style: none; padding: 0; }
+        .todo-item { display: flex; align-items: center; gap: 12px; padding: 12px; background-color: var(--bg-surface); border-radius: 8px; margin-bottom: 8px; box-shadow: var(--shadow-sm); }
+        .todo-item.completed span { text-decoration: line-through; color: var(--text-secondary); }
+
+        /* Chat */
+        .chat-window { flex-grow: 1; overflow-y: auto; padding: 10px; background-color: var(--bg-surface); border-radius: var(--border-radius); border: 1px solid var(--border-color); }
+        .chat-message { display: flex; gap: 10px; margin-bottom: 12px; }
+        .chat-message.is-user { justify-content: flex-end; }
+        .chat-message-bubble { background-color: var(--bg-muted); padding: 8px 12px; border-radius: 18px; max-width: 70%; }
+        .chat-message.is-user .chat-message-bubble { background-color: var(--primary-accent); color: white; }
+        .chat-form { display: flex; gap: 8px; margin-top: 16px; }
+
         /* --- Responsive Design --- */
+        @media (max-width: 1024px) {
+            .app-container { grid-template-columns: 80px 1fr; }
+            .sidebar { padding: 24px 16px; }
+            .sidebar-header h2, .nav-item-title { display: none; }
+        }
         @media (max-width: 768px) {
             .app-container { grid-template-columns: 1fr; }
-            .sidebar { display: none; } /* Can be implemented as a bottom nav bar if needed */
-            .main-content { padding: 16px; }
+            .sidebar { position: fixed; bottom: 0; left: 0; right: 0; height: 60px; width: 100%; flex-direction: row; justify-content: space-around; padding: 0 10px; border-top: 1px solid var(--border-color); z-index: 100; }
+            .sidebar-header, .sidebar-footer { display: none; }
+            .main-content { padding: 16px 16px 76px; } /* Padding for bottom nav */
             .detail-panel { width: 100%; }
         }
 
@@ -166,14 +95,7 @@
         .fc { border: none !important; height: 100%; }
         .fc .fc-toolbar-title { font-size: 1.25em !important; font-weight: 600; }
         .fc .fc-button { background-color: var(--bg-surface) !important; color: var(--text-primary) !important; border: 1px solid var(--border-color) !important; box-shadow: none !important; }
-        .fc .fc-button-primary:not(:disabled).fc-button-active { background-color: var(--primary-accent) !important; color: white !important; border-color: var(--primary-accent) !important; }
         .fc-daygrid-day.fc-day-today { background-color: var(--primary-accent-light) !important; }
-        .fc-event { border: 1px solid transparent !important; font-weight: 500; padding: 3px 6px; border-radius: 6px !important; cursor: pointer; }
-        .fc-event[data-type="event"] { background-color: var(--primary-accent-light) !important; border-color: var(--primary-accent) !important; }
-        .fc-event[data-type="event"] .fc-event-main { color: var(--primary-accent) !important; }
-        .fc-event[data-type="task"] { background-color: var(--bg-muted) !important; border-color: var(--border-color) !important; }
-        .fc-event[data-type="task"] .fc-event-main { color: var(--text-secondary) !important; }
-        .fc-event[data-type="task"][data-completed="true"] { opacity: 0.6; }
     </style>
 </head>
 <body>
@@ -182,10 +104,10 @@
 
     <div class="auth-container d-none" id="auth-section">
         <div class="login-card">
-            <img src="https://raw.githubusercontent.com/pbxgit/Calendar/main/favicon.png" alt="logo" width="50" class="mb-3">
+            <img src="https://raw.githubusercontent.com/pbxgit/Calendar/main/favicon.png" alt="logo" width="50" style="margin-bottom: 1rem;">
             <h2>Welcome to OurCal</h2>
-            <p class="text-secondary mb-4">A shared calendar to keep you both in sync.</p>
-            <div class="d-grid gap-2">
+            <p class="text-secondary" style="margin-bottom: 1.5rem;">A shared suite to keep you both in sync.</p>
+            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
                 <button id="google-login-btn" class="btn"><img src="https://raw.githubusercontent.com/pbxgit/Calendar/main/google-logo.svg" alt="Google" width="20"> Sign in with Google</button>
                 <button id="github-login-btn" class="btn"><img src="https://raw.githubusercontent.com/pbxgit/Calendar/main/github-logo.svg" alt="GitHub" width="20"> Sign in with GitHub</button>
             </div>
@@ -194,28 +116,48 @@
 
     <div class="app-container d-none" id="app-container">
         <nav class="sidebar">
-            <img src="https://raw.githubusercontent.com/pbxgit/Calendar/main/favicon.png" alt="logo" width="32" class="sidebar-logo">
-            <div class="sidebar-nav">
-                <div class="nav-item active" title="Calendar"><i class="bi bi-calendar-month"></i></div>
+            <div class="sidebar-header">
+                <img src="https://raw.githubusercontent.com/pbxgit/Calendar/main/favicon.png" alt="logo" width="28">
+                <h2 style="font-size: 1.25rem; margin: 0;">OurCal</h2>
+            </div>
+            <div id="app-navigation" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                <div class="nav-item active" data-view="calendar"><i class="bi bi-calendar-month"></i><span class="nav-item-title">Calendar</span></div>
+                <div class="nav-item" data-view="todo"><i class="bi bi-check2-square"></i><span class="nav-item-title">To-Do List</span></div>
+                <div class="nav-item" data-view="chat"><i class="bi bi-chat-dots"></i><span class="nav-item-title">Chat</span></div>
             </div>
             <div class="sidebar-footer">
-                <div class="nav-item" id="theme-toggle" title="Toggle Theme"><i class="bi bi-moon-stars-fill"></i></div>
-                <div id="user-profile"></div>
-                <div class="nav-item" id="logout-btn" title="Logout"><i class="bi bi-box-arrow-left"></i></div>
+                <div class="nav-item" id="theme-toggle"><i class="bi bi-moon-stars-fill"></i><span class="nav-item-title">Toggle Theme</span></div>
+                <div class="nav-item" id="logout-btn"><i class="bi bi-box-arrow-left"></i><span class="nav-item-title">Logout</span></div>
             </div>
         </nav>
 
         <main class="main-content">
-            <div id="calendar-container"></div>
+            <!-- Calendar View -->
+            <div id="calendar-view" class="app-view active">
+                <h1 style="margin-bottom: 1.5rem;">Calendar</h1>
+                <div id="calendar-container"></div>
+            </div>
+            <!-- To-Do View -->
+            <div id="todo-view" class="app-view">
+                <h1 style="margin-bottom: 1.5rem;">To-Do List</h1>
+                <form id="add-todo-form" style="display:flex; gap:8px; margin-bottom:1rem;">
+                    <input type="text" id="todo-input" placeholder="Add a new task..." class="form-control" style="flex-grow:1;" required>
+                    <button type="submit" class="btn-primary" style="padding: 8px 12px;">Add Task</button>
+                </form>
+                <ul id="todo-list" class="todo-list" style="overflow-y:auto; flex-grow:1;"></ul>
+            </div>
+            <!-- Chat View -->
+            <div id="chat-view" class="app-view">
+                <h1 style="margin-bottom: 1.5rem;">Team Chat</h1>
+                <div id="chat-window" class="chat-window"></div>
+                <form id="chat-form" class="chat-form">
+                    <input type="text" id="chat-input" placeholder="Type a message..." class="form-control" style="flex-grow:1;" required autocomplete="off">
+                    <button type="submit" class="btn-primary" style="padding: 8px 12px;">Send</button>
+                </form>
+            </div>
         </main>
 
-        <aside class="detail-panel">
-            <div class="detail-panel-header">
-                <h3 id="detail-panel-date">Select a date</h3>
-                <i class="bi bi-x-lg" id="close-panel-btn" style="cursor: pointer;"></i>
-            </div>
-            <div id="detail-panel-content"></div>
-        </aside>
+        <aside class="detail-panel" id="detail-panel"></aside>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
@@ -245,29 +187,12 @@
         const loadingOverlay = document.getElementById('loading-overlay');
         const authSection = document.getElementById('auth-section');
         const appContainer = document.getElementById('app-container');
+        const detailPanel = document.getElementById('detail-panel');
 
-        const themeToggle = document.getElementById('theme-toggle');
-        const setInitialTheme = () => {
-            const savedTheme = localStorage.getItem('theme') || 'light';
-            document.documentElement.setAttribute('data-theme', savedTheme);
-            themeToggle.querySelector('i').className = savedTheme === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-stars-fill';
-        };
-
-        const skeletonHTML = `
-            <h5>Events</h5>
-            <div class="list-item skeleton-loader" style="height: 48px;"></div>
-            <h5>Daily Tasks</h5>
-            <div class="list-item skeleton-loader" style="height: 48px;"></div>
-            <div class="list-item skeleton-loader" style="height: 48px;"></div>
-        `;
-
+        // --- App Initialization & Auth ---
         auth.onAuthStateChanged(user => {
             if (user && !user.isAnonymous) {
                 currentUser = user;
-                if (!appContainer.classList.contains('d-none')) {
-                    loadingOverlay.classList.add('d-none');
-                    return;
-                }
                 initializeApp().then(() => {
                     authSection.classList.add('d-none');
                     appContainer.classList.remove('d-none');
@@ -277,142 +202,167 @@
                 currentUser = null;
                 authSection.classList.remove('d-none');
                 appContainer.classList.add('d-none');
-                if (calendar) calendar.destroy();
                 Object.values(activeUnsubscribes).forEach(unsub => unsub());
-                activeUnsubscribes = {};
                 loadingOverlay.classList.add('d-none');
             }
         });
         
         async function initializeApp() {
-            setInitialTheme();
-            document.getElementById('user-profile').innerHTML = `<img src="${currentUser.photoURL}" alt="${currentUser.displayName}" class="user-avatar" title="${currentUser.displayName}">`;
-            await initializeCalendar();
-            loadAllCalendarItems();
-            setupAppEventListeners();
+            setupEventListeners();
+            loadAllData();
         }
 
-        function setupAppEventListeners() {
+        function setupEventListeners() {
             document.getElementById('google-login-btn').addEventListener('click', () => auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()));
             document.getElementById('github-login-btn').addEventListener('click', () => auth.signInWithPopup(new firebase.auth.GithubAuthProvider()));
-            themeToggle.addEventListener('click', () => {
-                const newTheme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-                localStorage.setItem('theme', newTheme);
-                setInitialTheme();
-            });
+            document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
             document.getElementById('logout-btn').addEventListener('click', () => auth.signOut());
-            document.getElementById('close-panel-btn').addEventListener('click', () => appContainer.classList.remove('panel-open'));
+
+            // Navigation
+            document.querySelectorAll('.nav-item[data-view]').forEach(item => {
+                item.addEventListener('click', () => {
+                    document.querySelector('.nav-item.active').classList.remove('active');
+                    item.classList.add('active');
+                    document.querySelector('.app-view.active').classList.remove('active');
+                    document.getElementById(`${item.dataset.view}-view`).classList.add('active');
+                });
+            });
+
+            // Forms
+            document.getElementById('add-todo-form').addEventListener('submit', handleAddTodo);
+            document.getElementById('chat-form').addEventListener('submit', handleSendMessage);
+        }
+        
+        function loadAllData() {
+             initializeCalendar();
+             loadTodos();
+             loadChatMessages();
         }
 
+        // --- Theme ---
+        function toggleTheme() {
+            const newTheme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            localStorage.setItem('theme', newTheme);
+            document.documentElement.setAttribute('data-theme', newTheme);
+        }
+
+        // --- Calendar ---
         function initializeCalendar() {
-            return new Promise(resolve => {
-                const calendarEl = document.getElementById('calendar-container');
-                if (calendar) calendar.destroy();
-                calendar = new FullCalendar.Calendar(calendarEl, {
-                    initialView: 'dayGridMonth',
-                    headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek' },
-                    height: '100%',
-                    editable: true,
-                    selectable: true,
-                    dateClick: (info) => openDetailPanel(info.dateStr),
-                    eventClick: (info) => openDetailPanel(info.event.startStr.split('T')[0]),
-                    eventDrop: (info) => db.collection('events').doc(info.event.id).update({ start: info.event.start.toISOString().split('T')[0] }),
-                    eventDidMount: (info) => {
-                        info.el.setAttribute('data-type', info.event.extendedProps.type);
-                        if (info.event.extendedProps.completed) info.el.setAttribute('data-completed', 'true');
-                    },
-                    viewDidMount: () => resolve()
-                });
-                calendar.render();
+            const calendarEl = document.getElementById('calendar-container');
+            if (calendar) calendar.destroy();
+            calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek' },
+                height: '100%', editable: true, selectable: true,
+                dateClick: (info) => openDetailPanel(info.dateStr),
+                eventClick: (info) => openDetailPanel(info.event.startStr.split('T')[0]),
+                eventDrop: (info) => db.collection('events').doc(info.event.id).update({ start: info.event.start.toISOString().split('T')[0] })
+            });
+            calendar.render();
+            if (activeUnsubscribes.events) activeUnsubscribes.events();
+            activeUnsubscribes.events = db.collection('events').onSnapshot(snapshot => {
+                const events = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                calendar.removeAllEventSources();
+                calendar.addEventSource(events);
             });
         }
         
         function openDetailPanel(dateStr) {
             selectedDate = dateStr;
             appContainer.classList.add('panel-open');
-            renderDetailPanel(dateStr);
-        }
-
-        function renderDetailPanel(dateStr) {
             const date = new Date(dateStr + 'T00:00:00');
-            document.getElementById('detail-panel-date').textContent = date.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
-            const contentEl = document.getElementById('detail-panel-content');
-            contentEl.innerHTML = skeletonHTML;
+            detailPanel.innerHTML = `<h3>${date.toLocaleDateString(undefined, { month: 'long', day: 'numeric' })}</h3>`;
             
-            if (activeUnsubscribes.detailPanel) activeUnsubscribes.detailPanel();
-            activeUnsubscribes.detailPanel = db.collection('events').where('start', '==', dateStr).orderBy('createdAt').onSnapshot(snapshot => {
-                const events = snapshot.docs.filter(doc => doc.data().type === 'event');
-                const tasks = snapshot.docs.filter(doc => doc.data().type === 'task');
-
-                contentEl.innerHTML = `
-                    <h5>Events (${events.length})</h5>
-                    <div id="event-list">${events.map(doc => renderListItem(doc, 'event')).join('') || '<small class="text-secondary">No events.</small>'}</div>
-                    <h5>Daily Tasks (${tasks.length})</h5>
-                    <div id="task-list">${tasks.map(doc => renderListItem(doc, 'task')).join('') || '<small class="text-secondary">No tasks.</small>'}</div>
-                    <form id="add-item-form" style="display:flex; gap:8px; margin-top:24px;">
-                        <input type="text" id="item-title-input" class="form-control" placeholder="New event or task..." required style="flex-grow:1;">
-                        <select id="item-type-select" class="form-control" style="width:100px;">
-                            <option value="event">Event</option><option value="task">Task</option>
-                        </select>
-                        <button type="submit" class="btn-primary" style="padding: 8px 12px;"><i class="bi bi-plus-lg"></i></button>
+            if (activeUnsubscribes.detail) activeUnsubscribes.detail();
+            activeUnsubscribes.detail = db.collection('events').where('start', '==', dateStr).onSnapshot(snapshot => {
+                detailPanel.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <h3>${date.toLocaleDateString(undefined, { month: 'long', day: 'numeric' })}</h3>
+                        <i id="close-panel-btn" class="bi bi-x-lg" style="cursor:pointer;"></i>
+                    </div>
+                    <ul class="todo-list" style="margin-top:1rem;">${snapshot.docs.map(doc => `
+                        <li class="todo-item"><span>${doc.data().title}</span><i class="bi bi-trash3-fill" data-id="${doc.id}" style="margin-left:auto; cursor:pointer;"></i></li>
+                    `).join('')}</ul>
+                    <form id="add-event-form" style="display:flex; gap:8px; margin-top:1rem;">
+                        <input id="event-input" class="form-control" placeholder="Add new event..." required>
+                        <button type="submit" class="btn-primary">Add</button>
                     </form>
                 `;
-                attachItemActionListeners(contentEl);
+                detailPanel.querySelector('#close-panel-btn').addEventListener('click', () => appContainer.classList.remove('panel-open'));
+                detailPanel.querySelector('#add-event-form').addEventListener('submit', handleAddEvent);
+                detailPanel.querySelectorAll('.bi-trash3-fill').forEach(btn => btn.onclick = (e) => db.collection('events').doc(e.target.dataset.id).delete());
             });
         }
         
-        function renderListItem(doc, type) {
-            const item = doc.data();
-            if (type === 'event') {
-                return `<div class="list-item"><span style="flex-grow:1;">${item.title}</span><i class="bi bi-trash3-fill delete-btn" data-id="${doc.id}"></i></div>`;
-            }
-            return `
-                <div class="list-item">
-                    <input type="checkbox" class="form-check-input" ${item.completed ? 'checked' : ''} data-id="${doc.id}">
-                    <span style="flex-grow:1; ${item.completed ? 'text-decoration:line-through; color:var(--text-secondary);' : ''}">${item.title}</span>
-                    <i class="bi bi-trash3-fill delete-btn" data-id="${doc.id}"></i>
-                </div>`;
-        }
-
-        function attachItemActionListeners(container) {
-            container.querySelector('#add-item-form').addEventListener('submit', handleItemAdd);
-            container.querySelectorAll('.delete-btn').forEach(btn => btn.onclick = (e) => db.collection('events').doc(e.target.dataset.id).delete());
-            container.querySelectorAll('input[type="checkbox"]').forEach(box => box.onchange = (e) => db.collection('events').doc(e.target.dataset.id).update({ completed: e.target.checked }));
-        }
-
-        function loadAllCalendarItems() {
-            if (activeUnsubscribes.calendar) activeUnsubscribes.calendar();
-            activeUnsubscribes.calendar = db.collection('events').onSnapshot(snapshot => {
-                const calendarEvents = snapshot.docs.map(doc => ({
-                    id: doc.id,
-                    title: doc.data().title,
-                    start: doc.data().start,
-                    allDay: true,
-                    extendedProps: { type: doc.data().type, completed: doc.data().completed }
-                }));
-                if (calendar) {
-                    calendar.removeAllEventSources();
-                    calendar.addEventSource(calendarEvents);
-                }
-            });
-        }
-        
-        function handleItemAdd(e) {
+        function handleAddEvent(e) {
             e.preventDefault();
-            const input = e.target.querySelector('#item-title-input');
-            const type = e.target.querySelector('#item-type-select').value;
-            const title = input.value.trim();
-            if (title && selectedDate) {
-                db.collection('events').add({
-                    title, type, start: selectedDate, createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    createdBy: { uid: currentUser.uid, name: currentUser.displayName },
-                    ...(type === 'task' && { completed: false })
+            const input = detailPanel.querySelector('#event-input');
+            if (input.value.trim()) {
+                db.collection('events').add({ title: input.value, start: selectedDate, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+                input.value = '';
+            }
+        }
+
+        // --- To-Do List ---
+        function loadTodos() {
+            if (activeUnsubscribes.todos) activeUnsubscribes.todos();
+            activeUnsubscribes.todos = db.collection('todos').orderBy('createdAt').onSnapshot(snapshot => {
+                const todoList = document.getElementById('todo-list');
+                todoList.innerHTML = snapshot.docs.map(doc => `
+                    <li class="todo-item ${doc.data().completed ? 'completed' : ''}">
+                        <input type="checkbox" data-id="${doc.id}" ${doc.data().completed ? 'checked' : ''}>
+                        <span>${doc.data().task}</span>
+                        <i class="bi bi-trash3-fill" data-id="${doc.id}" style="margin-left:auto; cursor:pointer;"></i>
+                    </li>
+                `).join('');
+                todoList.querySelectorAll('input[type="checkbox"]').forEach(box => box.onchange = (e) => db.collection('todos').doc(e.target.dataset.id).update({ completed: e.target.checked }));
+                todoList.querySelectorAll('.bi-trash3-fill').forEach(btn => btn.onclick = (e) => db.collection('todos').doc(e.target.dataset.id).delete());
+            });
+        }
+        
+        function handleAddTodo(e) {
+            e.preventDefault();
+            const input = document.getElementById('todo-input');
+
+            if (input.value.trim()) {
+                db.collection('todos').add({ task: input.value, completed: false, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+                input.value = '';
+            }
+        }
+
+        // --- Chat ---
+        function loadChatMessages() {
+            const chatWindow = document.getElementById('chat-window');
+            if (activeUnsubscribes.chat) activeUnsubscribes.chat();
+            activeUnsubscribes.chat = db.collection('chatMessages').orderBy('timestamp').limitToLast(50).onSnapshot(snapshot => {
+                chatWindow.innerHTML = snapshot.docs.map(doc => {
+                    const msg = doc.data();
+                    const isUser = msg.uid === currentUser.uid;
+                    return `
+                        <div class="chat-message ${isUser ? 'is-user' : ''}">
+                            <div class="chat-message-bubble">${msg.text}</div>
+                        </div>`;
+                }).join('');
+                chatWindow.scrollTop = chatWindow.scrollHeight;
+            });
+        }
+
+        function handleSendMessage(e) {
+            e.preventDefault();
+            const input = document.getElementById('chat-input');
+            if (input.value.trim()) {
+                db.collection('chatMessages').add({
+                    text: input.value,
+                    uid: currentUser.uid,
+                    displayName: currentUser.displayName,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 });
                 input.value = '';
             }
         }
-        
-        document.addEventListener('DOMContentLoaded', setupAppEventListeners);
+
+        // Set initial theme
+        document.documentElement.setAttribute('data-theme', localStorage.getItem('theme') || 'light');
     </script>
 
 </body>

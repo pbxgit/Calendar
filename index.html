@@ -78,7 +78,7 @@
         .todo-item:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
         .todo-item.completed span { text-decoration: line-through; color: var(--text-secondary); }
         .chat-window { flex-grow: 1; overflow-y: auto; padding: 10px; }
-        .chat-message { display: flex; gap: 10px; margin-bottom: 12px; }
+        .chat-message { display: flex; gap: 10px; margin-bottom: 12px; align-items: flex-end; }
         .chat-message.is-user { justify-content: flex-end; }
         .chat-message-bubble { background-color: var(--bg-surface); padding: 10px 14px; border-radius: 18px; max-width: 75%; line-height: 1.5; }
         .chat-message.is-user .chat-message-bubble { background-color: var(--primary-accent); color: white; }
@@ -134,7 +134,7 @@
             </div>
         </nav>
 
-        <main class="main-content">
+        <main class="main-content" id="main-content">
             <div id="calendar-view" class="app-view active">
                 <h1 style="margin-bottom: 1.5rem;">Calendar</h1>
                 <div id="calendar-container"></div>
@@ -165,11 +165,12 @@
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/main.min.js'></script>
     
     <script>
+        // --- FIX: Firebase config updated with your provided credentials.
         const firebaseConfig = {
             apiKey: "AIzaSyBghGrPLr7_iC46u1Phs83vd1i-47zstUs",
             authDomain: "calendar-pbx21.firebaseapp.com",
             projectId: "calendar-pbx21",
-            storageBucket: "calendar-pbx21.appspot.com",
+            storageBucket: "calendar-pbx21.firebasestorage.app",
             messagingSenderId: "304190482123",
             appId: "1:304190482123:web:2a8415125467565a1e9d4e"
         };
@@ -186,6 +187,7 @@
         const authSection = document.getElementById('auth-section');
         const appContainer = document.getElementById('app-container');
         const detailPanel = document.getElementById('detail-panel');
+        const mainContent = document.getElementById('main-content');
 
         // --- Core Application Flow ---
         document.addEventListener('DOMContentLoaded', () => {
@@ -196,24 +198,23 @@
         });
 
         function handleAuthentication() {
-            // This function runs once on page load to handle the redirect result
             auth.getRedirectResult()
                 .catch(error => {
                     console.error("Redirect Result Error:", error);
                     alert(`Login failed: ${error.message}`);
-                    loadingOverlay.classList.add('d-none'); // Hide loader on error
+                    loadingOverlay.classList.add('d-none');
                 });
             
-            // This listener is the single source of truth for auth state
             auth.onAuthStateChanged(user => {
                 if (user && !user.isAnonymous) {
-                    if (!currentUser) { // Prevents re-initializing if the listener fires multiple times
+                    if (!currentUser) { 
                         currentUser = user;
                         initializeApp();
                     }
                 } else {
                     currentUser = null;
                     Object.values(activeUnsubscribes).forEach(unsub => unsub());
+                    activeUnsubscribes = {};
                     authSection.classList.remove('d-none');
                     appContainer.classList.add('d-none');
                     loadingOverlay.classList.add('d-none');
@@ -252,6 +253,14 @@
 
             document.getElementById('add-todo-form').addEventListener('submit', handleAddTodo);
             document.getElementById('chat-form').addEventListener('submit', handleSendMessage);
+            
+            // --- FIX: Add event listeners to close detail panel on outside click
+            mainContent.addEventListener('click', () => {
+                if (appContainer.classList.contains('panel-open')) {
+                    appContainer.classList.remove('panel-open');
+                }
+            });
+            detailPanel.addEventListener('click', (e) => e.stopPropagation());
         }
         
         function loadAllData() {
@@ -275,7 +284,15 @@
                 height: '100%', editable: true, selectable: true,
                 dateClick: (info) => openDetailPanel(info.dateStr),
                 eventClick: (info) => openDetailPanel(info.event.startStr.split('T')[0]),
-                eventDrop: (info) => db.collection('events').doc(info.event.id).update({ start: info.event.start.toISOString().split('T')[0] })
+                eventDrop: (info) => {
+                    // --- FIX: Add error handling
+                    db.collection('events').doc(info.event.id).update({ start: info.event.start.toISOString().split('T')[0] })
+                        .catch(err => {
+                            console.error("Error updating event:", err);
+                            alert("Failed to move event. Please try again.");
+                            info.revert(); // Revert the change on error
+                        });
+                }
             });
             calendar.render();
             
@@ -284,6 +301,9 @@
                 const events = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 calendar.removeAllEventSources();
                 calendar.addEventSource(events);
+            }, error => {
+                console.error("Error fetching calendar events:", error);
+                alert("Could not load calendar events. Check security rules and network.");
             });
         }
         
@@ -308,7 +328,18 @@
                 `;
                 detailPanel.querySelector('#close-panel-btn').onclick = () => appContainer.classList.remove('panel-open');
                 detailPanel.querySelector('#add-event-form').onsubmit = e => handleAddEvent(e, dateStr);
-                detailPanel.querySelectorAll('.bi-trash3-fill').forEach(btn => btn.onclick = e => db.collection('events').doc(e.target.dataset.id).delete());
+                detailPanel.querySelectorAll('.bi-trash3-fill').forEach(btn => {
+                    btn.onclick = e => {
+                        // --- FIX: Add error handling
+                        db.collection('events').doc(e.target.dataset.id).delete().catch(err => {
+                            console.error("Error deleting event:", err);
+                            alert("Failed to delete event.");
+                        });
+                    }
+                });
+            }, error => {
+                console.error("Error fetching event details:", error);
+                detailPanel.innerHTML = `<p class="text-secondary">Error loading events.</p>`;
             });
         }
         
@@ -316,8 +347,17 @@
             e.preventDefault();
             const input = detailPanel.querySelector('#event-input');
             if (input.value.trim()) {
-                db.collection('events').add({ title: input.value, start: dateStr, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
-                input.value = '';
+                // --- FIX: Add error handling
+                db.collection('events').add({ 
+                    title: input.value, 
+                    start: dateStr, 
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp() 
+                }).then(() => {
+                    input.value = ''; // Clear on success
+                }).catch(err => {
+                    console.error("Error adding event:", err);
+                    alert("Failed to add event.");
+                });
             }
         }
 
@@ -332,8 +372,27 @@
                         <i class="bi bi-trash3-fill" data-id="${doc.id}" style="margin-left:auto; cursor:pointer;"></i>
                     </li>
                 `).join('');
-                todoList.querySelectorAll('input[type="checkbox"]').forEach(box => box.onchange = e => db.collection('todos').doc(e.target.dataset.id).update({ completed: e.target.checked }));
-                todoList.querySelectorAll('.bi-trash3-fill').forEach(btn => btn.onclick = e => db.collection('todos').doc(e.target.dataset.id).delete());
+                todoList.querySelectorAll('input[type="checkbox"]').forEach(box => {
+                    box.onchange = e => {
+                        // --- FIX: Add error handling
+                        db.collection('todos').doc(e.target.dataset.id).update({ completed: e.target.checked }).catch(err => {
+                            console.error("Error updating task status:", err);
+                            alert("Could not update task.");
+                        });
+                    }
+                });
+                todoList.querySelectorAll('.bi-trash3-fill').forEach(btn => {
+                    btn.onclick = e => {
+                        // --- FIX: Add error handling
+                        db.collection('todos').doc(e.target.dataset.id).delete().catch(err => {
+                            console.error("Error deleting task:", err);
+                            alert("Could not delete task.");
+                        });
+                    }
+                });
+            }, error => {
+                console.error("Error fetching todos:", error);
+                alert("Could not load tasks. Check security rules and network.");
             });
         }
         
@@ -341,8 +400,17 @@
             e.preventDefault();
             const input = document.getElementById('todo-input');
             if (input.value.trim()) {
-                db.collection('todos').add({ task: input.value, completed: false, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
-                input.value = '';
+                // --- FIX: Add error handling
+                db.collection('todos').add({ 
+                    task: input.value, 
+                    completed: false, 
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp() 
+                }).then(() => {
+                    input.value = ''; // Clear on success
+                }).catch(err => {
+                    console.error("Error adding task:", err);
+                    alert("Failed to add task.");
+                });
             }
         }
 
@@ -353,13 +421,20 @@
                 chatWindow.innerHTML = snapshot.docs.map(doc => {
                     const msg = doc.data();
                     const isUser = msg.uid === currentUser.uid;
+                    // --- FIX: Display sender's name for other users' messages
                     return `
                         <div class="chat-message ${isUser ? 'is-user' : ''}">
-                            ${!isUser ? `<img src="${msg.photoURL}" style="width:32px; height:32px; border-radius:50%;" alt="">` : ''}
-                            <div class="chat-message-bubble">${msg.text}</div>
+                            ${!isUser ? `<img src="${msg.photoURL}" style="width:32px; height:32px; border-radius:50%;" alt="${msg.displayName}">` : ''}
+                            <div class="chat-message-bubble">
+                                ${!isUser ? `<div style="font-weight:600; font-size:0.8rem; margin-bottom:4px; opacity: 0.8;">${msg.displayName}</div>` : ''}
+                                <div>${msg.text}</div>
+                            </div>
                         </div>`;
                 }).join('');
                 chatWindow.scrollTop = chatWindow.scrollHeight;
+            }, error => {
+                console.error("Error fetching chat messages:", error);
+                alert("Could not load chat. Check security rules and network.");
             });
         }
 
@@ -367,14 +442,19 @@
             e.preventDefault();
             const input = document.getElementById('chat-input');
             if (input.value.trim()) {
+                // --- FIX: Add error handling
                 db.collection('chatMessages').add({
                     text: input.value,
                     uid: currentUser.uid,
                     displayName: currentUser.displayName,
                     photoURL: currentUser.photoURL,
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                }).then(() => {
+                    input.value = ''; // Clear on success
+                }).catch(err => {
+                    console.error("Error sending message:", err);
+                    alert("Message could not be sent.");
                 });
-                input.value = '';
             }
         }
     </script>

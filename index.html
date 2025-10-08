@@ -3,104 +3,81 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OurCal</title>
-    <link rel="icon" href="https://raw.githubusercontent.com/pbxgit/Calendar/main/favicon.png" type="image/png">
-    
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- External Stylesheet -->
+    <title>OurCal - Collaborative Calendar</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="https://raw.githubusercontent.com/pbxgit/Calendar/main/favicon.png" type="image/png">
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 </head>
 <body>
-
-    <!-- Initial App Loader -->
-    <div id="app-loader" class="is-visible">
-        <div class="spinner"></div>
+    <div id="login-container" class="active">
+        <div class="login-box">
+            <h1>OurCal</h1>
+            <p>A collaborative calendar for you and your friends.</p>
+            <button id="login-google">
+                <img src="https://raw.githubusercontent.com/pbxgit/Calendar/main/google-logo.svg" alt="Google Logo">
+                Login with Google
+            </button>
+            <button id="login-github">
+                <img src="https://raw.githubusercontent.com/pbxgit/Calendar/main/github-logo.svg" alt="GitHub Logo">
+                Login with GitHub
+            </button>
+        </div>
     </div>
 
-    <!-- Redesigned Login Screen -->
-    <section id="login-screen" class="screen">
-        <div class="login-panel">
-            <div class="login-intro">
-                <div class="logo">OurCal</div>
-                <h1>A shared calendar for effortless coordination.</h1>
-                <p>Focus on what matters, together.</p>
-            </div>
-            <div class="login-actions">
-                <h2>Get Started</h2>
-                <div class="login-buttons-container">
-                    <button id="google-login-btn" class="login-button">
-                        <img src="https://raw.githubusercontent.com/pbxgit/Calendar/main/google-logo.svg" alt="Google Logo">
-                        <span class="button-text">Google</span>
-                        <div class="spinner button-spinner"></div>
-                    </button>
-                    <button id="github-login-btn" class="login-button">
-                        <img src="https://raw.githubusercontent.com/pbxgit/Calendar/main/github-logo.svg" alt="GitHub Logo">
-                        <span class="button-text">GitHub</span>
-                        <div class="spinner button-spinner"></div>
-                    </button>
+    <div id="app-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>OurCal</h2>
+                <div id="user-info">
+                    <img id="user-photo" src="" alt="User Photo">
+                    <span id="user-name"></span>
+                    <button id="logout-button">Logout</button>
                 </div>
             </div>
-        </div>
-    </section>
-    
-    <!-- Sidebar Navigation -->
-    <div id="sidebar-overlay"></div>
-    <aside id="sidebar">
-        <!-- ... Sidebar content is unchanged ... -->
-    </aside>
-
-    <!-- Main App Screen -->
-    <main id="app-screen" class="screen">
-        <header class="calendar-header">
-            <div class="header-left">
-                <button id="sidebar-toggle-btn" class="nav-button" title="Open Menu" aria-label="Open Menu">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
-                </button>
-                <h1><span id="month-name">Month</span> <span id="year">Year</span></h1>
-                 <div class="header-nav">
-                    <button id="prev-month-btn" class="nav-button" title="Previous Month" aria-label="Previous Month">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
-                    </button>
-                    <button id="today-btn">Today</button>
-                    <button id="next-month-btn" class="nav-button" title="Next Month" aria-label="Next Month">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
-                    </button>
+            <div class="sidebar-content">
+                <div class="sidebar-section">
+                    <h3>Unified Tasks</h3>
+                    <ul id="task-list"></ul>
                 </div>
-            </div>
-            <div class="header-right">
-                <button id="add-event-btn" class="button-primary">Add Event</button>
-                <div id="user-profile" class="is-hidden">
-                    <img id="user-avatar" src="" alt="User Avatar">
-                    <div class="profile-dropdown">
-                        <button id="logout-btn">Logout</button>
+                <div class="sidebar-section">
+                    <h3>Logs</h3>
+                    <ul id="log-list"></ul>
+                </div>
+                <div class="sidebar-section chat-section">
+                    <h3>Chat</h3>
+                    <div id="chat-box"></div>
+                    <div class="chat-input">
+                        <input type="text" id="chat-message" placeholder="Type a message...">
+                        <button id="send-message">Send</button>
                     </div>
                 </div>
             </div>
-        </header>
-        
-        <div class="calendar-body">
-             <div id="grid-loader">
-                <div class="spinner"></div>
-            </div>
-            <div class="day-names">
-                <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
-            </div>
-            <div id="calendar-grid" class="calendar-grid">
-                <!-- Calendar days are generated by JavaScript -->
-            </div>
-        </div>
-    </main>
-
-    <!-- Event Modal (Structure remains the same) -->
-    <div id="event-modal" class="modal">
-         <!-- ... modal content is unchanged ... -->
+        </aside>
+        <main class="main-content">
+            <header class="calendar-header">
+                <button id="prev-month">&lt;</button>
+                <h2 id="current-month"></h2>
+                <button id="next-month">&gt;</button>
+            </header>
+            <div id="calendar" class="calendar-grid"></div>
+        </main>
     </div>
 
-    <!-- Firebase SDK Module -->
-    <script type="module" src="app.js"></script>
+    <div id="task-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h3>Add/Edit Task</h3>
+            <input type="hidden" id="task-id">
+            <input type="text" id="task-title" placeholder="Task Title">
+            <textarea id="task-description" placeholder="Task Description"></textarea>
+            <input type="date" id="task-date">
+            <button id="save-task">Save Task</button>
+            <button id="delete-task" class="delete">Delete Task</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
 </body>
 </html>

@@ -4,22 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Personal Dashboard</title>
-    <!-- Google Fonts: Poppins -->
+    <!-- Stylesheets (Google Fonts, Bootstrap, FullCalendar) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <!-- Bootstrap CSS & Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <!-- FullCalendar CSS -->
     <link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.css' rel='stylesheet' />
+    <!-- All CSS styles from before are included here -->
     <style>
-        /* CSS styles from the previous version are unchanged */
         body { font-family: 'Poppins', sans-serif; background-color: #f4f7f6; color: #333; }
         .main-container { display: flex; }
         .sidebar { width: 250px; height: 100vh; position: fixed; top: 0; left: 0; background-color: #ffffff; border-right: 1px solid #e0e0e0; padding-top: 20px; }
         .sidebar .navbar-brand { font-weight: 600; margin: 0 1.5rem 1rem; }
-        .sidebar .nav-link { color: #555; font-weight: 500; padding: 12px 24px; display: flex; align-items: center; gap: 12px; border-left: 3px solid transparent; }
+        .sidebar .nav-link { color: #555; font-weight: 500; padding: 12px 24px; display: flex; align-items: center; gap: 12px; border-left: 3px solid transparent; cursor: pointer; }
         .sidebar .nav-link .bi { font-size: 1.2rem; }
         .sidebar .nav-link.active, .sidebar .nav-link:hover { color: #0d6efd; background-color: #e9f2ff; border-left: 3px solid #0d6efd; }
         .content { margin-left: 250px; width: calc(100% - 250px); padding: 30px; }
@@ -28,7 +26,7 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .card { border: none; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); }
         .logout-btn { position: absolute; bottom: 20px; width: calc(100% - 48px); margin: 0 24px; }
-        #auth-section { height: 100vh; display: flex; align-items: center; justify-content: center; background-color: #f4f7f6; }
+        #auth-section { height: 100vh; display: none; align-items: center; justify-content: center; background-color: #f4f7f6; }
         .login-card { width: 100%; max-width: 400px; }
         .login-btn { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 12px; font-size: 1rem; font-weight: 500; border-radius: 8px; transition: background-color 0.3s ease; }
         .login-btn img { width: 24px; height: 24px; }
@@ -62,69 +60,74 @@
     
     <!-- Main Content (Logged In) -->
     <div class="main-container d-none" id="main-content">
-        <!-- Sidebar and main content HTML remains the same as before -->
-        <nav class="sidebar">
-            <a class="navbar-brand" href="#">Dashboard</a>
-            <ul class="nav flex-column">
-                <li class="nav-item">
-                    <a class="nav-link active" href="#" data-section="history"><i class="bi bi-clock-history"></i> History Tracker</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#" data-section="calendar"><i class="bi bi-calendar-event"></i> Upcoming Events</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#" data-section="todos"><i class="bi bi-check2-square"></i> To-Do List</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#" data-section="notes"><i class="bi bi-journal-text"></i> Notes</a>
-                </li>
-            </ul>
-            <button id="logout-btn" class="btn btn-danger logout-btn"><i class="bi bi-box-arrow-right"></i> Logout</button>
-        </nav>
-        <main class="content">
-            <!-- All section divs (history-section, calendar-section, etc.) remain here -->
-            <div id="history-section" class="section active-section card"><div class="card-body p-4"><h3>History Tracker</h3><form id="history-form" class="mb-4"><div class="mb-3"><input type="text" id="history-title" class="form-control" placeholder="Title" required></div><div class="mb-3"><textarea id="history-desc" class="form-control" placeholder="Description"></textarea></div><div class="mb-3"><input type="date" id="history-date" class="form-control" required></div><button type="submit" class="btn btn-success">Add History</button></form><ul id="history-list" class="list-group"></ul></div></div>
-            <div id="calendar-section" class="section card"><div class="card-body p-4"><h3>Upcoming Events</h3><div id='calendar'></div><h4 class="mt-4">Add New Event</h4><form id="event-form"><div class="row"><div class="col-md-6 mb-3"><input type="text" id="event-title" class="form-control" placeholder="Event Title" required></div><div class="col-md-6 mb-3"><input type="date" id="event-date" class="form-control" required></div></div><button type="submit" class="btn btn-info text-white">Add Event</button></form></div></div>
-            <div id="todos-section" class="section card"><div class="card-body p-4"><h3>To-Do List</h3><form id="todo-form" class="d-flex mb-3"><input type="text" id="todo-input" class="form-control me-2" placeholder="New Task" required><button type="submit" class="btn btn-primary">Add</button></form><ul id="todo-list" class="list-group"></ul></div></div>
-            <div id="notes-section" class="section card"><div class="card-body p-4"><h3>Notes</h3><form id="note-form" class="mb-4"><div class="mb-3"><input type="text" id="note-title" class="form-control" placeholder="Note Title" required></div><div class="mb-3"><textarea id="note-content" class="form-control" placeholder="Note Content" rows="4"></textarea></div><button type="submit" class="btn btn-warning">Save Note</button></form><div id="notes-list" class="row"></div></div></div>
-        </main>
+         <!-- All sidebar and main content HTML remains the same -->
+        <nav class="sidebar"> <a class="navbar-brand" href="#">Dashboard</a> <ul class="nav flex-column"> <li class="nav-item"> <a class="nav-link active" data-section="history"><i class="bi bi-clock-history"></i> History Tracker</a> </li> <li class="nav-item"> <a class="nav-link" data-section="calendar"><i class="bi bi-calendar-event"></i> Upcoming Events</a> </li> <li class="nav-item"> <a class="nav-link" data-section="todos"><i class="bi bi-check2-square"></i> To-Do List</a> </li> <li class="nav-item"> <a class="nav-link" data-section="notes"><i class="bi bi-journal-text"></i> Notes</a> </li> </ul> <button id="logout-btn" class="btn btn-danger logout-btn"><i class="bi bi-box-arrow-right"></i> Logout</button> </nav> <main class="content"> <div id="history-section" class="section active-section card"><div class="card-body p-4"><h3>History Tracker</h3><form id="history-form" class="mb-4"><div class="mb-3"><input type="text" id="history-title" class="form-control" placeholder="Title" required></div><div class="mb-3"><textarea id="history-desc" class="form-control" placeholder="Description"></textarea></div><div class="mb-3"><input type="date" id="history-date" class="form-control" required></div><button type="submit" class="btn btn-success">Add History</button></form><ul id="history-list" class="list-group"></ul></div></div> <div id="calendar-section" class="section card"><div class="card-body p-4"><h3>Upcoming Events</h3><div id='calendar'></div><h4 class="mt-4">Add New Event</h4><form id="event-form"><div class="row"><div class="col-md-6 mb-3"><input type="text" id="event-title" class="form-control" placeholder="Event Title" required></div><div class="col-md-6 mb-3"><input type="date" id="event-date" class="form-control" required></div></div><button type="submit" class="btn btn-info text-white">Add Event</button></form></div></div> <div id="todos-section" class="section card"><div class="card-body p-4"><h3>To-Do List</h3><form id="todo-form" class="d-flex mb-3"><input type="text" id="todo-input" class="form-control me-2" placeholder="New Task" required><button type="submit" class="btn btn-primary">Add</button></form><ul id="todo-list" class="list-group"></ul></div></div> <div id="notes-section" class="section card"><div class="card-body p-4"><h3>Notes</h3><form id="note-form" class="mb-4"><div class="mb-3"><input type="text" id="note-title" class="form-control" placeholder="Note Title" required></div><div class="mb-3"><textarea id="note-content" class="form-control" placeholder="Note Content" rows="4"></textarea></div><button type="submit" class="btn btn-warning">Save Note</button></form><div id="notes-list" class="row"></div></div></div> </main>
     </div>
 
-    <!-- Firebase SDK -->
+    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
     
-    <!-- FullCalendar JS -->
+    <!-- FullCalendar and Bootstrap JS -->
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.js'></script>
-    
-    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
+        console.log("DEBUG: Script execution started.");
+
         // --- IMPORTANT: PASTE YOUR FIREBASE CONFIGURATION HERE ---
         const firebaseConfig = {
-            
+            apiKey: "AIzaSyBghGrPLr7_iC46u1Phs83vd1i-47zstUs",
+  authDomain: "calendar-pbx21.firebaseapp.com",
+  projectId: "calendar-pbx21",
+  storageBucket: "calendar-pbx21.firebasestorage.app",
+  messagingSenderId: "304190482123",
+  appId: "1:304190482123:web:2a8415125467565a1e9d4e",
+  measurementId: "G-YCNG7QXRR2"
         };
 
         // --- SCRIPT LOGIC ---
-        // ** NEW **: Check if the config is still the placeholder
         if (firebaseConfig.apiKey === "AIzaSy...") {
-            alert("Firebase configuration is missing! Please paste your config object into the script section of your index.html file.");
+            alert("Firebase configuration is missing! Please paste your config object into the script section.");
         }
 
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
+        console.log("DEBUG: Initializing Firebase...");
+        try {
+            firebase.initializeApp(firebaseConfig);
+            var auth = firebase.auth();
+            var db = firebase.firestore();
+            console.log("DEBUG: Firebase initialized successfully.");
+        } catch (e) {
+            console.error("FATAL: Firebase initialization failed.", e);
+            alert("Could not initialize Firebase. Check console for details.");
+        }
 
-        let calendar;
-        let currentUserId = null;
+        var calendar;
+        var currentUserId = null;
 
+        // This event fires when the entire HTML page has been loaded and parsed
         document.addEventListener('DOMContentLoaded', function() {
+            console.log("DEBUG: DOMContentLoaded event fired. Page is ready.");
+
             const authSection = document.getElementById('auth-section');
             const mainContent = document.getElementById('main-content');
             
+            // Define buttons here to ensure they exist in the DOM
+            const googleLoginBtn = document.getElementById('google-login-btn');
+            const githubLoginBtn = document.getElementById('github-login-btn');
+            const logoutBtn = document.getElementById('logout-btn');
+
+            // ** DEBUGGING STEP: Check if buttons were found **
+            if (!googleLoginBtn || !githubLoginBtn) {
+                console.error("FATAL: Login buttons not found in the DOM. Check for typos in the element IDs.");
+                return; // Stop execution if buttons aren't found
+            }
+            console.log("DEBUG: Login buttons found successfully.");
+
+            // Attach Auth State Listener
             auth.onAuthStateChanged(user => {
+                console.log("DEBUG: Auth state changed. User:", user ? user.uid : "null");
                 if (user) {
                     currentUserId = user.uid;
                     authSection.style.display = 'none';
@@ -133,40 +136,27 @@
                 } else {
                     currentUserId = null;
                     authSection.style.display = 'flex';
-                    mainCoapiKey: "AIzaSyBghGrPLr7_iC46u1Phs83vd1i-47zstUs",
-  authDomain: "calendar-pbx21.firebaseapp.com",
-  projectId: "calendar-pbx21",
-  storageBucket: "calendar-pbx21.firebasestorage.app",
-  messagingSenderId: "304190482123",
-  appId: "1:304190482123:web:2a8415125467565a1e9d4e",
-  measurementId: "G-YCNG7QXRR2"ntent.classList.add('d-none');
+                    mainContent.classList.add('d-none');
                 }
             });
 
-            // --- Authentication Button Listeners with Error Handling ---
-            document.getElementById('google-login-btn').addEventListener('click', () => {
+            // --- Attach Click Listeners ---
+            googleLoginBtn.addEventListener('click', () => {
+                console.log("DEBUG: Google login button clicked.");
                 const provider = new firebase.auth.GoogleAuthProvider();
-                auth.signInWithPopup(provider)
-                    .catch(error => {
-                        // ** NEW **: Log detailed error info
-                        console.error("Google Sign-In Error:", error.message);
-                        console.error("Error Code:", error.code);
-                        alert(`Could not sign in with Google: ${error.message}`);
-                    });
+                auth.signInWithPopup(provider).catch(error => console.error("Google Sign-In Error:", error.code, error.message));
             });
 
-            document.getElementById('github-login-btn').addEventListener('click', () => {
+            githubLoginBtn.addEventListener('click', () => {
+                console.log("DEBUG: GitHub login button clicked.");
                 const provider = new firebase.auth.GithubAuthProvider();
-                auth.signInWithPopup(provider)
-                    .catch(error => {
-                        // ** NEW **: Log detailed error info
-                        console.error("GitHub Sign-In Error:", error.message);
-                        console.error("Error Code:", error.code);
-                        alert(`Could not sign in with GitHub: ${error.message}`);
-                    });
+                auth.signInWithPopup(provider).catch(error => console.error("GitHub Sign-In Error:", error.code, error.message));
             });
             
-            document.getElementById('logout-btn').addEventListener('click', () => auth.signOut());
+            logoutBtn.addEventListener('click', () => {
+                console.log("DEBUG: Logout button clicked.");
+                auth.signOut();
+            });
             
             // --- Navigation Logic ---
             const navLinks = document.querySelectorAll('.sidebar .nav-link');
@@ -185,7 +175,7 @@
             });
         });
         
-        // The rest of the functions (initializeDashboard, setupEventListeners, loadHistory, etc.) remain unchanged.
+        // --- All other functions (initializeDashboard, loadHistory, etc.) remain unchanged ---
         function initializeDashboard() { if (calendar) return; const calendarEl = document.getElementById('calendar'); calendar = new FullCalendar.Calendar(calendarEl, { initialView: 'dayGridMonth', headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,listWeek' }, events: [] }); calendar.render(); loadHistory(); loadEvents(); loadTodos(); loadNotes(); setupEventListeners(); }
         function setupEventListeners() { document.getElementById('history-form').addEventListener('submit', (e) => { e.preventDefault(); db.collection('users').doc(currentUserId).collection('history').add({ title: document.getElementById('history-title').value, description: document.getElementById('history-desc').value, date: firebase.firestore.Timestamp.fromDate(new Date(document.getElementById('history-date').value)), }); e.target.reset(); }); document.getElementById('event-form').addEventListener('submit', (e) => { e.preventDefault(); db.collection('users').doc(currentUserId).collection('events').add({ title: document.getElementById('event-title').value, start: document.getElementById('event-date').value }); e.target.reset(); }); document.getElementById('todo-form').addEventListener('submit', (e) => { e.preventDefault(); db.collection('users').doc(currentUserId).collection('todos').add({ task: document.getElementById('todo-input').value, completed: false, createdAt: firebase.firestore.FieldValue.serverTimestamp() }); e.target.reset(); }); document.getElementById('note-form').addEventListener('submit', (e) => { e.preventDefault(); db.collection('users').doc(currentUserId).collection('notes').add({ title: document.getElementById('note-title').value, content: document.getElementById('note-content').value, createdAt: firebase.firestore.FieldValue.serverTimestamp() }); e.target.reset(); }); }
         function loadHistory() { const list = document.getElementById('history-list'); db.collection('users').doc(currentUserId).collection('history').orderBy('date', 'desc').onSnapshot(snapshot => { list.innerHTML = ''; snapshot.forEach(doc => { const data = doc.data(); const item = document.createElement('li'); item.className = 'list-group-item'; item.innerHTML = `<h5>${data.title} - ${new Date(data.date.seconds * 1000).toLocaleDateString()}</h5><p class="mb-0">${data.description}</p>`; list.appendChild(item); }); }); }

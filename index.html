@@ -159,7 +159,7 @@
         <aside class="detail-panel" id="detail-panel"></aside>
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/main.min.js'></script>
@@ -167,11 +167,12 @@
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyBghGrPLr7_iC46u1Phs83vd1i-47zstUs",
-            authDomain: "calendar-pbx21.firebaseapp.com",
-            projectId: "calendar-pbx21",
-            storageBucket: "calendar-pbx21.appspot.com", // Corrected domain
-            messagingSenderId: "304190482123",
-            appId: "1:304190482123:web:2a8415125467565a1e9d4e"
+  authDomain: "calendar-pbx21.firebaseapp.com",
+  projectId: "calendar-pbx21",
+  storageBucket: "calendar-pbx21.firebasestorage.app",
+  messagingSenderId: "304190482123",
+  appId: "1:304190482123:web:2a8415125467565a1e9d4e",
+  measurementId: "G-YCNG7QXRR2"
         };
         
         firebase.initializeApp(firebaseConfig);
@@ -181,6 +182,7 @@
         let calendar;
         let currentUser = null;
         let activeUnsubscribes = {};
+        let authInitialized = false; // <<< CRITICAL FIX: State variable to track initial auth check
 
         const loadingOverlay = document.getElementById('loading-overlay');
         const authSection = document.getElementById('auth-section');
@@ -195,68 +197,68 @@
             handleAuthentication();
         });
 
-        // --- REVISED AND FIXED AUTHENTICATION FLOW ---
+        // --- DEFINITIVE AUTHENTICATION FLOW ---
         function handleAuthentication() {
-            // This function now robustly handles the login redirect to prevent race conditions.
-            
-            // 1. Process the redirect result FIRST. This is the key change.
-            // We wait for this to complete before deciding what to show the user.
-            auth.getRedirectResult()
-                .then(result => {
-                    if (result.user) {
-                        console.log("Redirect sign-in successful:", result.user.displayName);
-                        // The user object from the redirect is now available.
+            // This is the single listener. It's the only source of truth.
+            // Firebase guarantees this will be called whenever the auth state changes.
+            auth.onAuthStateChanged(user => {
+                // This check ensures we only act once the initial user state is known.
+                if (!authInitialized) {
+                    authInitialized = true;
+                }
+
+                if (user && !user.isAnonymous) {
+                    // User is signed in.
+                    if (!currentUser) { // Prevents re-initializing if the listener fires multiple times
+                        currentUser = user;
+                        initializeApp();
                     }
-                })
-                .catch(error => {
-                    // This will catch critical configuration errors.
-                    console.error("Error processing redirect result:", error);
-                    alert(`Login failed: ${error.code} - ${error.message}`);
-                })
-                .finally(() => {
-                    // 2. ONLY THEN, set up the real-time listener for auth state.
-                    // This listener is now the single, reliable source of truth.
-                    // It will fire immediately with the correct user state after the redirect is processed.
-                    auth.onAuthStateChanged(user => {
-                        if (user && !user.isAnonymous) {
-                            // User is signed in.
-                            if (!currentUser) { // Prevents re-initializing on minor state changes
-                                currentUser = user;
-                                initializeApp();
-                            }
-                        } else {
-                            // User is signed out.
-                            currentUser = null;
-                            Object.values(activeUnsubscribes).forEach(unsub => unsub());
-                            activeUnsubscribes = {};
-                            
-                            // Show login screen
-                            authSection.classList.remove('d-none');
-                            appContainer.classList.add('d-none');
-                            loadingOverlay.classList.add('d-none');
-                        }
-                    });
-                });
+                } else {
+                    // User is signed out.
+                    currentUser = null;
+                    Object.values(activeUnsubscribes).forEach(unsub => unsub());
+                    activeUnsubscribes = {};
+                    
+                    // Show login screen ONLY after the initial check is complete.
+                    authSection.classList.remove('d-none');
+                    appContainer.classList.add('d-none');
+                    loadingOverlay.classList.add('d-none');
+                }
+            });
+
+            // Separately, we tell Firebase to process any login attempts from a redirect.
+            // When this is done, it will automatically trigger the `onAuthStateChanged` listener above.
+            auth.getRedirectResult().catch(error => {
+                console.error("Fatal error during login redirect:", error);
+                alert(`A critical login error occurred: ${error.message}. Check your Firebase/Google Cloud configuration.`);
+                loadingOverlay.classList.add('d-none');
+                authSection.classList.remove('d-none');
+            });
         }
         
         function initializeApp() {
-            console.log("Initializing app for:", currentUser.displayName);
-            document.getElementById('user-profile').innerHTML = `<img src="${currentUser.photoURL}" class="user-avatar"><span class="nav-item-title">${currentUser.displayName}</span>`;
-            
-            // Show the main application view
-            authSection.classList.add('d-none');
-            appContainer.classList.remove('d-none');
-            loadingOverlay.classList.add('d-none');
+            try {
+                document.getElementById('user-profile').innerHTML = `<img src="${currentUser.photoURL}" class="user-avatar"><span class="nav-item-title">${currentUser.displayName}</span>`;
+                
+                // Show the main application view
+                authSection.classList.add('d-none');
+                appContainer.classList.remove('d-none');
+                loadingOverlay.classList.add('d-none');
 
-            loadAllData();
+                loadAllData();
+            } catch (error) {
+                console.error("CRITICAL ERROR during app initialization:", error);
+                alert("Could not start the application due to an internal error. Please check the console.");
+            }
         }
 
-        // --- All other functions (setupStaticEventListeners, loadAllData, etc.) remain the same ---
-        // (The previous bug fixes for error handling are still included here)
+        // --- All other functions remain the same ---
 
         function setupStaticEventListeners() {
             const handleLogin = (provider) => {
+                // Before redirecting, show the loader so the user knows something is happening.
                 loadingOverlay.classList.remove('d-none');
+                authSection.classList.add('d-none');
                 auth.signInWithRedirect(provider);
             };
             document.getElementById('google-login-btn').addEventListener('click', () => handleLogin(new firebase.auth.GoogleAuthProvider()));

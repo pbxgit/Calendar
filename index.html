@@ -8,10 +8,10 @@
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/pbxgit/Calendar/main/favicon.png">
 
-    <!-- Google Fonts: Manrope -->
+    <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
@@ -22,78 +22,80 @@
     <style>
         /* --- Premium Design System --- */
         :root {
-            --font-family: 'Manrope', sans-serif;
-            --bg-base: #f9f9fb; --bg-surface: #ffffff; --bg-muted: #f3f4f6;
-            --text-primary: #111827; --text-secondary: #6b7280;
-            --border-color: #e5e7eb; --primary-accent: #4f46e5; --primary-accent-light: #eef2ff;
-            --danger-color: #ef4444; --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-            --border-radius: 0.75rem; --transition-curve: cubic-bezier(0.4, 0, 0.2, 1); --transition-speed: 0.3s;
+            --font-family: 'Inter', sans-serif;
+            --bg-base: #f7f7f8; --bg-surface: #ffffff; --bg-muted: #f1f1f3;
+            --text-primary: #1a1a1a; --text-secondary: #6b7280;
+            --border-color: #e5e7eb; --primary-accent: #4338ca; --primary-accent-light: #eef2ff;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --border-radius: 0.75rem; --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         [data-theme="dark"] {
             --bg-base: #111827; --bg-surface: #1f2937; --bg-muted: #374151;
             --text-primary: #f9fafb; --text-secondary: #9ca3af;
-            --border-color: #374151; --primary-accent: #6366f1; --primary-accent-light: rgba(99, 102, 241, 0.15);
+            --border-color: #374151; --primary-accent: #818cf8; --primary-accent-light: rgba(129, 140, 248, 0.1);
         }
         
         /* --- Base & Animations --- */
         *, *::before, *::after { box-sizing: border-box; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes spin { to { transform: rotate(360deg); } }
-        body { font-family: var(--font-family); background-color: var(--bg-base); color: var(--text-primary); margin: 0; overflow: hidden; }
+        body { font-family: var(--font-family); background-color: var(--bg-base); color: var(--text-primary); margin: 0; overflow: hidden; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
         .d-none { display: none !important; }
+
+        /* --- Global Components --- */
+        .btn { border-radius: 8px; padding: 12px; font-weight: 500; border: 1px solid var(--border-color); background-color: var(--bg-base); color: var(--text-primary); transition: var(--transition); display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; }
+        .btn:hover { background-color: var(--bg-muted); }
+        .btn-primary { background-color: var(--primary-accent); color: white; border-color: var(--primary-accent); }
+        .btn-primary:hover { background-color: var(--primary-accent); opacity: 0.9; }
+        .form-control { width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border-color); background-color: var(--bg-surface); color: var(--text-primary); font-family: var(--font-family); font-size: 1rem; }
 
         /* --- Loading & Auth --- */
         .loading-overlay { position: fixed; inset: 0; background-color: var(--bg-base); display: flex; align-items: center; justify-content: center; z-index: 1000; transition: opacity 0.3s; }
         .loading-overlay .spinner { width: 40px; height: 40px; border: 4px solid var(--border-color); border-top-color: var(--primary-accent); border-radius: 50%; animation: spin 1s linear infinite; }
-        .auth-container { display: flex; align-items: center; justify-content: center; height: 100vh; animation: fadeIn 0.5s var(--transition-curve); }
+        .auth-container { display: flex; align-items: center; justify-content: center; height: 100vh; animation: fadeIn 0.5s; }
         .login-card { background-color: var(--bg-surface); border-radius: var(--border-radius); padding: 40px; text-align: center; box-shadow: var(--shadow-md); width: 100%; max-width: 400px; border: 1px solid var(--border-color); }
 
         /* --- Main App Layout --- */
-        .app-container { display: grid; height: 100vh; grid-template-columns: 260px 1fr; grid-template-rows: 100%; transition: grid-template-columns var(--transition-speed) var(--transition-curve); }
-        .sidebar { background-color: var(--bg-surface); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; padding: 24px; animation: fadeIn 0.5s var(--transition-curve); }
+        .app-container { display: grid; height: 100vh; grid-template-columns: 260px 1fr; grid-template-rows: 100%; }
+        .sidebar { background-color: var(--bg-surface); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; padding: 24px; animation: fadeIn 0.5s; }
         .main-content { padding: 32px; overflow: hidden; display: flex; flex-direction: column; }
-        .app-view { display: none; height: 100%; flex-direction: column; }
+        .app-view { display: none; height: 100%; flex-direction: column; animation: fadeIn 0.5s; }
         .app-view.active { display: flex; }
-        .detail-panel { position: fixed; top: 0; right: 0; width: 380px; height: 100%; background-color: var(--bg-base); border-left: 1px solid var(--border-color); z-index: 100; transform: translateX(100%); transition: transform var(--transition-speed) var(--transition-curve); padding: 24px; }
+        .detail-panel { position: fixed; top: 0; right: 0; width: 380px; height: 100%; background-color: var(--bg-base); border-left: 1px solid var(--border-color); z-index: 100; transform: translateX(100%); transition: var(--transition); padding: 24px; }
         .app-container.panel-open .detail-panel { transform: translateX(0); }
 
-        /* --- Components --- */
+        /* --- Sidebar Components --- */
         .sidebar-header { display: flex; align-items: center; gap: 8px; margin-bottom: 40px; }
-        .nav-item { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 8px; cursor: pointer; font-weight: 500; color: var(--text-secondary); transition: all 0.2s; }
+        .nav-item { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 8px; cursor: pointer; font-weight: 500; font-size: 0.95rem; color: var(--text-secondary); transition: var(--transition); }
         .nav-item:hover, .nav-item.active { color: var(--primary-accent); background-color: var(--primary-accent-light); }
-        .sidebar-footer { margin-top: auto; }
-        #calendar-container { flex-grow: 1; background-color: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--border-radius); padding: 20px; }
+        .sidebar-footer { margin-top: auto; display: flex; flex-direction: column; gap: 8px; }
+        .user-profile { display: flex; align-items: center; gap: 10px; padding: 10px 12px; }
+        .user-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
 
-        /* To-Do List */
-        .todo-list { list-style: none; padding: 0; }
-        .todo-item { display: flex; align-items: center; gap: 12px; padding: 12px; background-color: var(--bg-surface); border-radius: 8px; margin-bottom: 8px; box-shadow: var(--shadow-sm); }
+        /* --- Feature Components --- */
+        .todo-item { display: flex; align-items: center; gap: 12px; padding: 12px; background-color: var(--bg-surface); border-radius: 8px; margin-bottom: 8px; box-shadow: var(--shadow-sm); transition: var(--transition); }
+        .todo-item:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
         .todo-item.completed span { text-decoration: line-through; color: var(--text-secondary); }
-
-        /* Chat */
-        .chat-window { flex-grow: 1; overflow-y: auto; padding: 10px; background-color: var(--bg-surface); border-radius: var(--border-radius); border: 1px solid var(--border-color); }
+        .chat-window { flex-grow: 1; overflow-y: auto; padding: 10px; }
         .chat-message { display: flex; gap: 10px; margin-bottom: 12px; }
         .chat-message.is-user { justify-content: flex-end; }
-        .chat-message-bubble { background-color: var(--bg-muted); padding: 8px 12px; border-radius: 18px; max-width: 70%; }
+        .chat-message-bubble { background-color: var(--bg-surface); padding: 10px 14px; border-radius: 18px; max-width: 75%; line-height: 1.5; }
         .chat-message.is-user .chat-message-bubble { background-color: var(--primary-accent); color: white; }
-        .chat-form { display: flex; gap: 8px; margin-top: 16px; }
 
         /* --- Responsive Design --- */
-        @media (max-width: 1024px) {
-            .app-container { grid-template-columns: 80px 1fr; }
-            .sidebar { padding: 24px 16px; }
-            .sidebar-header h2, .nav-item-title { display: none; }
-        }
         @media (max-width: 768px) {
             .app-container { grid-template-columns: 1fr; }
             .sidebar { position: fixed; bottom: 0; left: 0; right: 0; height: 60px; width: 100%; flex-direction: row; justify-content: space-around; padding: 0 10px; border-top: 1px solid var(--border-color); z-index: 100; }
-            .sidebar-header, .sidebar-footer { display: none; }
+            .sidebar-header, .sidebar-footer, .nav-item-title { display: none; }
             .main-content { padding: 16px 16px 76px; } /* Padding for bottom nav */
             .detail-panel { width: 100%; }
         }
 
         /* --- FullCalendar Overrides --- */
+        #calendar-container { flex-grow: 1; background-color: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--border-radius); padding: 20px; }
         .fc { border: none !important; height: 100%; }
-        .fc .fc-toolbar-title { font-size: 1.25em !important; font-weight: 600; }
+        .fc .fc-toolbar-title { font-size: 1.5em !important; font-weight: 600; }
         .fc .fc-button { background-color: var(--bg-surface) !important; color: var(--text-primary) !important; border: 1px solid var(--border-color) !important; box-shadow: none !important; }
         .fc-daygrid-day.fc-day-today { background-color: var(--primary-accent-light) !important; }
     </style>
@@ -106,8 +108,8 @@
         <div class="login-card">
             <img src="https://raw.githubusercontent.com/pbxgit/Calendar/main/favicon.png" alt="logo" width="50" style="margin-bottom: 1rem;">
             <h2>Welcome to OurCal</h2>
-            <p class="text-secondary" style="margin-bottom: 1.5rem;">A shared suite to keep you both in sync.</p>
-            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+            <p class="text-secondary" style="margin-bottom: 1.5rem;">A shared suite to keep you in sync.</p>
+            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
                 <button id="google-login-btn" class="btn"><img src="https://raw.githubusercontent.com/pbxgit/Calendar/main/google-logo.svg" alt="Google" width="20"> Sign in with Google</button>
                 <button id="github-login-btn" class="btn"><img src="https://raw.githubusercontent.com/pbxgit/Calendar/main/github-logo.svg" alt="GitHub" width="20"> Sign in with GitHub</button>
             </div>
@@ -118,45 +120,42 @@
         <nav class="sidebar">
             <div class="sidebar-header">
                 <img src="https://raw.githubusercontent.com/pbxgit/Calendar/main/favicon.png" alt="logo" width="28">
-                <h2 style="font-size: 1.25rem; margin: 0;">OurCal</h2>
+                <h2 style="font-size: 1.25rem; margin: 0; font-weight: 600;">OurCal</h2>
             </div>
             <div id="app-navigation" style="display: flex; flex-direction: column; gap: 0.5rem;">
                 <div class="nav-item active" data-view="calendar"><i class="bi bi-calendar-month"></i><span class="nav-item-title">Calendar</span></div>
-                <div class="nav-item" data-view="todo"><i class="bi bi-check2-square"></i><span class="nav-item-title">To-Do List</span></div>
+                <div class="nav-item" data-view="todo"><i class="bi bi-check2-square"></i><span class="nav-item-title">Tasks</span></div>
                 <div class="nav-item" data-view="chat"><i class="bi bi-chat-dots"></i><span class="nav-item-title">Chat</span></div>
             </div>
             <div class="sidebar-footer">
-                <div class="nav-item" id="theme-toggle"><i class="bi bi-moon-stars-fill"></i><span class="nav-item-title">Toggle Theme</span></div>
+                <div class="nav-item" id="theme-toggle"><i class="bi bi-moon-stars-fill"></i><span class="nav-item-title">Theme</span></div>
+                <div id="user-profile" class="user-profile"></div>
                 <div class="nav-item" id="logout-btn"><i class="bi bi-box-arrow-left"></i><span class="nav-item-title">Logout</span></div>
             </div>
         </nav>
 
         <main class="main-content">
-            <!-- Calendar View -->
             <div id="calendar-view" class="app-view active">
                 <h1 style="margin-bottom: 1.5rem;">Calendar</h1>
                 <div id="calendar-container"></div>
             </div>
-            <!-- To-Do View -->
             <div id="todo-view" class="app-view">
-                <h1 style="margin-bottom: 1.5rem;">To-Do List</h1>
-                <form id="add-todo-form" style="display:flex; gap:8px; margin-bottom:1rem;">
-                    <input type="text" id="todo-input" placeholder="Add a new task..." class="form-control" style="flex-grow:1;" required>
-                    <button type="submit" class="btn-primary" style="padding: 8px 12px;">Add Task</button>
+                <h1 style="margin-bottom: 1.5rem;">Shared Tasks</h1>
+                <form id="add-todo-form" style="display:flex; gap:8px; margin-bottom:1.5rem;">
+                    <input type="text" id="todo-input" placeholder="Add a new task..." class="form-control" required>
+                    <button type="submit" class="btn btn-primary" style="padding: 0 16px;">Add</button>
                 </form>
-                <ul id="todo-list" class="todo-list" style="overflow-y:auto; flex-grow:1;"></ul>
+                <ul id="todo-list" style="list-style:none; padding:0; overflow-y:auto; flex-grow:1;"></ul>
             </div>
-            <!-- Chat View -->
             <div id="chat-view" class="app-view">
                 <h1 style="margin-bottom: 1.5rem;">Team Chat</h1>
                 <div id="chat-window" class="chat-window"></div>
-                <form id="chat-form" class="chat-form">
-                    <input type="text" id="chat-input" placeholder="Type a message..." class="form-control" style="flex-grow:1;" required autocomplete="off">
-                    <button type="submit" class="btn-primary" style="padding: 8px 12px;">Send</button>
+                <form id="chat-form" style="display:flex; gap:8px; margin-top:1rem;">
+                    <input type="text" id="chat-input" placeholder="Type a message..." class="form-control" required autocomplete="off">
+                    <button type="submit" class="btn btn-primary" style="padding: 0 16px;">Send</button>
                 </form>
             </div>
         </main>
-
         <aside class="detail-panel" id="detail-panel"></aside>
     </div>
 
@@ -181,7 +180,6 @@
         
         let calendar;
         let currentUser = null;
-        let selectedDate = null;
         let activeUnsubscribes = {};
 
         const loadingOverlay = document.getElementById('loading-overlay');
@@ -193,32 +191,30 @@
         auth.onAuthStateChanged(user => {
             if (user && !user.isAnonymous) {
                 currentUser = user;
-                initializeApp().then(() => {
-                    authSection.classList.add('d-none');
-                    appContainer.classList.remove('d-none');
-                    loadingOverlay.classList.add('d-none');
-                });
+                initializeApp();
             } else {
                 currentUser = null;
+                Object.values(activeUnsubscribes).forEach(unsub => unsub());
                 authSection.classList.remove('d-none');
                 appContainer.classList.add('d-none');
-                Object.values(activeUnsubscribes).forEach(unsub => unsub());
                 loadingOverlay.classList.add('d-none');
             }
         });
         
-        async function initializeApp() {
-            setupEventListeners();
+        function initializeApp() {
+            document.getElementById('user-profile').innerHTML = `<img src="${currentUser.photoURL}" class="user-avatar"><span class="nav-item-title">${currentUser.displayName}</span>`;
             loadAllData();
+            authSection.classList.add('d-none');
+            appContainer.classList.remove('d-none');
+            loadingOverlay.classList.add('d-none');
         }
 
-        function setupEventListeners() {
+        function setupStaticEventListeners() {
             document.getElementById('google-login-btn').addEventListener('click', () => auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()));
             document.getElementById('github-login-btn').addEventListener('click', () => auth.signInWithPopup(new firebase.auth.GithubAuthProvider()));
             document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
             document.getElementById('logout-btn').addEventListener('click', () => auth.signOut());
 
-            // Navigation
             document.querySelectorAll('.nav-item[data-view]').forEach(item => {
                 item.addEventListener('click', () => {
                     document.querySelector('.nav-item.active').classList.remove('active');
@@ -228,15 +224,14 @@
                 });
             });
 
-            // Forms
             document.getElementById('add-todo-form').addEventListener('submit', handleAddTodo);
             document.getElementById('chat-form').addEventListener('submit', handleSendMessage);
         }
         
         function loadAllData() {
-             initializeCalendar();
-             loadTodos();
-             loadChatMessages();
+            initializeCalendar();
+            loadTodos();
+            loadChatMessages();
         }
 
         // --- Theme ---
@@ -246,7 +241,7 @@
             document.documentElement.setAttribute('data-theme', newTheme);
         }
 
-        // --- Calendar ---
+        // --- Calendar & Detail Panel ---
         function initializeCalendar() {
             const calendarEl = document.getElementById('calendar-container');
             if (calendar) calendar.destroy();
@@ -259,6 +254,7 @@
                 eventDrop: (info) => db.collection('events').doc(info.event.id).update({ start: info.event.start.toISOString().split('T')[0] })
             });
             calendar.render();
+            
             if (activeUnsubscribes.events) activeUnsubscribes.events();
             activeUnsubscribes.events = db.collection('events').onSnapshot(snapshot => {
                 const events = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -268,37 +264,35 @@
         }
         
         function openDetailPanel(dateStr) {
-            selectedDate = dateStr;
             appContainer.classList.add('panel-open');
             const date = new Date(dateStr + 'T00:00:00');
-            detailPanel.innerHTML = `<h3>${date.toLocaleDateString(undefined, { month: 'long', day: 'numeric' })}</h3>`;
             
             if (activeUnsubscribes.detail) activeUnsubscribes.detail();
-            activeUnsubscribes.detail = db.collection('events').where('start', '==', dateStr).onSnapshot(snapshot => {
+            activeUnsubscribes.detail = db.collection('events').where('start', '==', dateStr).orderBy('createdAt').onSnapshot(snapshot => {
                 detailPanel.innerHTML = `
                     <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <h3>${date.toLocaleDateString(undefined, { month: 'long', day: 'numeric' })}</h3>
+                        <h3 style="font-size: 1.25rem; font-weight:600;">${date.toLocaleDateString(undefined, { month: 'long', day: 'numeric' })}</h3>
                         <i id="close-panel-btn" class="bi bi-x-lg" style="cursor:pointer;"></i>
                     </div>
-                    <ul class="todo-list" style="margin-top:1rem;">${snapshot.docs.map(doc => `
+                    <ul style="list-style:none; padding:0; margin-top:1.5rem;">${snapshot.docs.map(doc => `
                         <li class="todo-item"><span>${doc.data().title}</span><i class="bi bi-trash3-fill" data-id="${doc.id}" style="margin-left:auto; cursor:pointer;"></i></li>
-                    `).join('')}</ul>
-                    <form id="add-event-form" style="display:flex; gap:8px; margin-top:1rem;">
+                    `).join('') || '<p class="text-secondary">No events for this day.</p>'}</ul>
+                    <form id="add-event-form" style="display:flex; gap:8px; margin-top:1.5rem;">
                         <input id="event-input" class="form-control" placeholder="Add new event..." required>
-                        <button type="submit" class="btn-primary">Add</button>
+                        <button type="submit" class="btn btn-primary" style="padding: 0 16px;">Add</button>
                     </form>
                 `;
-                detailPanel.querySelector('#close-panel-btn').addEventListener('click', () => appContainer.classList.remove('panel-open'));
-                detailPanel.querySelector('#add-event-form').addEventListener('submit', handleAddEvent);
-                detailPanel.querySelectorAll('.bi-trash3-fill').forEach(btn => btn.onclick = (e) => db.collection('events').doc(e.target.dataset.id).delete());
+                detailPanel.querySelector('#close-panel-btn').onclick = () => appContainer.classList.remove('panel-open');
+                detailPanel.querySelector('#add-event-form').onsubmit = e => handleAddEvent(e, dateStr);
+                detailPanel.querySelectorAll('.bi-trash3-fill').forEach(btn => btn.onclick = e => db.collection('events').doc(e.target.dataset.id).delete());
             });
         }
         
-        function handleAddEvent(e) {
+        function handleAddEvent(e, dateStr) {
             e.preventDefault();
             const input = detailPanel.querySelector('#event-input');
             if (input.value.trim()) {
-                db.collection('events').add({ title: input.value, start: selectedDate, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+                db.collection('events').add({ title: input.value, start: dateStr, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
                 input.value = '';
             }
         }
@@ -310,20 +304,19 @@
                 const todoList = document.getElementById('todo-list');
                 todoList.innerHTML = snapshot.docs.map(doc => `
                     <li class="todo-item ${doc.data().completed ? 'completed' : ''}">
-                        <input type="checkbox" data-id="${doc.id}" ${doc.data().completed ? 'checked' : ''}>
+                        <input type="checkbox" data-id="${doc.id}" ${doc.data().completed ? 'checked' : ''} style="width:18px; height:18px;">
                         <span>${doc.data().task}</span>
                         <i class="bi bi-trash3-fill" data-id="${doc.id}" style="margin-left:auto; cursor:pointer;"></i>
                     </li>
                 `).join('');
-                todoList.querySelectorAll('input[type="checkbox"]').forEach(box => box.onchange = (e) => db.collection('todos').doc(e.target.dataset.id).update({ completed: e.target.checked }));
-                todoList.querySelectorAll('.bi-trash3-fill').forEach(btn => btn.onclick = (e) => db.collection('todos').doc(e.target.dataset.id).delete());
+                todoList.querySelectorAll('input[type="checkbox"]').forEach(box => box.onchange = e => db.collection('todos').doc(e.target.dataset.id).update({ completed: e.target.checked }));
+                todoList.querySelectorAll('.bi-trash3-fill').forEach(btn => btn.onclick = e => db.collection('todos').doc(e.target.dataset.id).delete());
             });
         }
         
         function handleAddTodo(e) {
             e.preventDefault();
             const input = document.getElementById('todo-input');
-
             if (input.value.trim()) {
                 db.collection('todos').add({ task: input.value, completed: false, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
                 input.value = '';
@@ -340,6 +333,7 @@
                     const isUser = msg.uid === currentUser.uid;
                     return `
                         <div class="chat-message ${isUser ? 'is-user' : ''}">
+                            ${!isUser ? `<img src="${msg.photoURL}" style="width:32px; height:32px; border-radius:50%;" alt="">` : ''}
                             <div class="chat-message-bubble">${msg.text}</div>
                         </div>`;
                 }).join('');
@@ -355,15 +349,19 @@
                     text: input.value,
                     uid: currentUser.uid,
                     displayName: currentUser.displayName,
+                    photoURL: currentUser.photoURL,
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 });
                 input.value = '';
             }
         }
 
-        // Set initial theme
-        document.documentElement.setAttribute('data-theme', localStorage.getItem('theme') || 'light');
+        // --- Initial Setup ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            setupStaticEventListeners();
+        });
     </script>
-
 </body>
 </html>

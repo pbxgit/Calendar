@@ -165,18 +165,15 @@
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/main.min.js'></script>
     
     <script>
-        // --- Firebase config updated with your provided credentials.
         const firebaseConfig = {
             apiKey: "AIzaSyBghGrPLr7_iC46u1Phs83vd1i-47zstUs",
             authDomain: "calendar-pbx21.firebaseapp.com",
             projectId: "calendar-pbx21",
-            // Corrected storageBucket domain from .firebasestorage.app to .appspot.com
-            storageBucket: "calendar-pbx21.appspot.com", 
+            storageBucket: "calendar-pbx21.appspot.com", // Corrected domain
             messagingSenderId: "304190482123",
             appId: "1:304190482123:web:2a8415125467565a1e9d4e"
         };
         
-        console.log('Firebase config loaded. Initializing app...');
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
@@ -191,66 +188,66 @@
         const detailPanel = document.getElementById('detail-panel');
         const mainContent = document.getElementById('main-content');
 
-        // --- Core Application Flow ---
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('DOM Content Loaded. Setting up listeners and auth handler.');
             const savedTheme = localStorage.getItem('theme') || 'light';
             document.documentElement.setAttribute('data-theme', savedTheme);
             setupStaticEventListeners();
             handleAuthentication();
         });
 
+        // --- REVISED AND FIXED AUTHENTICATION FLOW ---
         function handleAuthentication() {
-            console.log('handleAuthentication() called.');
+            // This function now robustly handles the login redirect to prevent race conditions.
             
-            // This listener is the single source of truth for auth state
-            auth.onAuthStateChanged(user => {
-                // --- CRITICAL DEBUGGING STEP ---
-                console.log('onAuthStateChanged FIRED. User object:', user);
-
-                if (user && !user.isAnonymous) {
-                    console.log('User is authenticated:', user.displayName);
-                    if (!currentUser) { 
-                        console.log('Current user is not set. Initializing app...');
-                        currentUser = user;
-                        initializeApp();
-                    } else {
-                        console.log('App already initialized for this user.');
-                    }
-                } else {
-                    console.log('User is not authenticated or is anonymous. Showing login screen.');
-                    currentUser = null;
-                    Object.values(activeUnsubscribes).forEach(unsub => unsub());
-                    activeUnsubscribes = {};
-                    authSection.classList.remove('d-none');
-                    appContainer.classList.add('d-none');
-                    loadingOverlay.classList.add('d-none');
-                }
-            });
-
+            // 1. Process the redirect result FIRST. This is the key change.
+            // We wait for this to complete before deciding what to show the user.
             auth.getRedirectResult()
                 .then(result => {
-                    console.log("getRedirectResult SUCCESS:", result);
                     if (result.user) {
-                        console.log("Login via redirect successful for:", result.user.displayName);
+                        console.log("Redirect sign-in successful:", result.user.displayName);
+                        // The user object from the redirect is now available.
                     }
                 })
                 .catch(error => {
-                    console.error("getRedirectResult ERROR:", error);
-                    alert(`Login failed: ${error.message}`);
-                    loadingOverlay.classList.add('d-none'); 
+                    // This will catch critical configuration errors.
+                    console.error("Error processing redirect result:", error);
+                    alert(`Login failed: ${error.code} - ${error.message}`);
+                })
+                .finally(() => {
+                    // 2. ONLY THEN, set up the real-time listener for auth state.
+                    // This listener is now the single, reliable source of truth.
+                    // It will fire immediately with the correct user state after the redirect is processed.
+                    auth.onAuthStateChanged(user => {
+                        if (user && !user.isAnonymous) {
+                            // User is signed in.
+                            if (!currentUser) { // Prevents re-initializing on minor state changes
+                                currentUser = user;
+                                initializeApp();
+                            }
+                        } else {
+                            // User is signed out.
+                            currentUser = null;
+                            Object.values(activeUnsubscribes).forEach(unsub => unsub());
+                            activeUnsubscribes = {};
+                            
+                            // Show login screen
+                            authSection.classList.remove('d-none');
+                            appContainer.classList.add('d-none');
+                            loadingOverlay.classList.add('d-none');
+                        }
+                    });
                 });
         }
         
         function initializeApp() {
-            console.log('initializeApp() CALLED. Hiding auth screen and showing app container.');
+            console.log("Initializing app for:", currentUser.displayName);
             document.getElementById('user-profile').innerHTML = `<img src="${currentUser.photoURL}" class="user-avatar"><span class="nav-item-title">${currentUser.displayName}</span>`;
             
+            // Show the main application view
             authSection.classList.add('d-none');
             appContainer.classList.remove('d-none');
             loadingOverlay.classList.add('d-none');
-            
-            console.log('UI updated. Loading all data...');
+
             loadAllData();
         }
 

@@ -61,29 +61,26 @@
             border: 1px solid var(--border-color); box-shadow: var(--shadow-md);
             max-width: 420px; width: 100%; text-align: center;
         }
-        .auth-card h1 { font-weight: 700; font-size: 2rem; margin: 1rem 0 0.5rem; }
-        .auth-card p { color: var(--text-secondary); margin-bottom: 2rem; line-height: 1.6; }
 
-        /* --- 3. MAIN APP LAYOUT (DESKTOP) --- */
+        /* --- 3. MAIN APP LAYOUT --- */
         .app-container {
             display: grid; height: 100vh; grid-template-columns: 80px 1fr;
             opacity: 0; visibility: hidden;
         }
         .app-rail {
             background-color: var(--bg-surface); border-right: 1px solid var(--border-color);
-            display: flex; flex-direction: column; align-items: center; padding: 24px 0;
-            transition: transform 0.3s var(--transition);
+            display: flex; flex-direction: column; align-items: center;
+            padding: 1.5rem 0;
         }
-        .app-main {
-            display: flex; flex-direction: column; overflow: hidden;
-            padding: 24px;
-        }
+        .app-main { padding: 24px; display: flex; flex-direction: column; overflow: hidden; }
         .main-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
         .page-header { font-size: 2.25rem; font-weight: 700; margin: 0; }
         .app-view { display: none; flex-direction: column; flex-grow: 1; }
         .app-view.active { display: flex; }
 
-        /* --- 4. COMPONENTS --- */
+        /* --- 4. NAVIGATION COMPONENTS (SIDEBAR/BOTTOM BAR) --- */
+        .nav-group { display: flex; flex-direction: column; align-items: center; gap: 1rem; margin-top: 2rem; }
+        .nav-footer { margin-top: auto; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; }
         .nav-item {
             display: grid; place-items: center; width: 48px; height: 48px;
             border-radius: 12px; cursor: pointer; color: var(--text-secondary);
@@ -95,12 +92,14 @@
         .nav-item .tooltip {
             position: absolute; left: 120%; top: 50%; transform: translateY(-50%) scale(0.95);
             background-color: #f5f5f5; color: #0a0a0a; padding: 6px 12px; border-radius: 8px;
-            font-weight: 600; white-space: nowrap; font-size: 0.9rem; font-family: var(--font-ui);
-            opacity: 0; visibility: hidden; transition: all 0.2s var(--transition);
+            font-weight: 600; font-size: 0.9rem; font-family: var(--font-ui);
+            opacity: 0; visibility: hidden; transition: all 0.2s var(--transition); pointer-events: none;
         }
         .nav-item:hover .tooltip { opacity: 1; visibility: visible; transform: translateY(-50%) scale(1); }
-        .app-rail-footer { margin-top: auto; display: flex; flex-direction: column; align-items: center; gap: 1rem; }
         .user-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
+        .mobile-hidden { display: grid; } /* Default to visible for desktop */
+
+        /* --- 5. GENERIC COMPONENTS --- */
         .btn {
             font-family: var(--font-ui); font-weight: 600; border-radius: 10px; padding: 12px 18px;
             border: 1px solid var(--border-color); background-color: var(--bg-muted); color: var(--text-primary);
@@ -116,36 +115,30 @@
         .btn.loading .btn-spinner { opacity: 1; }
         .btn.loading .btn-content { opacity: 0; }
         
-        /* --- 5. FULLCALENDAR CUSTOMIZATION --- */
-        .calendar-wrapper {
-            flex-grow: 1; min-height: 0; /* Critical for flexbox sizing */
-            background-color: var(--bg-surface); border: 1px solid var(--border-color);
-            border-radius: var(--radius); padding: 1.5rem;
-        }
+        /* --- 6. FULLCALENDAR CUSTOMIZATION --- */
+        .calendar-wrapper { flex-grow: 1; min-height: 0; background-color: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 1.5rem; }
         .fc { border: none !important; height: 100%; font-family: var(--font-ui); }
         .fc .fc-toolbar-title { font-size: 1.5em !important; font-weight: 700; font-family: var(--font-main); }
         .fc .fc-button { background-color: var(--bg-muted) !important; color: var(--text-primary) !important; border-color: var(--border-color) !important; }
-        .fc .fc-button:hover, .fc .fc-button-primary:focus { background-color: var(--c-accent) !important; border-color: var(--c-accent) !important; }
         .fc-daygrid-day.fc-day-today { background-color: var(--c-accent-light) !important; }
         .fc-day-header, .fc-col-header-cell, .fc-daygrid-day { border-color: var(--border-color) !important; }
 
-        /* --- 6. RESPONSIVE DESIGN (MOBILE-FIRST APPROACH) --- */
+        /* --- 7. RESPONSIVE DESIGN FOR MOBILE --- */
         @media (max-width: 768px) {
             .app-container { grid-template-columns: 1fr; }
             .app-rail {
                 position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
-                flex-direction: row; justify-content: space-around;
-                height: 65px; border-top: 1px solid var(--border-color); border-right: none;
-                padding: 0 1rem;
+                flex-direction: row; align-items: center; justify-content: center; /* Center the nav group */
+                height: 65px; border-top: 1px solid var(--border-color); border-right: none; padding: 0;
             }
-            .app-rail-header, .app-rail-footer { display: none; } /* Hide header/footer items on mobile bar */
-            .app-rail-nav { display: contents; } /* Make nav items direct children of flex container */
-            .app-main { padding: 1rem 1rem 80px 1rem; } /* Add bottom padding to avoid nav overlap */
+            .nav-group { flex-direction: row; justify-content: space-around; width: 100%; margin-top: 0; }
+            .mobile-hidden, .nav-footer { display: none; } /* Hide logo and footer on mobile */
+            .app-main { padding: 1rem 1rem 80px 1rem; }
             .page-header { font-size: 1.75rem; }
-            .nav-item .tooltip { display: none; } /* No tooltips on mobile */
+            .nav-item .tooltip { display: none; }
             .calendar-wrapper { padding: 1rem; }
-            .fc .fc-toolbar { flex-direction: column; align-items: flex-start !important; gap: 1rem; }
-            .fc .fc-toolbar-chunk:nth-child(2) { order: -1; } /* Move title to top */
+            .fc .fc-toolbar { flex-wrap: wrap; gap: 0.5rem; }
+            .fc .fc-toolbar-chunk:nth-child(2) { order: -1; width: 100%; text-align: left; }
         }
     </style>
 </head>
@@ -169,14 +162,12 @@
 
     <div class="app-container" id="app-container">
         <nav class="app-rail">
-            <div class="app-rail-header">
-                <div class="nav-item"><img src="https://raw.githubusercontent.com/pbxgit/Calendar/main/favicon.png" alt="Chrono Logo" width="32"></div>
-            </div>
-            <div class="app-rail-nav" style="margin-top: 40px; display:flex; flex-direction:column; gap: 1rem;">
+            <div class="nav-item mobile-hidden"><img src="https://raw.githubusercontent.com/pbxgit/Calendar/main/favicon.png" alt="Chrono Logo" width="32"></div>
+            <div class="nav-group">
                 <div class="nav-item active" data-view="calendar"><i class="bi bi-calendar3"></i><span class="tooltip">Calendar</span></div>
                 <div class="nav-item" data-view="tasks"><i class="bi bi-check2-square"></i><span class="tooltip">Tasks</span></div>
             </div>
-            <div class="app-rail-footer">
+            <div class="nav-footer">
                 <div id="user-profile-icon" class="nav-item"></div>
                 <div id="logout-btn" class="nav-item"><i class="bi bi-box-arrow-left"></i><span class="tooltip">Logout</span></div>
             </div>
@@ -187,12 +178,9 @@
                 <div class="calendar-wrapper" id="calendar-container"></div>
             </div>
             <div id="tasks-view" class="app-view">
-                <div class="main-header"><h1 class="page-header">Tasks</h1></div>
-                <div style="flex-grow: 1; display: grid; place-items:center; text-align:center; color: var(--text-secondary);">
-                    <div>
-                        <i class="bi bi-check2-square" style="font-size: 3rem; margin-bottom: 1rem;"></i>
-                        <p>The Tasks feature is coming soon.</p>
-                    </div>
+                 <div class="main-header"><h1 class="page-header">Tasks</h1></div>
+                <div style="flex-grow: 1; display: grid; place-items:center; color: var(--text-secondary); text-align: center;">
+                    <div><i class="bi bi-check2-square" style="font-size: 3rem; margin-bottom: 1rem;"></i><p>The Tasks feature is coming soon.</p></div>
                 </div>
             </div>
         </main>
@@ -234,7 +222,7 @@
             navItems: document.querySelectorAll('.nav-item[data-view]')
         };
 
-        // --- 2. THE POPUP-BASED AUTHENTICATION FLOW ---
+        // --- 2. AUTHENTICATION FLOW (POPUP) ---
         function initializeAuth() {
             auth.onAuthStateChanged(user => {
                 if (user) {
@@ -253,15 +241,9 @@
         
         async function handleLoginWithPopup(provider, button) {
             setButtonLoadingState(button, true);
-            try {
-                await auth.signInWithPopup(provider);
-            } catch (error) {
-                if (error.code !== 'auth/popup-closed-by-user') {
-                    alert(`Login failed: ${error.message}`);
-                }
-            } finally {
-                setButtonLoadingState(button, false);
-            }
+            try { await auth.signInWithPopup(provider); } 
+            catch (error) { if (error.code !== 'auth/popup-closed-by-user') alert(`Login failed: ${error.message}`); } 
+            finally { setButtonLoadingState(button, false); }
         }
         
         // --- 3. UI TRANSITIONS & RENDERING ---
@@ -280,9 +262,7 @@
             
             gsap.to(ui.authSection, { opacity: 0, duration: 0.3, onComplete: () => ui.authSection.style.visibility = 'hidden' });
             ui.appContainer.style.visibility = 'visible';
-            gsap.timeline({ delay: 0.1 })
-                .to(ui.appContainer, { opacity: 1, duration: 0.5 })
-                .from(".app-rail > *", { opacity: 0, x: -30, stagger: 0.1, ease: "power2.out" });
+            gsap.to(ui.appContainer, { opacity: 1, duration: 0.5 });
             
             initializeCalendar();
         }
@@ -290,17 +270,11 @@
         function initializeCalendar() {
             if (calendar) calendar.destroy();
             calendar = new FullCalendar.Calendar(ui.calendarContainer, {
-                initialView: 'dayGridMonth',
+                initialView: window.innerWidth < 768 ? 'listWeek' : 'dayGridMonth',
                 headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek' },
-                height: '100%', editable: true, selectable: true,
-                windowResize: function(view) {
-                    // Adjust view for mobile screens
-                    if (window.innerWidth < 768) {
-                        calendar.changeView('listWeek');
-                    } else {
-                         calendar.changeView('dayGridMonth');
-                    }
-                }
+                height: '100%',
+                editable: true,
+                selectable: true
             });
             calendar.render();
         }
@@ -316,18 +290,17 @@
                     const activeView = document.querySelector('.app-view.active');
                     if (activeView.id === targetViewId) return;
 
-                    document.querySelector('.nav-item.active').classList.remove('active');
+                    document.querySelector('.nav-item.active[data-view]').classList.remove('active');
                     item.classList.add('active');
                     
                     gsap.timeline()
-                        .to(activeView, { opacity: 0, scale: 0.98, duration: 0.2, ease: "power2.in" })
+                        .to(activeView, { opacity: 0, duration: 0.2, ease: "power2.in" })
                         .call(() => {
                             activeView.classList.remove('active');
                             const targetView = document.getElementById(targetViewId);
                             targetView.classList.add('active');
-                            targetView.style.opacity = 0; targetView.style.transform = 'scale(0.98)';
-                        })
-                        .to(document.getElementById(targetViewId), { opacity: 1, scale: 1, duration: 0.3, ease: "power2.out" });
+                            gsap.fromTo(targetView, { opacity: 0 }, { opacity: 1, duration: 0.3, ease: "power2.out" });
+                        });
                 });
             });
         }
@@ -341,14 +314,14 @@
         document.addEventListener('DOMContentLoaded', () => {
             setupEventListeners();
             const unsubscribe = auth.onAuthStateChanged(user => {
-                unsubscribe(); // Only need the very first auth state to decide initial view
+                unsubscribe(); 
                 if(user) {
                     currentUser = user;
                     initializeAppUI();
                 } else {
                     showLoginScreen();
                 }
-                initializeAuth(); // Set up the persistent listener for all future auth changes
+                initializeAuth();
             });
         });
     </script>

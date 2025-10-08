@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Woven - A Collaborative Suite</title>
+    <title>Chrono - Master Your Momentum</title>
 
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/pbxgit/Calendar/main/favicon.png">
@@ -13,9 +13,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-    <!-- Modern Fonts: Satoshi for Display, Inter for UI -->
+    <!-- Fonts: Satoshi (Primary), Inter (UI) -->
     <link href="https://api.fontshare.com/v2/css?f[]=satoshi@700,500,400&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600&display=swap" rel="stylesheet">
 
     <!-- Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
@@ -24,99 +24,148 @@
     <link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/main.min.css' rel='stylesheet' />
 
     <style>
-        /* --- 1. Design System & Core Styles --- */
+        /* --- 1. DESIGN SYSTEM & CORE STYLES --- */
         :root {
-            --font-main: 'Satoshi', sans-serif; --font-ui: 'Inter', sans-serif;
-            --c-accent: #6366f1; --c-accent-rgb: 99, 102, 241;
-            --c-accent-light: rgba(var(--c-accent-rgb), 0.1); --c-accent-dark: #4f46e5;
-            --bg-base: #030712; --bg-surface: #111827; --bg-muted: #1f2937;
-            --text-primary: #f9fafb; --text-secondary: #9ca3af;
-            --border-color: #374151;
-            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.3);
-            --border-radius: 0.75rem; --transition-curve: cubic-bezier(0.4, 0, 0.2, 1);
+            --font-main: 'Satoshi', sans-serif;
+            --font-ui: 'Inter', sans-serif;
+            --c-accent: #3b82f6; /* Electric Blue */
+            --c-accent-light: rgba(59, 130, 246, 0.1);
+            --bg-base: #0a0a0a;   /* Near Black */
+            --bg-surface: #171717; /* Dark Gray */
+            --bg-muted: #262626;
+            --text-primary: #f5f5f5;
+            --text-secondary: #a3a3a3;
+            --border-color: #262626;
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.5), 0 2px 4px -2px rgb(0 0 0 / 0.5);
+            --radius: 0.75rem;
+            --transition: cubic-bezier(0.4, 0, 0.2, 1);
         }
         *, *::before, *::after { box-sizing: border-box; }
         @keyframes spin { to { transform: rotate(360deg); } }
         
         body {
-            font-family: var(--font-main); background-color: var(--bg-base); color: var(--text-primary);
-            margin: 0; overflow: hidden; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+            font-family: var(--font-main);
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            margin: 0;
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
         }
 
-        /* --- 2. Loading & Authentication Screens --- */
+        /* --- 2. LOADING & AUTHENTICATION --- */
         .loading-overlay {
-            position: fixed; inset: 0; background-color: var(--bg-base); display: grid;
-            place-items: center; z-index: 1000; transition: opacity 0.5s var(--transition-curve);
+            position: fixed; inset: 0; background-color: var(--bg-base);
+            display: grid; place-items: center; z-index: 1000;
         }
-        .loading-overlay .spinner {
+        .spinner {
             width: 40px; height: 40px; border: 4px solid var(--border-color);
-            border-top-color: var(--c-accent); border-radius: 50%; animation: spin 1s linear infinite;
+            border-top-color: var(--c-accent); border-radius: 50%;
+            animation: spin 1s linear infinite;
         }
         
         .auth-container {
-            display: grid; place-items: center; height: 100vh; text-align: center; padding: 2rem;
-            position: fixed; inset: 0; opacity: 0; visibility: hidden;
-        }
-        .auth-card {
-            background-color: var(--bg-surface); border-radius: var(--border-radius); padding: 48px;
-            border: 1px solid var(--border-color); box-shadow: var(--shadow-lg); max-width: 420px; width: 100%;
-        }
-        .auth-card h1 { font-weight: 700; font-size: 2.25rem; margin: 1rem 0 0.5rem; }
-        .auth-card p { color: var(--text-secondary); margin-bottom: 2rem; line-height: 1.6; }
-        
-        /* --- 3. Main Application Layout --- */
-        .app-container {
-            display: grid; height: 100vh; grid-template-columns: 260px 1fr;
+            display: grid; place-items: center; height: 100vh;
+            padding: 2rem; position: fixed; inset: 0;
             opacity: 0; visibility: hidden;
         }
-        .main-content { padding: 40px; overflow-y: auto; display: flex; flex-direction: column; }
-        .app-view { display: none; flex-direction: column; height: 100%; }
-        .app-view.active { display: flex; }
-        
-        .sidebar {
-            background-color: var(--bg-surface); border-right: 1px solid var(--border-color);
-            display: flex; flex-direction: column; padding: 24px;
+        .auth-card {
+            background-color: var(--bg-surface);
+            border-radius: var(--radius);
+            padding: 48px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-md);
+            max-width: 420px;
+            width: 100%;
+            text-align: center;
         }
-        .sidebar-header { display: flex; align-items: center; gap: 12px; margin-bottom: 40px; }
-        .sidebar-header h2 { font-size: 1.5rem; font-weight: 700; margin: 0; }
-        .nav-group { display: flex; flex-direction: column; gap: 0.5rem; }
+        .auth-card h1 {
+            font-weight: 700; font-size: 2rem; margin: 1rem 0 0.5rem;
+        }
+        .auth-card p {
+            color: var(--text-secondary); margin-bottom: 2rem; line-height: 1.6;
+        }
+
+        /* --- 3. MAIN APP LAYOUT --- */
+        .app-container {
+            display: grid; height: 100vh;
+            grid-template-columns: 80px 1fr;
+            opacity: 0; visibility: hidden;
+        }
+        .app-rail { /* Vertical Nav Rail */
+            background-color: var(--bg-surface);
+            border-right: 1px solid var(--border-color);
+            display: flex; flex-direction: column; align-items: center;
+            padding: 24px 0;
+        }
+        .app-main {
+            padding: 40px;
+            display: flex; flex-direction: column;
+            overflow: hidden;
+        }
+        .app-view {
+            display: none; flex-direction: column; height: 100%;
+        }
+        .app-view.active {
+            display: flex;
+        }
+
+        /* --- 4. COMPONENTS --- */
         .nav-item {
-            display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 10px;
-            cursor: pointer; font-weight: 500; font-size: 1rem; color: var(--text-secondary);
-            transition: all 0.2s var(--transition-curve); font-family: var(--font-ui);
+            display: grid; place-items: center;
+            width: 48px; height: 48px;
+            border-radius: 12px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: all 0.2s var(--transition);
+            position: relative;
         }
-        .nav-item i { font-size: 1.25rem; }
+        .nav-item i { font-size: 1.5rem; }
         .nav-item:hover { color: var(--text-primary); background-color: var(--bg-muted); }
-        .nav-item.active { color: white; background-color: var(--c-accent); font-weight: 600; }
-        .sidebar-footer { margin-top: auto; }
-        .user-profile { display: flex; align-items: center; gap: 12px; padding: 8px; margin-top: 1rem; border-radius: 10px; }
-        .user-avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; }
-        
+        .nav-item.active { color: white; background-color: var(--c-accent); }
+        .nav-item .tooltip {
+            position: absolute; left: 120%; top: 50%;
+            transform: translateY(-50%) scale(0.95);
+            background-color: #f5f5f5; color: #0a0a0a;
+            padding: 6px 12px; border-radius: 8px; font-weight: 600;
+            white-space: nowrap; font-size: 0.9rem; font-family: var(--font-ui);
+            opacity: 0; visibility: hidden;
+            transition: all 0.2s var(--transition);
+        }
+        .nav-item:hover .tooltip { opacity: 1; visibility: visible; transform: translateY(-50%) scale(1); }
+
+        .app-rail-footer { margin-top: auto; display: flex; flex-direction: column; align-items: center; gap: 1rem; }
+        .user-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
+
         .btn {
-            font-family: var(--font-ui); border-radius: 10px; padding: 12px 18px; font-weight: 600;
-            border: 1px solid var(--border-color); background-color: var(--bg-surface);
-            color: var(--text-primary); transition: all 0.2s var(--transition-curve);
+            font-family: var(--font-ui); font-weight: 600;
+            border-radius: 10px; padding: 12px 18px;
+            border: 1px solid var(--border-color); background-color: var(--bg-muted);
+            color: var(--text-primary); transition: all 0.2s var(--transition);
             display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer;
         }
-        .btn:hover { background-color: var(--bg-muted); transform: translateY(-2px); box-shadow: var(--shadow-lg); }
-        h1 { font-size: 2.5rem; font-weight: 700; margin: 0 0 2rem 0; }
+        .btn:hover { background-color: var(--border-color); transform: translateY(-2px); }
         
-        /* --- 4. FullCalendar Customization --- */
-        #calendar-container {
-            flex-grow: 1; background-color: var(--bg-surface); border: 1px solid var(--border-color);
-            border-radius: var(--border-radius); padding: 24px;
+        .page-header { font-size: 2.5rem; font-weight: 700; margin: 0 0 2rem 0; }
+        
+        /* --- 5. FULLCALENDAR CUSTOMIZATION --- */
+        .calendar-wrapper {
+            flex-grow: 1;
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 24px;
         }
         .fc { border: none !important; height: 100%; font-family: var(--font-ui); }
         .fc .fc-toolbar-title { font-size: 1.75em !important; font-weight: 700; font-family: var(--font-main); }
         .fc .fc-button {
             background-color: var(--bg-muted) !important; color: var(--text-primary) !important;
             border: 1px solid var(--border-color) !important; box-shadow: none !important;
-            transition: all 0.2s var(--transition-curve) !important;
+            transition: all 0.2s var(--transition) !important;
         }
         .fc .fc-button:hover, .fc .fc-button-primary:focus { background-color: var(--c-accent) !important; border-color: var(--c-accent) !important; }
-        .fc .fc-button-primary.fc-button-active { background-color: var(--c-accent-dark) !important; border-color: var(--c-accent-dark) !important; }
         .fc-daygrid-day.fc-day-today { background-color: var(--c-accent-light) !important; }
-        .fc-day-header { border: none !important; }
+        .fc-day-header, .fc-col-header-cell { border: none !important; }
+        .fc-daygrid-day { border-color: var(--border-color) !important; }
     </style>
 </head>
 <body>
@@ -125,39 +174,39 @@
 
     <div class="auth-container" id="auth-section">
         <div class="auth-card">
-            <img src="https://raw.githubusercontent.com/pbxgit/Calendar/main/favicon.png" alt="Woven Logo" width="50">
-            <h1>Woven</h1>
-            <p>The fabric of your team's time. Calendars, tasks, and conversations—woven together.</p>
-            <div class="auth-buttons">
-                <button id="google-login-btn" class="btn"><img src="https://raw.githubusercontent.com/pbxgit/Calendar/main/google-logo.svg" alt="Google" width="20"> Sign in with Google</button>
-                <button id="github-login-btn" class="btn"><img src="https://raw.githubusercontent.com/pbxgit/Calendar/main/github-logo.svg" alt="GitHub" width="20"> Sign in with GitHub</button>
+            <img src="https://raw.githubusercontent.com/pbxgit/Calendar/main/favicon.png" alt="Chrono Logo" width="50">
+            <h1>Chrono</h1>
+            <p>Master Your Momentum. The command center for high-performance teams.</p>
+            <div style="display: flex; flex-direction: column; gap: 1rem;">
+                <button id="google-login-btn" class="btn"><img src="https://raw.githubusercontent.com/pbxgit/Calendar/main/google-logo.svg" alt="Google" width="20"> Continue with Google</button>
+                <button id="github-login-btn" class="btn"><img src="https://raw.githubusercontent.com/pbxgit/Calendar/main/github-logo.svg" alt="GitHub" width="20"> Continue with GitHub</button>
             </div>
         </div>
     </div>
 
     <div class="app-container" id="app-container">
-        <nav class="sidebar">
-            <div class="sidebar-header">
-                <img src="https://raw.githubusercontent.com/pbxgit/Calendar/main/favicon.png" alt="logo" width="32">
-                <h2>Woven</h2>
+        <nav class="app-rail">
+            <div class="nav-item">
+                 <img src="https://raw.githubusercontent.com/pbxgit/Calendar/main/favicon.png" alt="Chrono Logo" width="32">
             </div>
-            <div class="nav-group">
-                <div class="nav-item active" data-view="calendar"><i class="bi bi-calendar3"></i><span>Calendar</span></div>
-                <div class="nav-item" data-view="todo"><i class="bi bi-check2-square"></i><span>Tasks</span></div>
-                <div class="nav-item" data-view="chat"><i class="bi bi-chat-quote"></i><span>Chat</span></div>
+            <div style="margin-top: 40px; display:flex; flex-direction:column; gap: 1rem;">
+                <div class="nav-item active" data-view="calendar"><i class="bi bi-calendar3"></i><span class="tooltip">Calendar</span></div>
+                <div class="nav-item" data-view="tasks"><i class="bi bi-check2-square"></i><span class="tooltip">Tasks</span></div>
             </div>
-            <div class="sidebar-footer">
-                <div id="user-profile" class="user-profile"></div>
-                <div class="nav-item" id="logout-btn"><i class="bi bi-box-arrow-left"></i><span>Logout</span></div>
+            <div class="app-rail-footer">
+                <div id="user-profile-icon" class="nav-item"></div>
+                <div id="logout-btn" class="nav-item"><i class="bi bi-box-arrow-left"></i><span class="tooltip">Logout</span></div>
             </div>
         </nav>
-        <main class="main-content">
+        <main class="app-main">
             <div id="calendar-view" class="app-view active">
-                <h1>Calendar</h1>
-                <div id="calendar-container"></div>
+                <h1 class="page-header">Calendar</h1>
+                <div class="calendar-wrapper" id="calendar-container"></div>
             </div>
-            <div id="todo-view" class="app-view"><h1>Shared Tasks</h1></div>
-            <div id="chat-view" class="app-view"><h1>Team Chat</h1></div>
+            <div id="tasks-view" class="app-view">
+                <h1 class="page-header">Tasks</h1>
+                <!-- Task content goes here -->
+            </div>
         </main>
     </div>
 
@@ -169,7 +218,7 @@
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
     
     <script>
-        // --- 1. INITIALIZATION ---
+        // --- 1. CONFIG & INITIALIZATION ---
         const firebaseConfig = {
             apiKey: "AIzaSyBghGrPLr7_iC46u1Phs83vd1i-47zstUs",
             authDomain: "calendar-pbx21.firebaseapp.com",
@@ -185,21 +234,22 @@
 
         let currentUser = null;
         let calendar = null;
-        let authReady = false; // <<< CRITICAL FIX: State variable to track initial auth check
+        let authReady = false; // <<< The critical state variable to prevent race conditions
 
         const loadingOverlay = document.getElementById('loading-overlay');
         const authSection = document.getElementById('auth-section');
         const appContainer = document.getElementById('app-container');
 
-        // --- 2. THE DEFINITIVE AUTHENTICATION FLOW ---
+        // --- 2. THE BULLETPROOF AUTHENTICATION FLOW ---
         function handleAuthentication() {
             auth.onAuthStateChanged(user => {
+                // If the initial check is already done, any change means a logout.
                 if (authReady) {
                     if (!user) window.location.reload();
                     return;
                 }
                 
-                authReady = true;
+                authReady = true; // Mark the initial check as complete.
 
                 if (user) {
                     currentUser = user;
@@ -210,6 +260,8 @@
                 }
             });
 
+            // This handles the result from a login redirect.
+            // onAuthStateChanged will handle the final user state.
             auth.getRedirectResult().catch(error => {
                 console.error("Login redirect error:", error);
                 alert(`A login error occurred: ${error.message}.`);
@@ -217,7 +269,7 @@
             });
         }
         
-        // --- 3. UI TRANSITIONS AND INITIALIZATION ---
+        // --- 3. UI TRANSITIONS & ANIMATIONS ---
         function showLoginScreen() {
             gsap.to(appContainer, { opacity: 0, duration: 0.3, onComplete: () => appContainer.style.visibility = 'hidden' });
             
@@ -230,17 +282,17 @@
         }
         
         function initializeAppUI() {
-            document.getElementById('user-profile').innerHTML = `
-                <img src="${currentUser.photoURL}" class="user-avatar" alt="${currentUser.displayName}">
-                <span>${currentUser.displayName}</span>`;
+            document.getElementById('user-profile-icon').innerHTML = `
+                <img src="${currentUser.photoURL}" class="user-avatar" alt="User Avatar">
+                <span class="tooltip">${currentUser.displayName}</span>`;
             
             gsap.to(authSection, { opacity: 0, duration: 0.3, onComplete: () => authSection.style.visibility = 'hidden' });
             
             appContainer.style.visibility = 'visible';
             gsap.timeline({ delay: 0.3 })
                 .to(appContainer, { opacity: 1, duration: 0.5 })
-                .from(".sidebar > *", { opacity: 0, x: -30, stagger: 0.1, duration: 0.4, ease: "power2.out" })
-                .from(".main-content > .app-view.active > *", { opacity: 0, y: 20, stagger: 0.1, duration: 0.4, ease: "power2.out" }, "-=0.5");
+                .from(".app-rail > *", { opacity: 0, x: -30, stagger: 0.1, duration: 0.4, ease: "power2.out" })
+                .from(".app-main > .app-view.active > *", { opacity: 0, y: 20, stagger: 0.1, duration: 0.4, ease: "power2.out" }, "-=0.5");
 
             gsap.to(loadingOverlay, { opacity: 0, duration: 0.5, delay: 0.2, onComplete: () => loadingOverlay.style.display = 'none' });
 
@@ -257,8 +309,31 @@
             document.getElementById('google-login-btn').addEventListener('click', () => handleLogin(new firebase.auth.GoogleAuthProvider()));
             document.getElementById('github-login-btn').addEventListener('click', () => handleLogin(new firebase.auth.GithubAuthProvider()));
             
-            document.getElementById('logout-btn').addEventListener('click', () => {
-                auth.signOut();
+            document.getElementById('logout-btn').addEventListener('click', () => auth.signOut());
+
+            // View Switcher Logic
+            document.querySelectorAll('.nav-item[data-view]').forEach(item => {
+                item.addEventListener('click', () => {
+                    const targetViewId = item.dataset.view + '-view';
+                    const activeView = document.querySelector('.app-view.active');
+                    const targetView = document.getElementById(targetViewId);
+                    
+                    if (activeView === targetView) return;
+
+                    document.querySelector('.nav-item.active').classList.remove('active');
+                    item.classList.add('active');
+
+                    // Animate views
+                    gsap.timeline()
+                        .to(activeView, { opacity: 0, scale: 0.98, duration: 0.2, ease: "power2.in" })
+                        .call(() => {
+                            activeView.classList.remove('active');
+                            targetView.classList.add('active');
+                            targetView.style.opacity = 0;
+                            targetView.style.transform = 'scale(0.98)';
+                        })
+                        .to(targetView, { opacity: 1, scale: 1, duration: 0.3, ease: "power2.out" });
+                });
             });
         }
         

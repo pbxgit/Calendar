@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OurCal - Collaborative Calendar</title>
+    <title>OurCal - A Shared Calendar</title>
 
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/pbxgit/Calendar/main/favicon.png">
 
-    <!-- Google Fonts: Inter -->
+    <!-- Google Fonts: Manrope -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
@@ -20,175 +20,245 @@
     <link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/main.min.css' rel='stylesheet' />
 
     <style>
-        /* --- MODERN UI AESTHETICS --- */
+        /* --- STATE OF THE ART UI - DESIGN SYSTEM --- */
         :root {
-            --font-family: 'Inter', sans-serif;
-            --bg-color: #f6f8fa;
-            --nav-bg: #ffffff;
-            --content-bg: #ffffff;
-            --detail-panel-bg: #ffffff;
-            --text-primary: #1a1a1a;
-            --text-secondary: #6a737d;
-            --border-color: #e1e4e8;
-            --primary-accent: #2188ff;
-            --primary-accent-light: #e8f3ff;
-            --danger-color: #d73a49;
-            --success-color: #28a745;
-            --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            --font-family: 'Manrope', sans-serif;
+            --bg-base: #f9f9fb;
+            --bg-surface: #ffffff;
+            --bg-muted: #f3f4f6;
+            --text-primary: #111827;
+            --text-secondary: #6b7280;
+            --border-color: #e5e7eb;
+            --primary-accent: #4f46e5;
+            --primary-accent-light: #eef2ff;
+            --danger-color: #ef4444;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --border-radius: 0.75rem; /* 12px */
+            --transition-speed: 0.3s;
         }
 
         [data-theme="dark"] {
-            --bg-color: #0d1117;
-            --nav-bg: #161b22;
-            --content-bg: #161b22;
-            --detail-panel-bg: #0d1117;
-            --text-primary: #e6edf3;
-            --text-secondary: #7d8590;
-            --border-color: #30363d;
-            --primary-accent-light: rgba(56, 139, 253, 0.15);
+            --bg-base: #111827;
+            --bg-surface: #1f2937;
+            --bg-muted: #374151;
+            --text-primary: #f9fafb;
+            --text-secondary: #9ca3af;
+            --border-color: #374151;
+            --primary-accent: #6366f1;
+            --primary-accent-light: rgba(99, 102, 241, 0.15);
+            --danger-color: #f87171;
         }
 
         *, *::before, *::after { box-sizing: border-box; }
 
         body {
             font-family: var(--font-family);
-            background-color: var(--bg-color);
+            background-color: var(--bg-base);
             color: var(--text-primary);
             margin: 0;
-            overflow: hidden;
-            font-size: 14px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
-        /* --- LOGIN SCREEN --- */
-        #auth-section {
+        /* --- AUTHENTICATION SCREEN --- */
+        .auth-container {
             display: flex;
             align-items: center;
             justify-content: center;
             height: 100vh;
-            transition: opacity 0.3s ease-in-out;
         }
-        .login-container { background-color: var(--content-bg); border-radius: 12px; padding: 40px; text-align: center; box-shadow: var(--shadow); width: 100%; max-width: 400px; border: 1px solid var(--border-color); }
-        .login-container h2 { font-weight: 700; margin-bottom: 8px; }
-        .login-container .btn { border-radius: 8px; padding: 10px; font-weight: 500; border: 1px solid var(--border-color); background-color: var(--bg-color); color: var(--text-primary); }
-        [data-theme="dark"] .login-container .btn { background-color: #21262d; }
-
-        /* --- MAIN APP LAYOUT --- */
-        #main-app { display: flex; height: 100vh; }
-        .main-nav { width: 70px; background-color: var(--nav-bg); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; align-items: center; padding: 20px 0; z-index: 100; }
-        .content-area { flex-grow: 1; padding: 24px; display: flex; flex-direction: column; overflow: hidden; }
-        .detail-panel { width: 350px; background-color: var(--detail-panel-bg); border-left: 1px solid var(--border-color); padding: 24px; overflow-y: auto; transform: translateX(100%); transition: transform 0.3s ease-in-out; z-index: 99; }
-        .detail-panel.is-open { transform: translateX(0); }
-        .view { display: none; height: 100%; }
-        .view.active { display: block; }
+        .login-card {
+            background-color: var(--bg-surface);
+            border-radius: var(--border-radius);
+            padding: 40px;
+            text-align: center;
+            box-shadow: var(--shadow-md);
+            width: 100%;
+            max-width: 400px;
+            border: 1px solid var(--border-color);
+        }
+        .login-card h2 { font-weight: 700; margin-bottom: 8px; }
+        .login-card .btn {
+            border-radius: 8px;
+            padding: 12px;
+            font-weight: 500;
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            transition: background-color 0.2s;
+        }
+        .login-card .btn:hover { background-color: var(--bg-muted); }
         .d-none { display: none !important; }
 
-        /* --- COMPONENTS --- */
-        /* Nav */
-        .main-nav .logo { margin-bottom: 30px; }
-        .nav-item { cursor: pointer; color: var(--text-secondary); padding: 12px; border-radius: 8px; margin-bottom: 10px; transition: background-color 0.2s, color 0.2s; }
+        /* --- MAIN APP LAYOUT (GRID) --- */
+        .app-container {
+            display: grid;
+            height: 100vh;
+            grid-template-columns: 80px 1fr 0px; /* Sidebar, Main, Detail Panel (hidden) */
+            grid-template-rows: 100%;
+            transition: grid-template-columns var(--transition-speed) cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .app-container.panel-open {
+            grid-template-columns: 80px 1fr 380px; /* Detail Panel (visible) */
+        }
+        
+        /* --- SIDEBAR (NAV RAIL) --- */
+        .sidebar {
+            background-color: var(--bg-surface);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 24px 0;
+        }
+        .sidebar-logo { margin-bottom: 40px; }
+        .sidebar-nav { display: flex; flex-direction: column; gap: 12px; }
+        .nav-item {
+            cursor: pointer;
+            color: var(--text-secondary);
+            padding: 12px;
+            border-radius: 10px;
+            line-height: 0;
+            transition: all 0.2s;
+        }
         .nav-item:hover { color: var(--primary-accent); background-color: var(--primary-accent-light); }
         .nav-item.active { color: var(--primary-accent); background-color: var(--primary-accent-light); }
-        .nav-item i { font-size: 24px; }
-        .sidebar-footer { margin-top: auto; }
-        .user-avatar { width: 40px; height: 40px; border-radius: 50%; cursor: pointer; }
-        .theme-toggle { cursor: pointer; margin-top: 15px; }
+        .nav-item i { font-size: 22px; }
+        .sidebar-footer { margin-top: auto; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+        .user-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
 
-        /* Calendar View */
-        #calendar-view { display: flex; flex-direction: column; height: 100%; }
-        #calendar-container { flex-grow: 1; background-color: var(--content-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 15px; }
-        .fc { border: none !important; height: 100%; }
-        .fc .fc-toolbar-title { font-size: 1.5em !important; font-weight: 600; }
-        .fc .fc-button { background-color: transparent !important; color: var(--text-primary) !important; border: 1px solid var(--border-color) !important; box-shadow: none !important; }
-        .fc .fc-button-primary:not(:disabled).fc-button-active, .fc .fc-button-primary:not(:disabled):active { background-color: var(--primary-accent) !important; color: white !important; }
-        .fc-daygrid-day.fc-day-today { background-color: var(--primary-accent-light) !important; }
-        .fc-event { border: none !important; font-weight: 500; padding: 2px 6px; }
-        .fc-event-main { color: var(--text-primary) !important; }
-        .fc-event[data-type="event"] { background-color: var(--primary-accent-light) !important; }
-        .fc-event[data-type="task"] { background-color: #e8e8e8 !important; }
-        .fc-event[data-type="task"][data-completed="true"] { text-decoration: line-through; opacity: 0.6; }
+        /* --- MAIN CONTENT (CALENDAR) --- */
+        .main-content { padding: 24px 32px; overflow: hidden; display: flex; flex-direction: column; }
+        .main-content-header { margin-bottom: 24px; }
+        .main-content-header h1 { font-size: 1.875rem; font-weight: 700; margin: 0; }
+        #calendar-container {
+            flex-grow: 1;
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            padding: 20px;
+        }
 
-        /* Detail Panel */
-        .detail-panel-header h3 { margin: 0; font-weight: 600; font-size: 1.2rem; }
+        /* --- DETAIL PANEL (RIGHT) --- */
+        .detail-panel {
+            background-color: var(--bg-surface);
+            border-left: 1px solid var(--border-color);
+            padding: 24px;
+            overflow-y: auto;
+        }
+        .detail-panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .detail-panel-header h3 { font-size: 1.125rem; font-weight: 600; margin: 0; }
         .detail-panel-header .close-btn { cursor: pointer; color: var(--text-secondary); }
-        .list-group-item { display: flex; align-items: center; gap: 10px; padding: 10px; border-radius: 6px; margin-bottom: 8px; border: 1px solid var(--border-color); background-color: var(--bg-color); }
-        .list-group-item.task .form-check-input { margin-top: 0; }
-        .list-group-item .task-title { flex-grow: 1; }
-        .list-group-item .task-title.completed { text-decoration: line-through; color: var(--text-secondary); }
-        .delete-btn { color: var(--text-secondary); cursor: pointer; visibility: hidden; }
-        .list-group-item:hover .delete-btn { visibility: visible; }
+        .detail-panel h5 { font-size: 0.875rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px; }
+        .item-list { margin-bottom: 24px; }
+        .list-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            background-color: var(--bg-muted);
+        }
+        .list-item-title { flex-grow: 1; font-weight: 500; }
+        .list-item.task .list-item-title.completed { text-decoration: line-through; color: var(--text-secondary); }
+        .delete-btn { color: var(--text-secondary); cursor: pointer; opacity: 0; transition: opacity 0.2s; }
+        .list-item:hover .delete-btn { opacity: 1; }
         .delete-btn:hover { color: var(--danger-color); }
-        .form-control, .btn { border-radius: 8px; border: 1px solid var(--border-color); background-color: var(--bg-color); }
-        .btn-primary { background-color: var(--primary-accent); border-color: var(--primary-accent); color: white; }
+        .form-control {
+            width: 100%;
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+        }
+        .btn-primary {
+            background-color: var(--primary-accent);
+            border: none;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        #add-item-form { display: flex; gap: 8px; }
 
-        /* History View */
-        #history-feed { max-width: 800px; margin: 0 auto; }
-        .history-item { display: flex; gap: 15px; padding: 15px; border-bottom: 1px solid var(--border-color); }
-        .history-item-avatar img { width: 35px; height: 35px; border-radius: 50%; }
-        .history-item-content strong { font-weight: 600; }
-        .history-item-time { font-size: 0.8em; color: var(--text-secondary); }
+        /* --- FULLCALENDAR STYLING --- */
+        .fc { border: none !important; height: 100%; }
+        .fc .fc-toolbar-title { font-size: 1.25em !important; font-weight: 600; }
+        .fc .fc-button { background-color: var(--bg-surface) !important; color: var(--text-primary) !important; border: 1px solid var(--border-color) !important; box-shadow: none !important; }
+        .fc .fc-button-primary:not(:disabled).fc-button-active { background-color: var(--primary-accent) !important; color: white !important; border-color: var(--primary-accent) !important; }
+        .fc-daygrid-day.fc-day-today { background-color: var(--primary-accent-light) !important; }
+        .fc-daygrid-day-number { font-weight: 500 !important; }
+        .fc-event {
+            border: 1px solid transparent !important;
+            font-weight: 500;
+            padding: 3px 6px;
+            border-radius: 6px !important;
+            cursor: pointer;
+        }
+        .fc-event[data-type="event"] { background-color: var(--primary-accent-light) !important; border-color: var(--primary-accent) !important; }
+        .fc-event[data-type="event"] .fc-event-main { color: var(--primary-accent) !important; }
+        .fc-event[data-type="task"] { background-color: var(--bg-muted) !important; border-color: var(--border-color) !important; }
+        .fc-event[data-type="task"] .fc-event-main { color: var(--text-secondary) !important; }
+        .fc-event[data-type="task"][data-completed="true"] { opacity: 0.6; }
+        .fc-event[data-type="task"][data-completed="true"] .fc-event-main { text-decoration: line-through; }
     </style>
 </head>
 <body>
 
-    <!-- Authentication Screen -->
-    <div id="auth-section">
-        <div class="login-container">
+    <div class="auth-container" id="auth-section">
+        <div class="login-card">
             <img src="https://raw.githubusercontent.com/pbxgit/Calendar/main/favicon.png" alt="logo" width="50" class="mb-3">
             <h2>Welcome to OurCal</h2>
             <p class="text-secondary mb-4">A shared calendar to keep you both in sync.</p>
             <div class="d-grid gap-2">
-                <button id="google-login-btn" class="btn"><img src="https://raw.githubusercontent.com/pbxgit/Calendar/main/google-logo.svg" alt="Google" width="20" class="me-2"> Sign in with Google</button>
-                <button id="github-login-btn" class="btn"><img src="https://raw.githubusercontent.com/pbxgit/Calendar/main/github-logo.svg" alt="GitHub" width="20" class="me-2"> Sign in with GitHub</button>
+                <button id="google-login-btn" class="btn d-flex align-items-center justify-content-center gap-2"><img src="https://raw.githubusercontent.com/pbxgit/Calendar/main/google-logo.svg" alt="Google" width="20"> Sign in with Google</button>
+                <button id="github-login-btn" class="btn d-flex align-items-center justify-content-center gap-2"><img src="https://raw.githubusercontent.com/pbxgit/Calendar/main/github-logo.svg" alt="GitHub" width="20"> Sign in with GitHub</button>
             </div>
         </div>
     </div>
 
-    <!-- Main Application -->
-    <div id="main-app" class="d-none">
-        <!-- Left Navigation -->
-        <nav class="main-nav">
-            <img src="https://raw.githubusercontent.com/pbxgit/Calendar/main/favicon.png" alt="logo" width="32" class="logo">
-            <div class="nav-item active" data-view="calendar-view" title="Calendar"><i class="bi bi-calendar3"></i></div>
-            <div class="nav-item" data-view="history-view" title="Activity"><i class="bi bi-clock-history"></i></div>
+    <div class="app-container d-none" id="app-container">
+        <nav class="sidebar">
+            <img src="https://raw.githubusercontent.com/pbxgit/Calendar/main/favicon.png" alt="logo" width="32" class="sidebar-logo">
+            <div class="sidebar-nav">
+                <div class="nav-item active" title="Calendar"><i class="bi bi-calendar-month"></i></div>
+            </div>
             <div class="sidebar-footer">
+                <div class="nav-item" id="theme-toggle" title="Toggle Theme"><i class="bi bi-moon-stars-fill"></i></div>
                 <div id="user-profile"></div>
-                <div class="theme-toggle nav-item" id="theme-toggle" title="Toggle Theme"><i class="bi bi-moon-stars"></i></div>
-                <div class="nav-item" id="logout-btn" title="Logout"><i class="bi bi-box-arrow-right"></i></div>
+                <div class="nav-item" id="logout-btn" title="Logout"><i class="bi bi-box-arrow-left"></i></div>
             </div>
         </nav>
 
-        <!-- Main Content Area -->
-        <main class="content-area">
-            <div id="calendar-view" class="view active">
-                <div id="calendar-container"></div>
+        <main class="main-content">
+            <div class="main-content-header">
+                <h1>Calendar</h1>
             </div>
-            <div id="history-view" class="view">
-                <h2 class="mb-4">Activity Feed</h2>
-                <div id="history-feed" class="overflow-auto h-100"></div>
-            </div>
+            <div id="calendar-container"></div>
         </main>
 
-        <!-- Right Detail Panel -->
-        <aside class="detail-panel" id="detail-panel">
-            <div class="detail-panel-header d-flex justify-content-between align-items-center mb-4">
-                <h3 id="detail-panel-date"></h3>
+        <aside class="detail-panel">
+            <div class="detail-panel-header">
+                <h3 id="detail-panel-date">Select a date</h3>
                 <i class="bi bi-x-lg close-btn" id="close-panel-btn"></i>
             </div>
             
-            <!-- Events Section -->
             <h5>Events</h5>
-            <div id="event-list" class="mb-4"></div>
-            <form id="add-event-form" class="d-flex gap-2 mb-4">
-                <input type="text" id="event-title-input" class="form-control form-control-sm" placeholder="Add an event..." required>
-                <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg"></i></button>
-            </form>
+            <div class="item-list" id="event-list"></div>
 
-            <!-- Tasks Section -->
             <h5>Daily Tasks</h5>
-            <div id="task-list" class="mb-4"></div>
-            <form id="add-task-form" class="d-flex gap-2">
-                <input type="text" id="task-title-input" class="form-control form-control-sm" placeholder="Add a task..." required>
-                <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg"></i></button>
+            <div class="item-list" id="task-list"></div>
+
+            <form id="add-item-form">
+                <input type="text" id="item-title-input" class="form-control" placeholder="New event or task..." required>
+                 <select id="item-type-select" class="form-control" style="width: 100px;">
+                    <option value="event">Event</option>
+                    <option value="task">Task</option>
+                </select>
+                <button type="submit" class="btn-primary"><i class="bi bi-plus-lg"></i> Add</button>
             </form>
         </aside>
     </div>
@@ -220,246 +290,171 @@
         let calendar;
         let currentUser = null;
         let selectedDate = null;
-        let unsubscribeEvents = null;
+        let activeUnsubscribes = {};
 
         // --- DOM ELEMENTS ---
         const authSection = document.getElementById('auth-section');
-        const mainApp = document.getElementById('main-app');
-        const detailPanel = document.getElementById('detail-panel');
-
-        // --- THEME MANAGEMENT ---
+        const appContainer = document.getElementById('app-container');
+        
+        // --- THEME ---
         const themeToggle = document.getElementById('theme-toggle');
         const setInitialTheme = () => {
             const savedTheme = localStorage.getItem('theme') || 'light';
             document.documentElement.setAttribute('data-theme', savedTheme);
-            themeToggle.querySelector('i').className = savedTheme === 'dark' ? 'bi bi-sun' : 'bi bi-moon-stars';
+            themeToggle.querySelector('i').className = savedTheme === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-stars-fill';
         };
         themeToggle.addEventListener('click', () => {
-            const currentTheme = document.documentElement.getAttribute('data-theme');
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            document.documentElement.setAttribute('data-theme', newTheme);
+            const newTheme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
             localStorage.setItem('theme', newTheme);
             setInitialTheme();
         });
 
-        // --- APP INITIALIZATION ---
-        document.addEventListener('DOMContentLoaded', () => {
-            setInitialTheme();
-            auth.onAuthStateChanged(user => {
-                if (user && !user.isAnonymous) {
-                    currentUser = user;
-                    authSection.classList.add('d-none');
-                    mainApp.classList.remove('d-none');
-                    initializeApp();
-                } else {
-                    currentUser = null;
-                    authSection.classList.remove('d-none');
-                    mainApp.classList.add('d-none');
-                    if (calendar) calendar.destroy();
-                    if (unsubscribeEvents) unsubscribeEvents();
-                }
-            });
-            setupAuthEventListeners();
+        // --- AUTHENTICATION ---
+        auth.onAuthStateChanged(user => {
+            if (user && !user.isAnonymous) {
+                currentUser = user;
+                authSection.classList.add('d-none');
+                appContainer.classList.remove('d-none');
+                initializeApp();
+            } else {
+                currentUser = null;
+                authSection.classList.remove('d-none');
+                appContainer.classList.add('d-none');
+                if (calendar) calendar.destroy();
+                Object.values(activeUnsubscribes).forEach(unsub => unsub());
+                activeUnsubscribes = {};
+            }
         });
-
-        function initializeApp() {
-            updateUserInfoUI(currentUser);
-            setupAppEventListeners();
-            initializeCalendar();
-            loadAllEvents();
-            loadHistory();
-        }
-
-        // --- UI & AUTHENTICATION ---
-        function updateUserInfoUI(user) {
-            document.getElementById('user-profile').innerHTML = `<img src="${user.photoURL}" alt="${user.displayName}" class="user-avatar" title="${user.displayName}">`;
-        }
-
+        
         function setupAuthEventListeners() {
             document.getElementById('google-login-btn').addEventListener('click', () => auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()));
             document.getElementById('github-login-btn').addEventListener('click', () => auth.signInWithPopup(new firebase.auth.GithubAuthProvider()));
         }
 
-        // --- NAVIGATION & VIEWS ---
-        function setupAppEventListeners() {
-            document.getElementById('logout-btn').addEventListener('click', () => auth.signOut());
-            document.getElementById('close-panel-btn').addEventListener('click', () => detailPanel.classList.remove('is-open'));
-
-            document.querySelectorAll('.main-nav .nav-item[data-view]').forEach(item => {
-                item.addEventListener('click', () => {
-                    document.querySelector('.main-nav .nav-item.active').classList.remove('active');
-                    item.classList.add('active');
-                    
-                    document.querySelector('.view.active').classList.remove('active');
-                    document.getElementById(item.dataset.view).classList.add('active');
-                });
-            });
-
-            // Form Submissions in Detail Panel
-            document.getElementById('add-event-form').addEventListener('submit', (e) => handleItemAdd(e, 'event'));
-            document.getElementById('add-task-form').addEventListener('submit', (e) => handleItemAdd(e, 'task'));
+        // --- APPLICATION LOGIC ---
+        function initializeApp() {
+            setInitialTheme();
+            document.getElementById('user-profile').innerHTML = `<img src="${currentUser.photoURL}" alt="${currentUser.displayName}" class="user-avatar" title="${currentUser.displayName}">`;
+            initializeCalendar();
+            loadAllCalendarItems();
+            setupAppEventListeners();
         }
 
-        // --- CALENDAR LOGIC ---
+        function setupAppEventListeners() {
+            document.getElementById('logout-btn').addEventListener('click', () => auth.signOut());
+            document.getElementById('close-panel-btn').addEventListener('click', () => appContainer.classList.remove('panel-open'));
+            document.getElementById('add-item-form').addEventListener('submit', handleItemAdd);
+        }
+
         function initializeCalendar() {
             const calendarEl = document.getElementById('calendar-container');
             calendar = new FullCalendar.Calendar(calendarEl, {
                 initialView: 'dayGridMonth',
                 headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek' },
                 height: '100%',
-                selectable: true,
                 editable: true,
-                dateClick: (info) => {
-                    selectedDate = info.dateStr;
-                    renderDetailPanel(selectedDate);
-                    detailPanel.classList.add('is-open');
-                },
-                eventDrop: (info) => {
-                    const { id, title } = info.event;
-                    const newStart = info.event.start.toISOString().split('T')[0];
-                    db.collection('events').doc(id).update({ start: newStart });
-                    logHistory('moved', { title });
-                },
-                 eventDidMount: function(info) {
-                    info.el.setAttribute('data-type', info.event.extendedProps.type);
-                    if(info.event.extendedProps.completed) {
-                         info.el.setAttribute('data-completed', 'true');
-                    }
+                selectable: true,
+                dateClick: (info) => openDetailPanel(info.dateStr),
+                eventClick: (info) => openDetailPanel(info.event.startStr.split('T')[0]),
+                eventDrop: handleItemMove,
+                eventDidMount: (info) => {
+                    const el = info.el;
+                    const item = info.event.extendedProps;
+                    el.setAttribute('data-type', item.type);
+                    if (item.completed) el.setAttribute('data-completed', 'true');
                 }
             });
             calendar.render();
         }
+        
+        function openDetailPanel(dateStr) {
+            selectedDate = dateStr;
+            appContainer.classList.add('panel-open');
+            renderDetailPanelContent(dateStr);
+        }
 
-        function loadAllEvents() {
-             if (unsubscribeEvents) unsubscribeEvents();
-             unsubscribeEvents = db.collection('events').onSnapshot(snapshot => {
-                const events = snapshot.docs.map(doc => ({
+        function renderDetailPanelContent(dateStr) {
+            const date = new Date(dateStr + 'T00:00:00');
+            document.getElementById('detail-panel-date').textContent = date.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
+            
+            if (activeUnsubscribes.detailPanel) activeUnsubscribes.detailPanel();
+
+            activeUnsubscribes.detailPanel = db.collection('events').where('start', '==', dateStr).orderBy('createdAt').onSnapshot(snapshot => {
+                const eventList = document.getElementById('event-list');
+                const taskList = document.getElementById('task-list');
+                eventList.innerHTML = '';
+                taskList.innerHTML = '';
+
+                snapshot.docs.forEach(doc => {
+                    const item = doc.data();
+                    const itemEl = document.createElement('div');
+                    itemEl.className = 'list-item';
+                    
+                    if (item.type === 'event') {
+                        itemEl.innerHTML = `<span class="list-item-title">${item.title}</span><i class="bi bi-trash3-fill delete-btn" data-id="${doc.id}"></i>`;
+                        eventList.appendChild(itemEl);
+                    } else if (item.type === 'task') {
+                        itemEl.classList.add('task');
+                        itemEl.innerHTML = `
+                            <input type="checkbox" class="form-check-input" ${item.completed ? 'checked' : ''} data-id="${doc.id}">
+                            <span class="list-item-title ${item.completed ? 'completed' : ''}">${item.title}</span>
+                            <i class="bi bi-trash3-fill delete-btn" data-id="${doc.id}"></i>`;
+                        taskList.appendChild(itemEl);
+                    }
+                });
+                attachItemActionListeners();
+            });
+        }
+        
+        function attachItemActionListeners() {
+            document.querySelectorAll('.delete-btn').forEach(btn => btn.onclick = (e) => db.collection('events').doc(e.target.dataset.id).delete());
+            document.querySelectorAll('.task .form-check-input').forEach(box => box.onchange = (e) => db.collection('events').doc(e.target.dataset.id).update({ completed: e.target.checked }));
+        }
+
+        function loadAllCalendarItems() {
+            if (activeUnsubscribes.calendar) activeUnsubscribes.calendar();
+            activeUnsubscribes.calendar = db.collection('events').onSnapshot(snapshot => {
+                const calendarEvents = snapshot.docs.map(doc => ({
                     id: doc.id,
                     title: doc.data().title,
                     start: doc.data().start,
                     allDay: true,
-                    extendedProps: {
-                        type: doc.data().type,
-                        completed: doc.data().completed
-                    }
+                    extendedProps: { type: doc.data().type, completed: doc.data().completed }
                 }));
                 if (calendar) {
                     calendar.removeAllEventSources();
-                    calendar.addEventSource(events);
+                    calendar.addEventSource(calendarEvents);
                 }
             });
         }
         
-        // --- DETAIL PANEL LOGIC ---
-        function renderDetailPanel(dateStr) {
-             const date = new Date(dateStr + 'T00:00:00');
-             document.getElementById('detail-panel-date').textContent = date.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
-             
-             db.collection('events').where('start', '==', dateStr).onSnapshot(snapshot => {
-                 const eventList = document.getElementById('event-list');
-                 const taskList = document.getElementById('task-list');
-                 eventList.innerHTML = '';
-                 taskList.innerHTML = '';
-
-                 if (snapshot.empty) {
-                     eventList.innerHTML = '<p class="text-secondary small">No events for this day.</p>';
-                 }
-
-                 snapshot.docs.forEach(doc => {
-                     const item = doc.data();
-                     const itemEl = document.createElement('div');
-                     
-                     if (item.type === 'event') {
-                         itemEl.className = 'list-group-item event';
-                         itemEl.innerHTML = `<span>${item.title}</span><div class="ms-auto"><i class="bi bi-trash delete-btn" data-id="${doc.id}" data-title="${item.title}"></i></div>`;
-                         eventList.appendChild(itemEl);
-                     } else if (item.type === 'task') {
-                         itemEl.className = 'list-group-item task';
-                         itemEl.innerHTML = `
-                            <input class="form-check-input" type="checkbox" ${item.completed ? 'checked' : ''} data-id="${doc.id}">
-                            <span class="task-title ${item.completed ? 'completed' : ''}">${item.title}</span>
-                            <div class="ms-auto"><i class="bi bi-trash delete-btn" data-id="${doc.id}" data-title="${item.title}"></i></div>
-                         `;
-                         taskList.appendChild(itemEl);
-                     }
-                 });
-                 attachItemActionListeners();
-             });
-        }
-        
-        function attachItemActionListeners() {
-            document.querySelectorAll('.delete-btn').forEach(btn => {
-                btn.onclick = (e) => {
-                    const id = e.target.dataset.id;
-                    const title = e.target.dataset.title;
-                    if (confirm(`Delete "${title}"?`)) {
-                        db.collection('events').doc(id).delete();
-                        logHistory('deleted', { title });
-                    }
-                }
-            });
-
-            document.querySelectorAll('.task .form-check-input').forEach(box => {
-                box.onchange = (e) => {
-                    db.collection('events').doc(e.target.dataset.id).update({ completed: e.target.checked });
-                }
-            });
-        }
-
-        async function handleItemAdd(e, type) {
+        function handleItemAdd(e) {
             e.preventDefault();
-            const inputId = type === 'event' ? 'event-title-input' : 'task-title-input';
-            const input = document.getElementById(inputId);
+            const input = document.getElementById('item-title-input');
+            const type = document.getElementById('item-type-select').value;
             const title = input.value.trim();
 
             if (title && selectedDate) {
                 const newItem = {
-                    title: title,
+                    title,
+                    type,
                     start: selectedDate,
-                    type: type,
-                    createdBy: {
-                        uid: currentUser.uid,
-                        name: currentUser.displayName,
-                        avatar: currentUser.photoURL
-                    },
                     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    createdBy: { uid: currentUser.uid, name: currentUser.displayName },
                     ...(type === 'task' && { completed: false })
                 };
-                await db.collection('events').add(newItem);
-                logHistory('created', { title: title });
+                db.collection('events').add(newItem);
                 input.value = '';
             }
         }
-
-        // --- HISTORY & LOGGING ---
-        function logHistory(action, data) {
-            db.collection('history').add({
-                action: action, // created, deleted, moved
-                itemTitle: data.title,
-                user: { name: currentUser.displayName, avatar: currentUser.photoURL },
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            });
+        
+        function handleItemMove(info) {
+             db.collection('events').doc(info.event.id).update({ start: info.event.start.toISOString().split('T')[0] });
         }
+        
+        // --- STARTUP ---
+        document.addEventListener('DOMContentLoaded', setupAuthEventListeners);
 
-        function loadHistory() {
-            db.collection('history').orderBy('timestamp', 'desc').limit(50).onSnapshot(snapshot => {
-                const feed = document.getElementById('history-feed');
-                feed.innerHTML = '';
-                snapshot.forEach(doc => {
-                    const entry = doc.data();
-                    const item = document.createElement('div');
-                    item.className = 'history-item';
-                    item.innerHTML = `
-                        <div class="history-item-avatar"><img src="${entry.user.avatar}" alt="${entry.user.name}"></div>
-                        <div class="history-item-content">
-                            <p class="mb-0"><strong>${entry.user.name}</strong> ${entry.action} "${entry.itemTitle}"</p>
-                            <span class="history-item-time">${entry.timestamp ? entry.timestamp.toDate().toLocaleString() : ''}</span>
-                        </div>
-                    `;
-                    feed.appendChild(item);
-                });
-            });
-        }
     </script>
 </body>
 </html>

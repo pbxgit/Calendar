@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OurCal - Collaborative Calendar</title>
+    <title>OurCal - A Better Calendar</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -15,7 +15,6 @@
 </head>
 <body>
     <div id="login-container">
-        <!-- Login box remains the same -->
         <div class="login-box">
             <div class="login-header"><h1>OurCal</h1><p>Stay in sync, together.</p></div>
             <button id="login-google" class="login-button"><img src="https://raw.githubusercontent.com/pbxgit/Calendar/main/google-logo.svg" alt="Google Logo"><span>Sign in with Google</span></button>
@@ -25,20 +24,35 @@
 
     <div id="app-container">
         <aside class="sidebar">
-            <!-- Sidebar content remains the same -->
-            <div class="sidebar-header"><h2>OurCal</h2><div id="user-profile"><img id="user-photo" src="" alt="User Photo"><span id="user-name"></span><button id="logout-button">Logout</button></div></div>
-            <div class="sidebar-content"><div class="sidebar-section"><h3>Unified Tasks</h3><ul id="task-list"></ul></div><div class="sidebar-section"><h3>Logs</h3><ul id="log-list"></ul></div><div class="sidebar-section chat-section"><h3>Chat</h3><div id="chat-box"></div><div class="chat-input-area"><input type="text" id="chat-message" placeholder="Type a message..."><button id="send-message">Send</button></div></div></div>
+            <div class="sidebar-header">
+                <h2>OurCal</h2>
+            </div>
+            <div class="sidebar-content">
+                <button id="create-task-btn" class="button-primary create-button">Create</button>
+                <nav class="sidebar-nav">
+                    <a href="#" class="nav-item active">Calendar</a>
+                    <!-- <a href="#" class="nav-item">Tasks</a> -->
+                    <!-- <a href="#" class="nav-item">Search</a> -->
+                </nav>
+            </div>
         </aside>
 
         <main class="main-content">
-            <header class="calendar-header">
-                <!-- Hamburger menu added here -->
+            <header class="main-header">
                 <button id="hamburger-menu" class="hamburger-button">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                    <svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
                 </button>
-                <button id="prev-month" class="nav-button">&lt;</button>
-                <h2 id="current-month"></h2>
-                <button id="next-month" class="nav-button">&gt;</button>
+                <div class="calendar-controls">
+                    <button id="prev-month" class="nav-button">&lt;</button>
+                    <h2 id="current-month"></h2>
+                    <button id="next-month" class="nav-button">&gt;</button>
+                </div>
+                <div class="header-actions">
+                    <div id="user-profile">
+                        <img id="user-photo" src="" alt="User Photo">
+                        <button id="logout-button">Logout</button>
+                    </div>
+                </div>
             </header>
             <div class="calendar-weekdays">
                 <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
@@ -47,22 +61,37 @@
         </main>
     </div>
 
-    <!-- Modal remains the same -->
-    <div id="task-modal" class="modal-overlay">
-        <div class="modal-content">
-            <span class="close-button">&times;</span>
-            <h3>Add / Edit Task</h3>
-            <input type="hidden" id="task-id">
-            <div class="form-group"><label for="task-title">Title</label><input type="text" id="task-title" placeholder="e.g., Team Meeting"></div>
-            <div class="form-group"><label for="task-description">Description</label><textarea id="task-description" placeholder="Add more details..."></textarea></div>
-            <div class="form-group"><label for="task-date">Date</label><input type="date" id="task-date"></div>
-            <div class="modal-actions"><button id="save-task" class="button-primary">Save Task</button><button id="delete-task" class="button-danger">Delete Task</button></div>
+    <!-- Quick Add Popover Modal -->
+    <div id="quick-add-modal" class="modal-overlay">
+        <div class="quick-add-content">
+            <input type="text" id="quick-add-title" placeholder="e.g., Dinner with Mom at 8pm">
+            <div class="quick-add-actions">
+                <button id="quick-add-details-btn">More Options</button>
+                <button id="quick-add-save-btn" class="button-primary">Save</button>
+            </div>
         </div>
     </div>
 
-    <!-- Overlay for mobile sidebar -->
-    <div id="sidebar-overlay"></div>
+    <!-- Full Task Details Modal -->
+    <div id="task-details-modal" class="modal-overlay">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <input type="text" id="task-title" class="task-title-input" placeholder="Task Title">
+            <input type="hidden" id="task-id">
+            <div class="form-row">
+                <div class="form-group"><label for="task-date">Date</label><input type="date" id="task-date"></div>
+                <div class="form-group"><label for="task-time">Time</label><input type="time" id="task-time"></div>
+            </div>
+            <div class="form-group"><label for="task-description">Description</label><textarea id="task-description" placeholder="Add more details..."></textarea></div>
+            <div class="form-group"><label>Color</label><div id="task-colors" class="color-selector"></div></div>
+            <div class="modal-actions">
+                <button id="delete-task-btn" class="button-danger">Delete</button>
+                <button id="save-task-btn" class="button-primary">Save Task</button>
+            </div>
+        </div>
+    </div>
 
+    <div id="sidebar-overlay"></div>
     <script src="script.js"></script>
 </body>
 </html>

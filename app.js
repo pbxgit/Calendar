@@ -1,9 +1,9 @@
 // --- Firebase SDK Imports ---
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, GoogleAuthProvider, GithubAuthProvider, signInWithPopup, signOut } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
-import { getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc, serverTimestamp, query, where, orderBy } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+import { getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc, serverTimestamp, query, where, orderBy, Timestamp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
-// --- DANGER: FINAL WARNING - SECURE YOUR KEYS IN PRODUCTION ---
+// --- Firebase Initialization (Keys should be in environment variables for production) ---
 const firebaseConfig = {
     apiKey: "AIzaSyBghGrPLr7_iC46u1Phs83vd1i-47zstUs",
     authDomain: "calendar-pbx21.firebaseapp.com",
@@ -14,7 +14,6 @@ const firebaseConfig = {
     measurementId: "G-YCNG7QXRR2"
 };
 
-// --- Firebase Initialization ---
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
@@ -30,11 +29,12 @@ const state = {
 // --- DOM Element Caching ---
 const loginScreen = document.getElementById('login-screen');
 const appScreen = document.getElementById('app-screen');
-const logoutBtn = document.getElementById('logout-btn');
 const calendarGrid = document.getElementById('calendar-grid');
 const monthNameEl = document.getElementById('month-name');
 const yearEl = document.getElementById('year');
-// ... (rest of the elements)
+const eventModal = document.getElementById('event-modal');
+const eventForm = document.getElementById('event-form');
+const deleteEventBtn = document.getElementById('delete-event-btn');
 
 // --- AUTHENTICATION ---
 onAuthStateChanged(auth, user => {
@@ -53,13 +53,13 @@ onAuthStateChanged(auth, user => {
 
 document.getElementById('google-login-btn').onclick = () => signInWithPopup(auth, new GoogleAuthProvider());
 document.getElementById('github-login-btn').onclick = () => signInWithPopup(auth, new GithubAuthProvider());
-logoutBtn.onclick = () => signOut(auth);
+document.getElementById('logout-btn').onclick = () => signOut(auth);
 
 // --- CALENDAR LOGIC ---
 function renderCalendar() {
     if (!currentUser) return;
 
-    state.viewDate.setDate(1); // Start from the first day of the month
+    state.viewDate.setDate(1);
     const month = state.viewDate.getMonth();
     const year = state.viewDate.getFullYear();
 
@@ -72,70 +72,49 @@ function renderCalendar() {
 
     calendarGrid.innerHTML = '';
 
-    // Previous month's days
     for (let i = firstDayIndex; i > 0; i--) {
-        const dayEl = createDayElement(prevLastDay - i + 1, true);
-        calendarGrid.appendChild(dayEl);
+        calendarGrid.appendChild(createDayElement(prevLastDay - i + 1, true));
     }
 
-    // Current month's days
     for (let i = 1; i <= daysInMonth; i++) {
         const date = new Date(year, month, i);
-        const dayEl = createDayElement(i, false, date);
-        if (i === new Date().getDate() && month === new Date().getMonth() && year === new Date().getFullYear()) {
-            dayEl.classList.add('today');
-        }
-        calendarGrid.appendChild(dayEl);
+        const isToday = date.toDateString() === new Date().toDateString();
+        calendarGrid.appendChild(createDayElement(i, false, date, isToday));
     }
 
-    // Next month's days (to fill the grid)
-    const remainingCells = 42 - calendarGrid.children.length; // 6 weeks * 7 days
-    for (let i = 1; i <= remainingCells; i++) {
-        const dayEl = createDayElement(i, true);
-        calendarGrid.appendChild(dayEl);
+    const totalCells = firstDayIndex + daysInMonth;
+    const nextDays = (7 - (totalCells % 7)) % 7;
+    for (let i = 1; i <= nextDays; i++) {
+        calendarGrid.appendChild(createDayElement(i, true));
     }
     
     fetchAndRenderEvents();
 }
 
-function createDayElement(dayNum, isOtherMonth, date = null) {
+function createDayElement(dayNum, isOtherMonth, date = null, isToday = false) {
     const dayEl = document.createElement('div');
     dayEl.className = 'day';
     if (isOtherMonth) dayEl.classList.add('other-month');
+    if (isToday) dayEl.classList.add('today');
     
-    const dayNumberEl = document.createElement('span');
-    dayNumberEl.className = 'day-number';
-    dayNumberEl.textContent = dayNum;
-    dayEl.appendChild(dayNumberEl);
-    
-    const eventsContainer = document.createElement('div');
-    eventsContainer.className = 'events-container';
-    dayEl.appendChild(eventsContainer);
+    dayEl.innerHTML = `
+        <span class="day-number">${dayNum}</span>
+        <div class="events-container"></div>
+    `;
 
     if (date) {
         dayEl.onclick = (e) => {
-            // Only open modal if clicking on the day itself, not an event pill
-            if (e.target.classList.contains('day') || e.target.classList.contains('day-number')) {
-                openModal(null, date);
-            }
+            if (e.target.closest('.event-pill')) return;
+            openModal(null, date);
         };
     }
     return dayEl;
 }
 
 // --- NAVIGATION ---
-document.getElementById('next-month-btn').onclick = () => {
-    state.viewDate.setMonth(state.viewDate.getMonth() + 1);
-    renderCalendar();
-};
-document.getElementById('prev-month-btn').onclick = () => {
-    state.viewDate.setMonth(state.viewDate.getMonth() - 1);
-    renderCalendar();
-};
-document.getElementById('today-btn').onclick = () => {
-    state.viewDate = new Date();
-    renderCalendar();
-};
+document.getElementById('next-month-btn').onclick = () => { state.viewDate.setMonth(state.viewDate.getMonth() + 1); renderCalendar(); };
+document.getElementById('prev-month-btn').onclick = () => { state.viewDate.setMonth(state.viewDate.getMonth() - 1); renderCalendar(); };
+document.getElementById('today-btn').onclick = () => { state.viewDate = new Date(); renderCalendar(); };
 
 // --- FIRESTORE & EVENT RENDERING ---
 function fetchAndRenderEvents() {
@@ -143,11 +122,10 @@ function fetchAndRenderEvents() {
 
     const month = state.viewDate.getMonth();
     const year = state.viewDate.getFullYear();
-    const startDate = new Date(year, month, 1);
-    const endDate = new Date(year, month + 1, 0);
+    const startDate = Timestamp.fromDate(new Date(year, month, 1));
+    const endDate = Timestamp.fromDate(new Date(year, month + 1, 0));
 
-    const eventsRef = collection(db, 'events');
-    const q = query(eventsRef,
+    const q = query(collection(db, 'events'),
         where("dateTime", ">=", startDate),
         where("dateTime", "<=", endDate),
         orderBy("dateTime")
@@ -160,61 +138,55 @@ function fetchAndRenderEvents() {
 }
 
 function distributeEventsToDays() {
-    // Clear existing event pills
-    document.querySelectorAll('.event-pill').forEach(pill => pill.remove());
+    document.querySelectorAll('.events-container').forEach(c => c.innerHTML = '');
 
     state.events.forEach(event => {
         const eventDate = event.dateTime.toDate();
-        const day = eventDate.getDate();
-        const month = eventDate.getMonth();
-        const year = eventDate.getFullYear();
+        const dayOfMonth = eventDate.getDate();
         
-        // Find the correct day cell in the grid
-        if (month === state.viewDate.getMonth() && year === state.viewDate.getFullYear()) {
-            const dayIndex = day + new Date(year, month, 1).getDay() - 1;
-            const dayEl = calendarGrid.children[dayIndex];
-            if (dayEl) {
-                const eventsContainer = dayEl.querySelector('.events-container');
-                const pill = document.createElement('div');
-                pill.className = `event-pill cat-${event.category || 'blue'}`;
-                pill.textContent = event.title;
-                pill.onclick = () => openModal(event);
-                eventsContainer.appendChild(pill);
-            }
+        const dayEl = Array.from(calendarGrid.children).find(d => 
+            !d.classList.contains('other-month') && 
+            parseInt(d.querySelector('.day-number').textContent) === dayOfMonth
+        );
+        
+        if (dayEl) {
+            const eventsContainer = dayEl.querySelector('.events-container');
+            const pill = document.createElement('div');
+            pill.className = `event-pill cat-${event.category || 'blue'}`;
+            pill.textContent = event.title;
+            pill.onclick = () => openModal(event);
+            eventsContainer.appendChild(pill);
         }
     });
 }
 
 // --- MODAL & EVENT MANAGEMENT ---
-const eventModal = document.getElementById('event-modal');
-const eventForm = document.getElementById('event-form');
-const deleteEventBtn = document.getElementById('delete-event-btn');
-
 function openModal(event = null, date = null) {
     eventForm.reset();
     document.querySelectorAll('.category-option').forEach(el => el.classList.remove('selected'));
 
     if (event) { // Editing
         document.getElementById('modal-title').textContent = 'Edit Event';
-        document.getElementById('event-id').value = event.id;
-        document.getElementById('event-title-input').value = event.title;
-        const eventDate = event.dateTime.toDate();
-        document.getElementById('event-date-input').valueAsDate = eventDate;
+        const { id, title, dateTime, category } = event;
+        document.getElementById('event-id').value = id;
+        document.getElementById('event-title-input').value = title;
+        const eventDate = dateTime.toDate();
+        document.getElementById('event-date-input').value = eventDate.toISOString().split('T')[0];
         document.getElementById('event-time-input').value = eventDate.toTimeString().slice(0, 5);
+        document.getElementById('event-category-input').value = category || 'blue';
         deleteEventBtn.classList.remove('hidden');
     } else { // Creating
         document.getElementById('modal-title').textContent = 'New Event';
         document.getElementById('event-id').value = '';
-        if (date) {
-            document.getElementById('event-date-input').valueAsDate = date;
-        }
+        const initialDate = date || new Date();
+        document.getElementById('event-date-input').value = initialDate.toISOString().split('T')[0];
+        document.getElementById('event-time-input').value = initialDate.toTimeString().slice(0, 5);
+        document.getElementById('event-category-input').value = 'blue';
         deleteEventBtn.classList.add('hidden');
     }
     
-    // Handle category for both new and edit
-    const category = event?.category || 'blue';
-    document.querySelector(`.category-option[data-color="${category}"]`).classList.add('selected');
-    document.getElementById('event-category-input').value = category;
+    const currentCategory = document.getElementById('event-category-input').value;
+    document.querySelector(`.category-option[data-color="${currentCategory}"]`).classList.add('selected');
     
     eventModal.classList.add('visible');
 }
@@ -227,7 +199,6 @@ document.getElementById('add-event-btn').onclick = () => openModal(null, new Dat
 document.getElementById('cancel-event-btn').onclick = closeModal;
 window.onclick = (e) => { if (e.target === eventModal) closeModal(); };
 
-// Category Selector Logic
 document.getElementById('category-selector').addEventListener('click', (e) => {
     if (e.target.classList.contains('category-option')) {
         document.querySelectorAll('.category-option').forEach(el => el.classList.remove('selected'));
@@ -236,26 +207,31 @@ document.getElementById('category-selector').addEventListener('click', (e) => {
     }
 });
 
-// Form Submission (Create/Update)
 eventForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const id = document.getElementById('event-id').value;
     const date = document.getElementById('event-date-input').value;
     const time = document.getElementById('event-time-input').value;
-    const dateTime = new Date(`${date}T${time}`);
+    const dateTime = Timestamp.fromDate(new Date(`${date}T${time}`));
     
     const eventData = {
         title: document.getElementById('event-title-input').value,
-        dateTime: dateTime,
+        dateTime,
         category: document.getElementById('event-category-input').value,
         creatorUid: currentUser.uid,
         creatorName: currentUser.name,
         lastUpdated: serverTimestamp()
     };
     
+    const id = document.getElementById('event-id').value;
     const eventId = id || doc(collection(db, 'events')).id;
     await setDoc(doc(db, 'events', eventId), eventData, { merge: true });
     closeModal();
 });
 
-// Delete Logic
+deleteEventBtn.onclick = async () => {
+    const id = document.getElementById('event-id').value;
+    if (id && confirm('Are you sure you want to delete this event?')) {
+        await deleteDoc(doc(db, 'events', id));
+        closeModal();
+    }
+};

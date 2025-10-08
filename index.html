@@ -191,7 +191,9 @@
         auth.onAuthStateChanged(user => {
             if (user && !user.isAnonymous) {
                 currentUser = user;
-                initializeApp();
+                if (appContainer.classList.contains('d-none')) { // Only initialize if the app isn't already running
+                    initializeApp();
+                }
             } else {
                 currentUser = null;
                 Object.values(activeUnsubscribes).forEach(unsub => unsub());
@@ -214,19 +216,17 @@
             const googleLoginBtn = document.getElementById('google-login-btn');
             const githubLoginBtn = document.getElementById('github-login-btn');
             
-            googleLoginBtn.addEventListener('click', () => {
-                auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(error => {
-                    console.error("Google Sign-In Error:", error);
+            const handleLogin = (provider) => {
+                loadingOverlay.classList.remove('d-none'); // Show loader immediately on click
+                auth.signInWithRedirect(provider).catch(error => {
+                    console.error("Sign-In Error:", error);
                     alert(`Login Failed: ${error.message}`);
+                    loadingOverlay.classList.add('d-none');
                 });
-            });
+            };
 
-            githubLoginBtn.addEventListener('click', () => {
-                auth.signInWithPopup(new firebase.auth.GithubAuthProvider()).catch(error => {
-                    console.error("GitHub Sign-In Error:", error);
-                    alert(`Login Failed: ${error.message}`);
-                });
-            });
+            googleLoginBtn.addEventListener('click', () => handleLogin(new firebase.auth.GoogleAuthProvider()));
+            githubLoginBtn.addEventListener('click', () => handleLogin(new firebase.auth.GithubAuthProvider()));
 
             document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
             document.getElementById('logout-btn').addEventListener('click', () => auth.signOut());
@@ -376,6 +376,8 @@
         document.addEventListener('DOMContentLoaded', () => {
             const savedTheme = localStorage.getItem('theme') || 'light';
             document.documentElement.setAttribute('data-theme', savedTheme);
+            // This is the crucial line that was missing/incorrect before.
+            // It ensures the login buttons work as soon as the page is ready.
             setupStaticEventListeners();
         });
     </script>

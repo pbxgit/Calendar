@@ -4,137 +4,264 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Personal Dashboard</title>
-    <!-- Bootstrap CSS -->
+
+    <!-- Google Fonts: Poppins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap CSS & Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
     <!-- FullCalendar CSS -->
     <link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.css' rel='stylesheet' />
+
     <style>
         body {
-            background-color: #f8f9fa;
+            font-family: 'Poppins', sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
         }
+
+        .main-container {
+            display: flex;
+        }
+
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: #ffffff;
+            border-right: 1px solid #e0e0e0;
+            padding-top: 20px;
+        }
+
+        .sidebar .navbar-brand {
+            font-weight: 600;
+            margin: 0 1.5rem 1rem;
+        }
+
+        .sidebar .nav-link {
+            color: #555;
+            font-weight: 500;
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-left: 3px solid transparent;
+        }
+        
+        .sidebar .nav-link .bi {
+            font-size: 1.2rem;
+        }
+
+        .sidebar .nav-link.active,
+        .sidebar .nav-link:hover {
+            color: #0d6efd;
+            background-color: #e9f2ff;
+            border-left: 3px solid #0d6efd;
+        }
+
+        .content {
+            margin-left: 250px;
+            width: calc(100% - 250px);
+            padding: 30px;
+        }
+
         .section {
             display: none;
+            animation: fadeIn 0.5s ease-in-out;
         }
+
         .active-section {
             display: block;
         }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card {
+            border: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .logout-btn {
+            position: absolute;
+            bottom: 20px;
+            width: calc(100% - 48px);
+            margin: 0 24px;
+        }
+
+        /* Login Section Styles */
+        #auth-section {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .login-card {
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .login-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 12px;
+            font-size: 1rem;
+            font-weight: 500;
+            border-radius: 8px;
+            transition: background-color 0.3s ease;
+        }
+        
+        .login-btn img {
+            width: 24px;
+            height: 24px;
+        }
+        
+        .btn-google {
+            background-color: #fff;
+            color: #444;
+            border: 1px solid #ddd;
+        }
+        
+        .btn-google:hover {
+            background-color: #f8f8f8;
+        }
+
+        .btn-github {
+            background-color: #f5f5f5; /* Light background for the black logo */
+            color: #333;
+            border: 1px solid #ddd;
+        }
+        
+        .btn-github:hover {
+            background-color: #e9e9e9;
+        }
+        
     </style>
 </head>
 <body>
 
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#">Personal Dashboard</a>
-            <div id="auth-links" class="d-flex">
-                <!-- Auth buttons will be injected here -->
-            </div>
-        </div>
-    </nav>
-
-    <div class="container mt-4">
-        <!-- Authentication Section -->
-        <div id="auth-section" class="active-section">
-            <div class="row justify-content-center">
-                <div class="col-md-6">
-                    <div class="card">
-                        <div class="card-body">
-                            <h2 class="card-title text-center">Login or Sign Up</h2>
-                            <div class="mb-3">
-                                <label for="email" class="form-label">Email address</label>
-                                <input type="email" class="form-control" id="email" placeholder="name@example.com">
-                            </div>
-                            <div class="mb-3">
-                                <label for="password" class="form-label">Password</label>
-                                <input type="password" class="form-control" id="password" placeholder="Password">
-                            </div>
-                            <div class="d-grid gap-2">
-                                <button id="login-btn" class="btn btn-primary">Login</button>
-                                <button id="signup-btn" class="btn btn-secondary">Sign Up</button>
-                            </div>
-                        </div>
-                    </div>
+    <!-- Authentication Section -->
+    <div id="auth-section">
+        <div class="card login-card text-center p-4">
+            <div class="card-body">
+                <h2 class="card-title mb-4">Welcome Back</h2>
+                <p class="text-muted mb-4">Please sign in to continue</p>
+                <div class="d-grid gap-3">
+                    <button id="google-login-btn" class="btn login-btn btn-google">
+                        <img src="https://raw.githubusercontent.com/pbxgit/Calendar/main/google-logo.svg" alt="Google Logo">
+                        Sign in with Google
+                    </button>
+                    <button id="github-login-btn" class="btn login-btn btn-github">
+                        <img src="https://raw.githubusercontent.com/pbxgit/Calendar/main/github-logo.svg" alt="GitHub Logo">
+                        Sign in with GitHub
+                    </button>
                 </div>
             </div>
         </div>
-
-        <!-- Main Content (Logged In) -->
-        <div id="main-content" class="d-none">
-            <ul class="nav nav-tabs">
+    </div>
+    
+    <!-- Main Content (Logged In) -->
+    <div class="main-container d-none" id="main-content">
+        <nav class="sidebar">
+            <a class="navbar-brand" href="#">Dashboard</a>
+            <ul class="nav flex-column">
                 <li class="nav-item">
-                    <a class="nav-link active" href="#" data-section="history">History Tracker</a>
+                    <a class="nav-link active" href="#" data-section="history"><i class="bi bi-clock-history"></i> History Tracker</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#" data-section="calendar">Upcoming Events</a>
+                    <a class="nav-link" href="#" data-section="calendar"><i class="bi bi-calendar-event"></i> Upcoming Events</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#" data-section="todos">To-Do List</a>
+                    <a class="nav-link" href="#" data-section="todos"><i class="bi bi-check2-square"></i> To-Do List</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#" data-section="notes">Notes</a>
+                    <a class="nav-link" href="#" data-section="notes"><i class="bi bi-journal-text"></i> Notes</a>
                 </li>
             </ul>
+            <button id="logout-btn" class="btn btn-danger logout-btn"><i class="bi bi-box-arrow-right"></i> Logout</button>
+        </nav>
 
+        <main class="content">
             <!-- History Tracker -->
-            <div id="history-section" class="section active-section p-4 bg-white rounded shadow-sm mt-3">
-                <h3>History Tracker</h3>
-                <form id="history-form" class="mb-4">
-                    <div class="mb-3">
-                        <input type="text" id="history-title" class="form-control" placeholder="Title" required>
-                    </div>
-                    <div class="mb-3">
-                        <textarea id="history-desc" class="form-control" placeholder="Description"></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <input type="date" id="history-date" class="form-control" required>
-                    </div>
-                    <button type="submit" class="btn btn-success">Add History</button>
-                </form>
-                <ul id="history-list" class="list-group"></ul>
+            <div id="history-section" class="section active-section card">
+                <div class="card-body p-4">
+                    <h3>History Tracker</h3>
+                    <form id="history-form" class="mb-4">
+                        <div class="mb-3">
+                            <input type="text" id="history-title" class="form-control" placeholder="Title" required>
+                        </div>
+                        <div class="mb-3">
+                            <textarea id="history-desc" class="form-control" placeholder="Description"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <input type="date" id="history-date" class="form-control" required>
+                        </div>
+                        <button type="submit" class="btn btn-success">Add History</button>
+                    </form>
+                    <ul id="history-list" class="list-group"></ul>
+                </div>
             </div>
 
             <!-- Calendar -->
-            <div id="calendar-section" class="section p-4 bg-white rounded shadow-sm mt-3">
-                <h3>Upcoming Events</h3>
-                <div id='calendar'></div>
-                <h4 class="mt-4">Add New Event</h4>
-                <form id="event-form">
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <input type="text" id="event-title" class="form-control" placeholder="Event Title" required>
+            <div id="calendar-section" class="section card">
+                 <div class="card-body p-4">
+                    <h3>Upcoming Events</h3>
+                    <div id='calendar'></div>
+                    <h4 class="mt-4">Add New Event</h4>
+                    <form id="event-form">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <input type="text" id="event-title" class="form-control" placeholder="Event Title" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <input type="date" id="event-date" class="form-control" required>
+                            </div>
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <input type="date" id="event-date" class="form-control" required>
-                        </div>
-                    </div>
-                    <button type="submit" class="btn btn-info">Add Event</button>
-                </form>
+                        <button type="submit" class="btn btn-info text-white">Add Event</button>
+                    </form>
+                </div>
             </div>
 
             <!-- To-Do List -->
-            <div id="todos-section" class="section p-4 bg-white rounded shadow-sm mt-3">
-                <h3>To-Do List</h3>
-                <form id="todo-form" class="d-flex mb-3">
-                    <input type="text" id="todo-input" class="form-control me-2" placeholder="New Task" required>
-                    <button type="submit" class="btn btn-primary">Add</button>
-                </form>
-                <ul id="todo-list" class="list-group"></ul>
+            <div id="todos-section" class="section card">
+                <div class="card-body p-4">
+                    <h3>To-Do List</h3>
+                    <form id="todo-form" class="d-flex mb-3">
+                        <input type="text" id="todo-input" class="form-control me-2" placeholder="New Task" required>
+                        <button type="submit" class="btn btn-primary">Add</button>
+                    </form>
+                    <ul id="todo-list" class="list-group"></ul>
+                </div>
             </div>
 
             <!-- Notes -->
-            <div id="notes-section" class="section p-4 bg-white rounded shadow-sm mt-3">
-                <h3>Notes</h3>
-                <form id="note-form" class="mb-4">
-                    <div class="mb-3">
-                        <input type="text" id="note-title" class="form-control" placeholder="Note Title" required>
-                    </div>
-                    <div class="mb-3">
-                        <textarea id="note-content" class="form-control" placeholder="Note Content" rows="4"></textarea>
-                    </div>
-                    <button type="submit" class="btn btn-warning">Save Note</button>
-                </form>
-                <div id="notes-list" class="row"></div>
+            <div id="notes-section" class="section card">
+                <div class="card-body p-4">
+                    <h3>Notes</h3>
+                    <form id="note-form" class="mb-4">
+                        <div class="mb-3">
+                            <input type="text" id="note-title" class="form-control" placeholder="Note Title" required>
+                        </div>
+                        <div class="mb-3">
+                            <textarea id="note-content" class="form-control" placeholder="Note Content" rows="4"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-warning">Save Note</button>
+                    </form>
+                    <div id="notes-list" class="row"></div>
+                </div>
             </div>
-        </div>
+        </main>
     </div>
 
     <!-- Firebase SDK -->
@@ -149,15 +276,14 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-        // <!-- YOUR FIREBASE CONFIGURATION HERE -->
+        // <!-- PASTE YOUR FIREBASE CONFIGURATION HERE -->
         const firebaseConfig = {
-            apiKey: "AIzaSyBghGrPLr7_iC46u1Phs83vd1i-47zstUs",
-  authDomain: "calendar-pbx21.firebaseapp.com",
-  projectId: "calendar-pbx21",
-  storageBucket: "calendar-pbx21.firebasestorage.app",
-  messagingSenderId: "304190482123",
-  appId: "1:304190482123:web:2a8415125467565a1e9d4e",
-  measurementId: "G-YCNG7QXRR2"
+            apiKey: "AIzaSy...",
+            authDomain: "your-project-id.firebaseapp.com",
+            projectId: "your-project-id",
+            storageBucket: "your-project-id.appspot.com",
+            messagingSenderId: "...",
+            appId: "1:..."
         };
 
         // Initialize Firebase
@@ -165,60 +291,59 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        let calendar; // To hold the FullCalendar instance
+        let calendar;
         let currentUserId = null;
 
         document.addEventListener('DOMContentLoaded', function() {
             const authSection = document.getElementById('auth-section');
             const mainContent = document.getElementById('main-content');
-            const authLinks = document.getElementById('auth-links');
-
+            
             auth.onAuthStateChanged(user => {
                 if (user) {
                     currentUserId = user.uid;
-                    authSection.classList.remove('active-section');
                     authSection.style.display = 'none';
                     mainContent.classList.remove('d-none');
-                    authLinks.innerHTML = `<button id="logout-btn" class="btn btn-danger">Logout</button>`;
-                    document.getElementById('logout-btn').addEventListener('click', () => auth.signOut());
                     
                     initializeDashboard();
                 } else {
                     currentUserId = null;
-                    authSection.classList.add('active-section');
-                    authSection.style.display = 'block';
+                    authSection.style.display = 'flex';
                     mainContent.classList.add('d-none');
-                    authLinks.innerHTML = '';
                 }
             });
 
             // Auth buttons
-            document.getElementById('login-btn').addEventListener('click', () => {
-                const email = document.getElementById('email').value;
-                const password = document.getElementById('password').value;
-                auth.signInWithEmailAndPassword(email, password).catch(error => alert(error.message));
+            document.getElementById('google-login-btn').addEventListener('click', () => {
+                const provider = new firebase.auth.GoogleAuthProvider();
+                auth.signInWithPopup(provider).catch(error => console.error(error.message));
             });
 
-            document.getElementById('signup-btn').addEventListener('click', () => {
-                const email = document.getElementById('email').value;
-                const password = document.getElementById('password').value;
-                auth.createUserWithEmailAndPassword(email, password).catch(error => alert(error.message));
+            document.getElementById('github-login-btn').addEventListener('click', () => {
+                const provider = new firebase.auth.GithubAuthProvider();
+                auth.signInWithPopup(provider).catch(error => console.error(error.message));
             });
             
-            // Navigation
-            const navLinks = document.querySelectorAll('.nav-link');
+            document.getElementById('logout-btn').addEventListener('click', () => auth.signOut());
+            
+            // Smooth Navigation
+            const navLinks = document.querySelectorAll('.sidebar .nav-link');
             const sections = document.querySelectorAll('.section');
             navLinks.forEach(link => {
                 link.addEventListener('click', (e) => {
                     e.preventDefault();
-                    navLinks.forEach(l => l.classList.remove('active'));
-                    sections.forEach(s => s.classList.remove('active-section'));
                     
-                    link.classList.add('active');
-                    document.getElementById(link.dataset.section + '-section').classList.add('active-section');
+                    const targetSectionId = link.dataset.section + '-section';
+                    const activeSection = document.querySelector('.active-section');
+                    
+                    if (activeSection.id !== targetSectionId) {
+                        navLinks.forEach(l => l.classList.remove('active'));
+                        link.classList.add('active');
+                        
+                        activeSection.classList.remove('active-section');
+                        document.getElementById(targetSectionId).classList.add('active-section');
+                    }
                 });
             });
-
         });
 
         function initializeDashboard() {
@@ -241,19 +366,17 @@
             loadNotes();
             setupEventListeners();
         }
+        
+        // --- DATA LOADING AND EVENT LISTENER FUNCTIONS (largely unchanged) ---
 
         function setupEventListeners() {
             // History Form
             document.getElementById('history-form').addEventListener('submit', (e) => {
                 e.preventDefault();
-                const title = document.getElementById('history-title').value;
-                const description = document.getElementById('history-desc').value;
-                const date = document.getElementById('history-date').value;
-                
                 db.collection('users').doc(currentUserId).collection('history').add({
-                    title,
-                    description,
-                    date: firebase.firestore.Timestamp.fromDate(new Date(date)),
+                    title: document.getElementById('history-title').value,
+                    description: document.getElementById('history-desc').value,
+                    date: firebase.firestore.Timestamp.fromDate(new Date(document.getElementById('history-date').value)),
                 });
                 e.target.reset();
             });
@@ -261,20 +384,18 @@
             // Event Form
             document.getElementById('event-form').addEventListener('submit', (e) => {
                 e.preventDefault();
-                const title = document.getElementById('event-title').value;
-                const start = document.getElementById('event-date').value;
-                
-                db.collection('users').doc(currentUserId).collection('events').add({ title, start });
+                db.collection('users').doc(currentUserId).collection('events').add({ 
+                    title: document.getElementById('event-title').value, 
+                    start: document.getElementById('event-date').value 
+                });
                 e.target.reset();
             });
 
             // To-Do Form
             document.getElementById('todo-form').addEventListener('submit', (e) => {
                 e.preventDefault();
-                const task = document.getElementById('todo-input').value;
-                
                 db.collection('users').doc(currentUserId).collection('todos').add({
-                    task,
+                    task: document.getElementById('todo-input').value,
                     completed: false,
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
@@ -284,12 +405,9 @@
             // Note Form
             document.getElementById('note-form').addEventListener('submit', (e) => {
                 e.preventDefault();
-                const title = document.getElementById('note-title').value;
-                const content = document.getElementById('note-content').value;
-                
                 db.collection('users').doc(currentUserId).collection('notes').add({
-                    title,
-                    content,
+                    title: document.getElementById('note-title').value,
+                    content: document.getElementById('note-content').value,
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
                 e.target.reset();
@@ -304,7 +422,7 @@
                     const data = doc.data();
                     const item = document.createElement('li');
                     item.className = 'list-group-item';
-                    item.innerHTML = `<h5>${data.title} - ${new Date(data.date.seconds * 1000).toLocaleDateString()}</h5><p>${data.description}</p>`;
+                    item.innerHTML = `<h5>${data.title} - ${new Date(data.date.seconds * 1000).toLocaleDateString()}</h5><p class="mb-0">${data.description}</p>`;
                     list.appendChild(item);
                 });
             });
@@ -326,17 +444,17 @@
                     const data = doc.data();
                     const item = document.createElement('li');
                     item.className = 'list-group-item d-flex justify-content-between align-items-center';
-                    item.innerHTML = `<span style="${data.completed ? 'text-decoration: line-through;' : ''}">${data.task}</span>`;
+                    item.innerHTML = `<span style="${data.completed ? 'text-decoration: line-through; color: #888;' : ''}">${data.task}</span>`;
                     
                     const buttons = document.createElement('div');
                     const toggleBtn = document.createElement('button');
-                    toggleBtn.className = `btn btn-sm ${data.completed ? 'btn-secondary' : 'btn-success'}`;
-                    toggleBtn.textContent = data.completed ? 'Undo' : 'Complete';
+                    toggleBtn.className = `btn btn-sm ${data.completed ? 'btn-outline-secondary' : 'btn-outline-success'}`;
+                    toggleBtn.innerHTML = data.completed ? '<i class="bi bi-arrow-counterclockwise"></i>' : '<i class="bi bi-check-lg"></i>';
                     toggleBtn.onclick = () => db.collection('users').doc(currentUserId).collection('todos').doc(doc.id).update({ completed: !data.completed });
                     
                     const deleteBtn = document.createElement('button');
-                    deleteBtn.className = 'btn btn-sm btn-danger ms-2';
-                    deleteBtn.textContent = 'Delete';
+                    deleteBtn.className = 'btn btn-sm btn-outline-danger ms-2';
+                    deleteBtn.innerHTML = '<i class="bi bi-trash"></i>';
                     deleteBtn.onclick = () => db.collection('users').doc(currentUserId).collection('todos').doc(doc.id).delete();
                     
                     buttons.appendChild(toggleBtn);
@@ -356,11 +474,11 @@
                     const col = document.createElement('div');
                     col.className = 'col-md-4 mb-3';
                     col.innerHTML = `
-                        <div class="card">
+                        <div class="card h-100">
                             <div class="card-body">
                                 <h5 class="card-title">${data.title}</h5>
                                 <p class="card-text">${data.content.substring(0, 100)}...</p>
-                                <button class="btn btn-sm btn-danger" onclick="deleteNote('${doc.id}')">Delete</button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteNote('${doc.id}')"><i class="bi bi-trash"></i> Delete</button>
                             </div>
                         </div>
                     `;

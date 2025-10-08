@@ -31,6 +31,7 @@ const calendarBody = document.querySelector('.calendar-body');
 const calendarGrid = document.getElementById('calendar-grid');
 const userProfile = document.getElementById('user-profile');
 const userAvatar = document.getElementById('user-avatar');
+const logoutBtn = document.getElementById('logout-btn');
 const sidebar = document.getElementById('sidebar');
 const sidebarOverlay = document.getElementById('sidebar-overlay');
 const monthNameEl = document.getElementById('month-name');
@@ -39,9 +40,7 @@ const eventModal = document.getElementById('event-modal');
 const eventForm = document.getElementById('event-form');
 const deleteEventBtn = document.getElementById('delete-event-btn');
 
-// --- LOADING STATE HELPERS ---
-const showAppLoader = () => appLoader.classList.add('visible');
-const hideAppLoader = () => appLoader.classList.remove('visible');
+// --- UI Management ---
 const showGridLoader = () => calendarBody.classList.add('loading');
 const hideGridLoader = () => calendarBody.classList.remove('loading');
 
@@ -53,28 +52,35 @@ function setLoginButtonLoading(provider, isLoading) {
     }
 }
 
+// CRITICAL FIX: Explicitly manages which main screen is visible
+function manageScreenVisibility(visibleScreen) {
+    document.querySelectorAll('.screen').forEach(screen => {
+        screen.classList.remove('is-visible');
+    });
+    if (visibleScreen) {
+        visibleScreen.classList.add('is-visible');
+    }
+}
+
 // --- AUTHENTICATION ---
 onAuthStateChanged(auth, user => {
     if (user) {
         currentUser = { uid: user.uid, name: user.displayName || 'Anonymous', avatar: user.photoURL };
-        userAvatar.src = currentUser.avatar || 'https://ui-avatars.com/api/?name=' + currentUser.name; // Fallback avatar
-        userProfile.classList.remove('hidden');
+        userAvatar.src = currentUser.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.name)}&background=random`;
+        userProfile.classList.remove('is-hidden');
 
-        loginScreen.classList.remove('visible');
-        appScreen.classList.add('visible');
-        
+        manageScreenVisibility(appScreen);
         renderCalendar();
     } else {
         currentUser = null;
         if (eventsUnsubscribe) eventsUnsubscribe();
         
-        userProfile.classList.add('hidden');
+        userProfile.classList.add('is-hidden');
         userAvatar.src = "";
         
-        appScreen.classList.remove('visible');
-        loginScreen.classList.add('visible');
+        manageScreenVisibility(loginScreen);
     }
-    hideAppLoader();
+    appLoader.classList.remove('is-visible');
 });
 
 async function handleLogin(provider) {
@@ -89,20 +95,28 @@ async function handleLogin(provider) {
     }
 }
 
+async function handleLogout() {
+    logoutBtn.disabled = true;
+    try {
+        await signOut(auth);
+    } catch (error) {
+        console.error("Logout failed:", error);
+    } finally {
+        logoutBtn.disabled = false;
+    }
+}
+
 document.getElementById('google-login-btn').onclick = () => handleLogin('google');
 document.getElementById('github-login-btn').onclick = () => handleLogin('github');
-document.getElementById('logout-btn').onclick = () => signOut(auth);
-
+logoutBtn.onclick = handleLogout;
 
 // --- SIDEBAR LOGIC ---
 document.getElementById('sidebar-toggle-btn').onclick = () => body.classList.add('sidebar-open');
 sidebarOverlay.onclick = () => body.classList.remove('sidebar-open');
 
-
-// --- CALENDAR LOGIC ---
+// --- CALENDAR LOGIC (Restored & Stable) ---
 function renderCalendar() {
     if (!currentUser) return;
-    
     showGridLoader();
 
     state.viewDate.setDate(1);
@@ -116,18 +130,16 @@ function renderCalendar() {
     const daysInMonth = new Date(year, month + 1, 0).getDate();
     const prevLastDay = new Date(year, month, 0).getDate();
 
-    calendarGrid.innerHTML = '';
+    calendarGrid.innerHTML = ''; // Always clear the grid to rebuild it
 
     for (let i = firstDayIndex; i > 0; i--) {
         calendarGrid.appendChild(createDayElement(prevLastDay - i + 1, true));
     }
-
     for (let i = 1; i <= daysInMonth; i++) {
         const date = new Date(year, month, i);
         const isToday = date.toDateString() === new Date().toDateString();
         calendarGrid.appendChild(createDayElement(i, false, date, isToday));
     }
-
     const totalCells = firstDayIndex + daysInMonth;
     const nextDays = (7 - (totalCells % 7)) % 7;
     for (let i = 1; i <= nextDays; i++) {
@@ -143,11 +155,7 @@ function createDayElement(dayNum, isOtherMonth, date = null, isToday = false) {
     if (isOtherMonth) dayEl.classList.add('other-month');
     if (isToday) dayEl.classList.add('today');
     
-    dayEl.innerHTML = `
-        <span class="day-number">${dayNum}</span>
-        <div class="events-container"></div>
-    `;
-
+    dayEl.innerHTML = `<span class="day-number">${dayNum}</span><div class="events-container"></div>`;
     if (date) {
         dayEl.onclick = (e) => {
             if (e.target.closest('.event-pill')) return;
@@ -166,14 +174,13 @@ document.getElementById('next-month-btn').onclick = () => navigateMonths(1);
 document.getElementById('prev-month-btn').onclick = () => navigateMonths(-1);
 document.getElementById('today-btn').onclick = () => { state.viewDate = new Date(); renderCalendar(); };
 
-// --- FIRESTORE & EVENT RENDERING ---
+// --- FIRESTORE & EVENT RENDERING (Restored & Stable) ---
 function fetchAndRenderEvents() {
     if (eventsUnsubscribe) eventsUnsubscribe();
-
     const month = state.viewDate.getMonth();
     const year = state.viewDate.getFullYear();
     const startDate = Timestamp.fromDate(new Date(year, month, 1));
-    const endDate = Timestamp.fromDate(new Date(year, month + 1, 1)); // Use first day of next month for easier querying
+    const endDate = Timestamp.fromDate(new Date(year, month + 1, 1));
 
     const q = query(collection(db, 'events'),
         where("dateTime", ">=", startDate),
@@ -187,32 +194,32 @@ function fetchAndRenderEvents() {
         hideGridLoader();
     }, (error) => {
         console.error("Error fetching events:", error);
-        hideGridLoader(); // Also hide loader on error
+        hideGridLoader();
     });
 }
 
 function distributeEventsToDays() {
     document.querySelectorAll('.events-container').forEach(c => c.innerHTML = '');
 
-    if (calendarGrid.querySelector('.calendar-empty-state')) {
-        renderCalendar();
+    if (state.events.length === 0) {
+        if (!calendarGrid.querySelector('.calendar-empty-state')) {
+            calendarGrid.innerHTML = `<div class="calendar-empty-state">No events this month</div>`;
+        }
         return;
     }
-
-    if (state.events.length === 0) {
-        calendarGrid.innerHTML = `<div class="calendar-empty-state">No events this month</div>`;
+    
+    if (calendarGrid.querySelector('.calendar-empty-state')) {
+        renderCalendar();
         return;
     }
 
     state.events.forEach(event => {
         const eventDate = event.dateTime.toDate();
         const dayOfMonth = eventDate.getDate();
-        
         const dayEl = Array.from(calendarGrid.children).find(d => 
             !d.classList.contains('other-month') && 
             parseInt(d.querySelector('.day-number').textContent) === dayOfMonth
         );
-        
         if (dayEl) {
             const eventsContainer = dayEl.querySelector('.events-container');
             const pill = document.createElement('div');
@@ -224,7 +231,7 @@ function distributeEventsToDays() {
     });
 }
 
-// --- MODAL & EVENT MANAGEMENT ---
+// --- MODAL & EVENT MANAGEMENT (Unchanged) ---
 function openModal(event = null, date = null) {
     eventForm.reset();
     document.querySelectorAll('.category-option').forEach(el => el.classList.remove('selected'));
@@ -238,7 +245,7 @@ function openModal(event = null, date = null) {
         document.getElementById('event-date-input').value = eventDate.toISOString().split('T')[0];
         document.getElementById('event-time-input').value = eventDate.toTimeString().slice(0, 5);
         document.getElementById('event-category-input').value = category || 'blue';
-        deleteEventBtn.classList.remove('hidden');
+        deleteEventBtn.classList.remove('is-hidden');
     } else { // Creating
         document.getElementById('modal-title').textContent = 'New Event';
         document.getElementById('event-id').value = '';
@@ -246,7 +253,7 @@ function openModal(event = null, date = null) {
         document.getElementById('event-date-input').value = initialDate.toISOString().split('T')[0];
         document.getElementById('event-time-input').value = initialDate.toTimeString().slice(0, 5);
         document.getElementById('event-category-input').value = 'blue';
-        deleteEventBtn.classList.add('hidden');
+        deleteEventBtn.classList.add('is-hidden');
     }
     
     const currentCategory = document.getElementById('event-category-input').value;

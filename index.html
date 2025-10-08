@@ -15,53 +15,27 @@
 </head>
 <body>
     <div id="login-container">
+        <!-- Login box remains the same -->
         <div class="login-box">
-            <div class="login-header">
-                <h1>OurCal</h1>
-                <p>Stay in sync, together.</p>
-            </div>
-            <button id="login-google" class="login-button">
-                <img src="https://raw.githubusercontent.com/pbxgit/Calendar/main/google-logo.svg" alt="Google Logo">
-                <span>Sign in with Google</span>
-            </button>
-            <button id="login-github" class="login-button">
-                <img src="https://raw.githubusercontent.com/pbxgit/Calendar/main/github-logo.svg" alt="GitHub Logo">
-                <span>Sign in with GitHub</span>
-            </button>
+            <div class="login-header"><h1>OurCal</h1><p>Stay in sync, together.</p></div>
+            <button id="login-google" class="login-button"><img src="https://raw.githubusercontent.com/pbxgit/Calendar/main/google-logo.svg" alt="Google Logo"><span>Sign in with Google</span></button>
+            <button id="login-github" class="login-button"><img src="https://raw.githubusercontent.com/pbxgit/Calendar/main/github-logo.svg" alt="GitHub Logo"><span>Sign in with GitHub</span></button>
         </div>
     </div>
 
     <div id="app-container">
         <aside class="sidebar">
-            <div class="sidebar-header">
-                <h2>OurCal</h2>
-                <div id="user-profile">
-                    <img id="user-photo" src="" alt="User Photo">
-                    <span id="user-name"></span>
-                    <button id="logout-button">Logout</button>
-                </div>
-            </div>
-            <div class="sidebar-content">
-                <div class="sidebar-section">
-                    <h3>Unified Tasks</h3>
-                    <ul id="task-list"></ul>
-                </div>
-                <div class="sidebar-section">
-                    <h3>Logs</h3>
-                    <ul id="log-list"></ul>
-                </div>
-                <div class="sidebar-section chat-section">
-                    <h3>Chat</h3>
-                    <div id="chat-box"></div>
-                    <div class="chat-input-area">
-                        <input type="text" id="chat-message" placeholder="Type a message...">
-                        <button id="send-message">Send</button>
-                    </div>
-                </div>
-            </div>
+            <!-- Sidebar content remains the same -->
+            <div class="sidebar-header"><h2>OurCal</h2><div id="user-profile"><img id="user-photo" src="" alt="User Photo"><span id="user-name"></span><button id="logout-button">Logout</button></div></div>
+            <div class="sidebar-content"><div class="sidebar-section"><h3>Unified Tasks</h3><ul id="task-list"></ul></div><div class="sidebar-section"><h3>Logs</h3><ul id="log-list"></ul></div><div class="sidebar-section chat-section"><h3>Chat</h3><div id="chat-box"></div><div class="chat-input-area"><input type="text" id="chat-message" placeholder="Type a message..."><button id="send-message">Send</button></div></div></div>
         </aside>
+
         <main class="main-content">
             <header class="calendar-header">
+                <!-- Hamburger menu added here -->
+                <button id="hamburger-menu" class="hamburger-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                </button>
                 <button id="prev-month" class="nav-button">&lt;</button>
                 <h2 id="current-month"></h2>
                 <button id="next-month" class="nav-button">&gt;</button>
@@ -73,29 +47,21 @@
         </main>
     </div>
 
+    <!-- Modal remains the same -->
     <div id="task-modal" class="modal-overlay">
         <div class="modal-content">
             <span class="close-button">&times;</span>
             <h3>Add / Edit Task</h3>
             <input type="hidden" id="task-id">
-            <div class="form-group">
-                <label for="task-title">Title</label>
-                <input type="text" id="task-title" placeholder="e.g., Team Meeting">
-            </div>
-            <div class="form-group">
-                <label for="task-description">Description</label>
-                <textarea id="task-description" placeholder="Add more details..."></textarea>
-            </div>
-             <div class="form-group">
-                <label for="task-date">Date</label>
-                <input type="date" id="task-date">
-            </div>
-            <div class="modal-actions">
-                <button id="save-task" class="button-primary">Save Task</button>
-                <button id="delete-task" class="button-danger">Delete Task</button>
-            </div>
+            <div class="form-group"><label for="task-title">Title</label><input type="text" id="task-title" placeholder="e.g., Team Meeting"></div>
+            <div class="form-group"><label for="task-description">Description</label><textarea id="task-description" placeholder="Add more details..."></textarea></div>
+            <div class="form-group"><label for="task-date">Date</label><input type="date" id="task-date"></div>
+            <div class="modal-actions"><button id="save-task" class="button-primary">Save Task</button><button id="delete-task" class="button-danger">Delete Task</button></div>
         </div>
     </div>
+
+    <!-- Overlay for mobile sidebar -->
+    <div id="sidebar-overlay"></div>
 
     <script src="script.js"></script>
 </body>

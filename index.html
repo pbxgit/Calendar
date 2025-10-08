@@ -11,7 +11,7 @@
     <!-- Preconnect for Font Performance -->
     <link rel="preconnect" href="https://api.fontshare.com" crossorigin>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic" crossorigin>
 
     <!-- Fonts: Satoshi (Primary), Inter (UI) -->
     <link href="https://api.fontshare.com/v2/css?f[]=satoshi@700,500,400&display=swap" rel="stylesheet">
@@ -26,30 +26,20 @@
     <style>
         /* --- 1. DESIGN SYSTEM & CORE STYLES --- */
         :root {
-            --font-main: 'Satoshi', sans-serif;
-            --font-ui: 'Inter', sans-serif;
-            --c-accent: #3b82f6; /* Electric Blue */
-            --c-accent-light: rgba(59, 130, 246, 0.1);
-            --bg-base: #0a0a0a;   /* Near Black */
-            --bg-surface: #171717; /* Dark Gray */
-            --bg-muted: #262626;
-            --text-primary: #f5f5f5;
-            --text-secondary: #a3a3a3;
+            --font-main: 'Satoshi', sans-serif; --font-ui: 'Inter', sans-serif;
+            --c-accent: #3b82f6; --c-accent-light: rgba(59, 130, 246, 0.1);
+            --bg-base: #0a0a0a; --bg-surface: #171717; --bg-muted: #262626;
+            --text-primary: #f5f5f5; --text-secondary: #a3a3a3;
             --border-color: #262626;
             --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.5), 0 2px 4px -2px rgb(0 0 0 / 0.5);
-            --radius: 0.75rem;
-            --transition: cubic-bezier(0.4, 0, 0.2, 1);
+            --radius: 0.75rem; --transition: cubic-bezier(0.4, 0, 0.2, 1);
         }
         *, *::before, *::after { box-sizing: border-box; }
         @keyframes spin { to { transform: rotate(360deg); } }
         
         body {
-            font-family: var(--font-main);
-            background-color: var(--bg-base);
-            color: var(--text-primary);
-            margin: 0;
-            overflow: hidden;
-            -webkit-font-smoothing: antialiased;
+            font-family: var(--font-main); background-color: var(--bg-base); color: var(--text-primary);
+            margin: 0; overflow: hidden; -webkit-font-smoothing: antialiased;
         }
 
         /* --- 2. LOADING & AUTHENTICATION --- */
@@ -59,113 +49,86 @@
         }
         .spinner {
             width: 40px; height: 40px; border: 4px solid var(--border-color);
-            border-top-color: var(--c-accent); border-radius: 50%;
-            animation: spin 1s linear infinite;
+            border-top-color: var(--c-accent); border-radius: 50%; animation: spin 1s linear infinite;
         }
-        
         .auth-container {
             display: grid; place-items: center; height: 100vh;
             padding: 2rem; position: fixed; inset: 0;
             opacity: 0; visibility: hidden;
         }
         .auth-card {
-            background-color: var(--bg-surface);
-            border-radius: var(--radius);
-            padding: 48px;
-            border: 1px solid var(--border-color);
-            box-shadow: var(--shadow-md);
-            max-width: 420px;
-            width: 100%;
-            text-align: center;
+            background-color: var(--bg-surface); border-radius: var(--radius); padding: 48px;
+            border: 1px solid var(--border-color); box-shadow: var(--shadow-md);
+            max-width: 420px; width: 100%; text-align: center;
         }
-        .auth-card h1 {
-            font-weight: 700; font-size: 2rem; margin: 1rem 0 0.5rem;
-        }
-        .auth-card p {
-            color: var(--text-secondary); margin-bottom: 2rem; line-height: 1.6;
-        }
+        .auth-card h1 { font-weight: 700; font-size: 2rem; margin: 1rem 0 0.5rem; }
+        .auth-card p { color: var(--text-secondary); margin-bottom: 2rem; line-height: 1.6; }
 
         /* --- 3. MAIN APP LAYOUT --- */
         .app-container {
-            display: grid; height: 100vh;
-            grid-template-columns: 80px 1fr;
+            display: grid; height: 100vh; grid-template-columns: 80px 1fr;
             opacity: 0; visibility: hidden;
         }
-        .app-rail { /* Vertical Nav Rail */
-            background-color: var(--bg-surface);
-            border-right: 1px solid var(--border-color);
-            display: flex; flex-direction: column; align-items: center;
-            padding: 24px 0;
+        .app-rail {
+            background-color: var(--bg-surface); border-right: 1px solid var(--border-color);
+            display: flex; flex-direction: column; align-items: center; padding: 24px 0;
         }
-        .app-main {
-            padding: 40px;
-            display: flex; flex-direction: column;
-            overflow: hidden;
-        }
-        .app-view {
-            display: none; flex-direction: column; height: 100%;
-        }
-        .app-view.active {
-            display: flex;
-        }
+        .app-main { padding: 40px; display: flex; flex-direction: column; overflow: hidden; }
+        .app-view { display: none; flex-direction: column; height: 100%; }
+        .app-view.active { display: flex; }
 
         /* --- 4. COMPONENTS --- */
         .nav-item {
-            display: grid; place-items: center;
-            width: 48px; height: 48px;
-            border-radius: 12px;
-            cursor: pointer;
-            color: var(--text-secondary);
-            transition: all 0.2s var(--transition);
-            position: relative;
+            display: grid; place-items: center; width: 48px; height: 48px;
+            border-radius: 12px; cursor: pointer; color: var(--text-secondary);
+            transition: all 0.2s var(--transition); position: relative;
         }
         .nav-item i { font-size: 1.5rem; }
         .nav-item:hover { color: var(--text-primary); background-color: var(--bg-muted); }
         .nav-item.active { color: white; background-color: var(--c-accent); }
         .nav-item .tooltip {
-            position: absolute; left: 120%; top: 50%;
-            transform: translateY(-50%) scale(0.95);
-            background-color: #f5f5f5; color: #0a0a0a;
-            padding: 6px 12px; border-radius: 8px; font-weight: 600;
-            white-space: nowrap; font-size: 0.9rem; font-family: var(--font-ui);
-            opacity: 0; visibility: hidden;
+            position: absolute; left: 120%; top: 50%; transform: translateY(-50%) scale(0.95);
+            background-color: #f5f5f5; color: #0a0a0a; padding: 6px 12px;
+            border-radius: 8px; font-weight: 600; white-space: nowrap; font-size: 0.9rem;
+            font-family: var(--font-ui); opacity: 0; visibility: hidden;
             transition: all 0.2s var(--transition);
         }
         .nav-item:hover .tooltip { opacity: 1; visibility: visible; transform: translateY(-50%) scale(1); }
-
         .app-rail-footer { margin-top: auto; display: flex; flex-direction: column; align-items: center; gap: 1rem; }
         .user-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
-
+        
         .btn {
-            font-family: var(--font-ui); font-weight: 600;
-            border-radius: 10px; padding: 12px 18px;
-            border: 1px solid var(--border-color); background-color: var(--bg-muted);
-            color: var(--text-primary); transition: all 0.2s var(--transition);
-            display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer;
+            font-family: var(--font-ui); font-weight: 600; border-radius: 10px; padding: 12px 18px;
+            border: 1px solid var(--border-color); background-color: var(--bg-muted); color: var(--text-primary);
+            transition: all 0.2s var(--transition); display: flex; align-items: center;
+            justify-content: center; gap: 10px; cursor: pointer; position: relative;
         }
         .btn:hover { background-color: var(--border-color); transform: translateY(-2px); }
+        .btn:disabled { cursor: not-allowed; background-color: var(--bg-muted); opacity: 0.6; transform: none; }
+        .btn .btn-spinner {
+            position: absolute; width: 20px; height: 20px; border: 2px solid var(--text-secondary);
+            border-top-color: var(--text-primary); border-radius: 50%; animation: spin 0.8s linear infinite;
+            opacity: 0; transition: opacity 0.2s;
+        }
+        .btn.loading .btn-spinner { opacity: 1; }
+        .btn.loading .btn-content { opacity: 0; }
         
         .page-header { font-size: 2.5rem; font-weight: 700; margin: 0 0 2rem 0; }
         
         /* --- 5. FULLCALENDAR CUSTOMIZATION --- */
         .calendar-wrapper {
-            flex-grow: 1;
-            background-color: var(--bg-surface);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius);
-            padding: 24px;
+            flex-grow: 1; background-color: var(--bg-surface);
+            border: 1px solid var(--border-color); border-radius: var(--radius); padding: 24px;
         }
         .fc { border: none !important; height: 100%; font-family: var(--font-ui); }
         .fc .fc-toolbar-title { font-size: 1.75em !important; font-weight: 700; font-family: var(--font-main); }
         .fc .fc-button {
             background-color: var(--bg-muted) !important; color: var(--text-primary) !important;
             border: 1px solid var(--border-color) !important; box-shadow: none !important;
-            transition: all 0.2s var(--transition) !important;
         }
         .fc .fc-button:hover, .fc .fc-button-primary:focus { background-color: var(--c-accent) !important; border-color: var(--c-accent) !important; }
         .fc-daygrid-day.fc-day-today { background-color: var(--c-accent-light) !important; }
-        .fc-day-header, .fc-col-header-cell { border: none !important; }
-        .fc-daygrid-day { border-color: var(--border-color) !important; }
+        .fc-day-header, .fc-col-header-cell, .fc-daygrid-day { border-color: var(--border-color) !important; }
     </style>
 </head>
 <body>
@@ -178,20 +141,23 @@
             <h1>Chrono</h1>
             <p>Master Your Momentum. The command center for high-performance teams.</p>
             <div style="display: flex; flex-direction: column; gap: 1rem;">
-                <button id="google-login-btn" class="btn"><img src="https://raw.githubusercontent.com/pbxgit/Calendar/main/google-logo.svg" alt="Google" width="20"> Continue with Google</button>
-                <button id="github-login-btn" class="btn"><img src="https://raw.githubusercontent.com/pbxgit/Calendar/main/github-logo.svg" alt="GitHub" width="20"> Continue with GitHub</button>
+                <button id="google-login-btn" class="btn">
+                    <span class="btn-content"><img src="https://raw.githubusercontent.com/pbxgit/Calendar/main/google-logo.svg" alt="Google" width="20"> Continue with Google</span>
+                    <div class="btn-spinner"></div>
+                </button>
+                <button id="github-login-btn" class="btn">
+                    <span class="btn-content"><img src="https://raw.githubusercontent.com/pbxgit/Calendar/main/github-logo.svg" alt="GitHub" width="20"> Continue with GitHub</span>
+                    <div class="btn-spinner"></div>
+                </button>
             </div>
         </div>
     </div>
 
     <div class="app-container" id="app-container">
         <nav class="app-rail">
-            <div class="nav-item">
-                 <img src="https://raw.githubusercontent.com/pbxgit/Calendar/main/favicon.png" alt="Chrono Logo" width="32">
-            </div>
+            <div class="nav-item"><img src="https://raw.githubusercontent.com/pbxgit/Calendar/main/favicon.png" alt="Chrono Logo" width="32"></div>
             <div style="margin-top: 40px; display:flex; flex-direction:column; gap: 1rem;">
                 <div class="nav-item active" data-view="calendar"><i class="bi bi-calendar3"></i><span class="tooltip">Calendar</span></div>
-                <div class="nav-item" data-view="tasks"><i class="bi bi-check2-square"></i><span class="tooltip">Tasks</span></div>
             </div>
             <div class="app-rail-footer">
                 <div id="user-profile-icon" class="nav-item"></div>
@@ -202,10 +168,6 @@
             <div id="calendar-view" class="app-view active">
                 <h1 class="page-header">Calendar</h1>
                 <div class="calendar-wrapper" id="calendar-container"></div>
-            </div>
-            <div id="tasks-view" class="app-view">
-                <h1 class="page-header">Tasks</h1>
-                <!-- Task content goes here -->
             </div>
         </main>
     </div>
@@ -221,12 +183,11 @@
         // --- 1. CONFIG & INITIALIZATION ---
         const firebaseConfig = {
             apiKey: "AIzaSyBghGrPLr7_iC46u1Phs83vd1i-47zstUs",
-  authDomain: "calendar-pbx21.firebaseapp.com",
-  projectId: "calendar-pbx21",
-  storageBucket: "calendar-pbx21.firebasestorage.app",
-  messagingSenderId: "304190482123",
-  appId: "1:304190482123:web:2a8415125467565a1e9d4e",
-  measurementId: "G-YCNG7QXRR2"
+            authDomain: "calendar-pbx21.firebaseapp.com",
+            projectId: "calendar-pbx21",
+            storageBucket: "calendar-pbx21.firebasestorage.app",
+            messagingSenderId: "304190482123",
+            appId: "1:304190482123:web:2a8415125467565a1e9d4e",
         };
         
         firebase.initializeApp(firebaseConfig);
@@ -235,39 +196,46 @@
 
         let currentUser = null;
         let calendar = null;
-        let authReady = false; // <<< The critical state variable to prevent race conditions
 
         const loadingOverlay = document.getElementById('loading-overlay');
         const authSection = document.getElementById('auth-section');
         const appContainer = document.getElementById('app-container');
 
-        // --- 2. THE BULLETPROOF AUTHENTICATION FLOW ---
-        function handleAuthentication() {
+        // --- 2. THE POPUP-BASED AUTHENTICATION FLOW ---
+        function initializeAuthListener() {
+            // onAuthStateChanged is the single source of truth for the user's session.
             auth.onAuthStateChanged(user => {
-                // If the initial check is already done, any change means a logout.
-                if (authReady) {
-                    if (!user) window.location.reload();
-                    return;
-                }
-                
-                authReady = true; // Mark the initial check as complete.
-
                 if (user) {
-                    currentUser = user;
-                    initializeAppUI();
+                    if (!currentUser) { // Prevents re-animating if listener fires multiple times
+                        currentUser = user;
+                        initializeAppUI();
+                    }
                 } else {
                     currentUser = null;
-                    showLoginScreen();
+                    // Only show login screen if the app isn't already showing it.
+                    if (authSection.style.visibility !== 'visible') {
+                        showLoginScreen();
+                    }
                 }
             });
-
-            // This handles the result from a login redirect.
-            // onAuthStateChanged will handle the final user state.
-            auth.getRedirectResult().catch(error => {
-                console.error("Login redirect error:", error);
-                alert(`A login error occurred: ${error.message}.`);
-                showLoginScreen();
-            });
+        }
+        
+        async function handleLoginWithPopup(provider, button) {
+            setButtonLoadingState(button, true);
+            try {
+                await auth.signInWithPopup(provider);
+                // NOTE: We don't need to do anything after this succeeds.
+                // The onAuthStateChanged listener above will automatically detect the new user
+                // and call initializeAppUI(). This is the correct, robust pattern.
+            } catch (error) {
+                console.error(`Login failed: ${error.code}`, error.message);
+                if (error.code !== 'auth/popup-closed-by-user') {
+                    alert(`Login failed: ${error.message}`);
+                }
+            } finally {
+                // Ensure the button is always reset, even if the user closes the popup.
+                setButtonLoadingState(button, false);
+            }
         }
         
         // --- 3. UI TRANSITIONS & ANIMATIONS ---
@@ -275,14 +243,14 @@
             gsap.to(appContainer, { opacity: 0, duration: 0.3, onComplete: () => appContainer.style.visibility = 'hidden' });
             
             authSection.style.visibility = 'visible';
-            gsap.timeline({ delay: 0.3 })
+            gsap.timeline({ delay: 0.1, onComplete: () => loadingOverlay.style.display = 'none' })
                .to(authSection, { opacity: 1, duration: 0.5 })
                .from(".auth-card > *", { opacity: 0, y: 20, stagger: 0.1, duration: 0.4 });
-
-            gsap.to(loadingOverlay, { opacity: 0, duration: 0.5, delay: 0.2, onComplete: () => loadingOverlay.style.display = 'none' });
         }
         
         function initializeAppUI() {
+            // Hide login screen and show the main app with animations
+            loadingOverlay.style.display = 'none'; // Ensure loader is gone
             document.getElementById('user-profile-icon').innerHTML = `
                 <img src="${currentUser.photoURL}" class="user-avatar" alt="User Avatar">
                 <span class="tooltip">${currentUser.displayName}</span>`;
@@ -290,52 +258,28 @@
             gsap.to(authSection, { opacity: 0, duration: 0.3, onComplete: () => authSection.style.visibility = 'hidden' });
             
             appContainer.style.visibility = 'visible';
-            gsap.timeline({ delay: 0.3 })
+            gsap.timeline({ delay: 0.1 })
                 .to(appContainer, { opacity: 1, duration: 0.5 })
                 .from(".app-rail > *", { opacity: 0, x: -30, stagger: 0.1, duration: 0.4, ease: "power2.out" })
                 .from(".app-main > .app-view.active > *", { opacity: 0, y: 20, stagger: 0.1, duration: 0.4, ease: "power2.out" }, "-=0.5");
-
-            gsap.to(loadingOverlay, { opacity: 0, duration: 0.5, delay: 0.2, onComplete: () => loadingOverlay.style.display = 'none' });
-
+            
             initializeCalendar();
         }
 
-        // --- 4. EVENT LISTENERS & APP LOGIC ---
-        function setupStaticEventListeners() {
-            const handleLogin = (provider) => {
-                loadingOverlay.style.display = 'grid';
-                gsap.to(loadingOverlay, { opacity: 1, duration: 0.3 });
-                auth.signInWithRedirect(provider);
-            };
-            document.getElementById('google-login-btn').addEventListener('click', () => handleLogin(new firebase.auth.GoogleAuthProvider()));
-            document.getElementById('github-login-btn').addEventListener('click', () => handleLogin(new firebase.auth.GithubAuthProvider()));
+        // --- 4. EVENT LISTENERS & HELPERS ---
+        function setupEventListeners() {
+            const googleBtn = document.getElementById('google-login-btn');
+            const githubBtn = document.getElementById('github-login-btn');
+
+            googleBtn.addEventListener('click', () => handleLoginWithPopup(new firebase.auth.GoogleAuthProvider(), googleBtn));
+            githubBtn.addEventListener('click', () => handleLoginWithPopup(new firebase.auth.GithubAuthProvider(), githubBtn));
             
             document.getElementById('logout-btn').addEventListener('click', () => auth.signOut());
-
-            // View Switcher Logic
-            document.querySelectorAll('.nav-item[data-view]').forEach(item => {
-                item.addEventListener('click', () => {
-                    const targetViewId = item.dataset.view + '-view';
-                    const activeView = document.querySelector('.app-view.active');
-                    const targetView = document.getElementById(targetViewId);
-                    
-                    if (activeView === targetView) return;
-
-                    document.querySelector('.nav-item.active').classList.remove('active');
-                    item.classList.add('active');
-
-                    // Animate views
-                    gsap.timeline()
-                        .to(activeView, { opacity: 0, scale: 0.98, duration: 0.2, ease: "power2.in" })
-                        .call(() => {
-                            activeView.classList.remove('active');
-                            targetView.classList.add('active');
-                            targetView.style.opacity = 0;
-                            targetView.style.transform = 'scale(0.98)';
-                        })
-                        .to(targetView, { opacity: 1, scale: 1, duration: 0.3, ease: "power2.out" });
-                });
-            });
+        }
+        
+        function setButtonLoadingState(button, isLoading) {
+            button.disabled = isLoading;
+            button.classList.toggle('loading', isLoading);
         }
         
         function initializeCalendar() {
@@ -343,7 +287,7 @@
             const calendarEl = document.getElementById('calendar-container');
             calendar = new FullCalendar.Calendar(calendarEl, {
                 initialView: 'dayGridMonth',
-                headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay' },
+                headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek' },
                 height: '100%', editable: true, selectable: true,
             });
             calendar.render();
@@ -351,8 +295,25 @@
 
         // --- App Entry Point ---
         document.addEventListener('DOMContentLoaded', () => {
-            setupStaticEventListeners();
-            handleAuthentication();
+            // Determine initial state: show loader until Firebase confirms auth status
+            const initialAuthCheck = new Promise(resolve => {
+                const unsubscribe = auth.onAuthStateChanged(user => {
+                    unsubscribe(); // We only need the very first result
+                    resolve(user);
+                });
+            });
+
+            initialAuthCheck.then(user => {
+                if(user) {
+                    currentUser = user;
+                    initializeAppUI();
+                } else {
+                    showLoginScreen();
+                }
+                // Now, set up the persistent listener for future changes (login/logout)
+                initializeAuthListener();
+                setupEventListeners();
+            });
         });
     </script>
 </body>

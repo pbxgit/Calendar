@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OurCal - The Fabric of Your Time</title>
+    <title>Woven - A Collaborative Suite</title>
 
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/pbxgit/Calendar/main/favicon.png">
@@ -27,13 +27,13 @@
         /* --- 1. Design System & Core Styles --- */
         :root {
             --font-main: 'Satoshi', sans-serif; --font-ui: 'Inter', sans-serif;
-            --c-accent: #818cf8; --c-accent-rgb: 129, 140, 248;
+            --c-accent: #6366f1; --c-accent-rgb: 99, 102, 241;
             --c-accent-light: rgba(var(--c-accent-rgb), 0.1); --c-accent-dark: #4f46e5;
-            --bg-base: #111827; --bg-surface: #1f2937; --bg-muted: #374151;
+            --bg-base: #030712; --bg-surface: #111827; --bg-muted: #1f2937;
             --text-primary: #f9fafb; --text-secondary: #9ca3af;
             --border-color: #374151;
-            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.2), 0 4px 6px -4px rgb(0 0 0 / 0.2);
-            --border-radius: 0.75rem; --transition-curve: cubic-bezier(0.4, 0, 0.2, 1); --transition-duration: 0.4s;
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.3);
+            --border-radius: 0.75rem; --transition-curve: cubic-bezier(0.4, 0, 0.2, 1);
         }
         *, *::before, *::after { box-sizing: border-box; }
         @keyframes spin { to { transform: rotate(360deg); } }
@@ -87,7 +87,7 @@
         }
         .nav-item i { font-size: 1.25rem; }
         .nav-item:hover { color: var(--text-primary); background-color: var(--bg-muted); }
-        .nav-item.active { color: var(--text-primary); background-color: var(--c-accent); font-weight: 600; }
+        .nav-item.active { color: white; background-color: var(--c-accent); font-weight: 600; }
         .sidebar-footer { margin-top: auto; }
         .user-profile { display: flex; align-items: center; gap: 12px; padding: 8px; margin-top: 1rem; border-radius: 10px; }
         .user-avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; }
@@ -125,9 +125,9 @@
 
     <div class="auth-container" id="auth-section">
         <div class="auth-card">
-            <img src="https://raw.githubusercontent.com/pbxgit/Calendar/main/favicon.png" alt="OurCal Logo" width="50">
-            <h1>OurCal</h1>
-            <p>The Fabric of Your Time. A shared space for calendars, tasks, and conversations, woven together.</p>
+            <img src="https://raw.githubusercontent.com/pbxgit/Calendar/main/favicon.png" alt="Woven Logo" width="50">
+            <h1>Woven</h1>
+            <p>The fabric of your team's time. Calendars, tasks, and conversations—woven together.</p>
             <div class="auth-buttons">
                 <button id="google-login-btn" class="btn"><img src="https://raw.githubusercontent.com/pbxgit/Calendar/main/google-logo.svg" alt="Google" width="20"> Sign in with Google</button>
                 <button id="github-login-btn" class="btn"><img src="https://raw.githubusercontent.com/pbxgit/Calendar/main/github-logo.svg" alt="GitHub" width="20"> Sign in with GitHub</button>
@@ -139,7 +139,7 @@
         <nav class="sidebar">
             <div class="sidebar-header">
                 <img src="https://raw.githubusercontent.com/pbxgit/Calendar/main/favicon.png" alt="logo" width="32">
-                <h2>OurCal</h2>
+                <h2>Woven</h2>
             </div>
             <div class="nav-group">
                 <div class="nav-item active" data-view="calendar"><i class="bi bi-calendar3"></i><span>Calendar</span></div>
@@ -193,37 +193,27 @@
 
         // --- 2. THE DEFINITIVE AUTHENTICATION FLOW ---
         function handleAuthentication() {
-            // This is the single listener. It's the only source of truth.
-            // Firebase guarantees this will be called whenever the auth state changes.
             auth.onAuthStateChanged(user => {
-                // This check ensures we only act once the initial user state is known.
                 if (authReady) {
-                    // If auth is already initialized, a change means the user logged out.
-                    if (!user) {
-                        window.location.reload(); // Simplest way to reset the app state
-                    }
+                    if (!user) window.location.reload();
                     return;
                 }
                 
                 authReady = true;
 
                 if (user) {
-                    // User is signed in.
                     currentUser = user;
                     initializeAppUI();
                 } else {
-                    // User is signed out.
                     currentUser = null;
                     showLoginScreen();
                 }
             });
 
-            // Separately, we tell Firebase to process any login attempts from a redirect.
-            // When this is done, it will automatically trigger the `onAuthStateChanged` listener above.
             auth.getRedirectResult().catch(error => {
-                console.error("Fatal error during login redirect:", error);
-                alert(`A critical login error occurred: ${error.message}. Check your Firebase/Google Cloud configuration.`);
-                showLoginScreen(); // Force login screen on error
+                console.error("Login redirect error:", error);
+                alert(`A login error occurred: ${error.message}.`);
+                showLoginScreen();
             });
         }
         

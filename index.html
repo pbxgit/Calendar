@@ -21,6 +21,7 @@
     <link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/main.min.css' rel='stylesheet' />
 
     <style>
+        /* --- THEME & COLOR VARIABLES --- */
         :root {
             --bg-color: #f8f9fa;
             --sidebar-bg: #ffffff;
@@ -53,18 +54,37 @@
             transition: background-color 0.3s, color 0.3s;
         }
         
-        /* Layout */
+        /* --- LAYOUT & MAIN COMPONENTS --- */
         .main-container { display: flex; }
         .sidebar { width: 260px; height: 100vh; position: fixed; top: 0; left: 0; background-color: var(--sidebar-bg); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; transition: background-color 0.3s; }
         .content { margin-left: 260px; width: calc(100% - 260px); padding: 30px; }
+        .section { display: none; animation: fadeIn 0.5s ease-in-out; }
+        .active-section { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .card { background-color: var(--card-bg); border: 1px solid var(--border-color); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); transition: background-color 0.3s, border-color 0.3s; }
+        
+        /* --- DARK MODE FIXES & TEXT VISIBILITY --- */
+        [data-theme="dark"] h1, [data-theme="dark"] h2, [data-theme="dark"] h3, [data-theme="dark"] h4, [data-theme="dark"] h5, [data-theme="dark"] h6,
+        [data-theme="dark"] p, [data-theme="dark"] label, [data-theme="dark"] li, [data-theme="dark"] .modal-title { color: var(--text-color); }
+        [data-theme="dark"] .form-control, [data-theme="dark"] .form-select { background-color: var(--input-bg); color: var(--text-color); border-color: var(--input-border); }
+        [data-theme="dark"] .form-control:focus, [data-theme="dark"] .form-select:focus { background-color: var(--input-bg); color: var(--text-color); border-color: var(--primary-color); box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25); }
+        [data-theme="dark"] .list-group-item { background-color: var(--card-bg); border-color: var(--border-color); }
+        [data-theme="dark"] .modal-content { background-color: var(--sidebar-bg); }
+        [data-theme="dark"] .modal-header { border-bottom-color: var(--border-color); }
+        [data-theme="dark"] .btn-close { filter: invert(1) grayscale(100%) brightness(200%); }
 
-        /* Sidebar */
+        /* Dark Mode for FullCalendar */
+        [data-theme="dark"] .fc { color: var(--text-color); }
+        [data-theme="dark"] .fc .fc-col-header-cell-cushion, [data-theme="dark"] .fc .fc-daygrid-day-number { color: var(--text-muted-color); text-decoration: none; }
+        [data-theme="dark"] .fc .fc-day-today { background-color: rgba(255, 255, 255, 0.1) !important; }
+        [data-theme="dark"] .fc-button-primary { background-color: var(--primary-color) !important; border-color: var(--primary-color) !important; }
+        [data-theme="dark"] .fc-button { background-color: var(--input-bg); color: var(--text-color); }
+
+        /* --- SIDEBAR & USER PROFILE --- */
         .sidebar .navbar-brand { font-weight: 600; margin: 1rem 1.5rem; }
         .sidebar .nav-link { color: var(--text-muted-color); font-weight: 500; padding: 12px 24px; display: flex; align-items: center; gap: 12px; border-left: 3px solid transparent; cursor: pointer; transition: color 0.2s, background-color 0.2s; }
         .sidebar .nav-link .bi { font-size: 1.2rem; }
         .sidebar .nav-link.active, .sidebar .nav-link:hover { color: var(--primary-color); background-color: var(--primary-hover-bg); border-left: 3px solid var(--primary-color); }
-        
-        /* Sidebar Footer (User Profile) */
         .sidebar-footer { margin-top: auto; padding: 1rem; border-top: 1px solid var(--border-color); }
         .user-profile { display: flex; align-items: center; gap: 10px; margin-bottom: 1rem; }
         .user-profile img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
@@ -74,30 +94,7 @@
         .theme-switch-wrapper { display: flex; align-items: center; justify-content: space-between; padding: .5rem 0; }
         .form-check-input { cursor: pointer; }
 
-        /* Main Content */
-        .section { display: none; animation: fadeIn 0.5s ease-in-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .active-section { display: block; }
-        .card { background-color: var(--card-bg); border: 1px solid var(--border-color); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); transition: background-color 0.3s, border-color 0.3s; }
-        
-        /* Form elements theming */
-        .form-control, .form-select { background-color: var(--input-bg); color: var(--text-color); border-color: var(--input-border); }
-        .form-control:focus, .form-select:focus { background-color: var(--input-bg); color: var(--text-color); border-color: var(--primary-color); box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25); }
-        .list-group-item { background-color: var(--card-bg); border-color: var(--border-color); }
-        
-        /* Dark Mode for Modals */
-        [data-theme="dark"] .modal-content { background-color: var(--sidebar-bg); color: var(--text-color); }
-        [data-theme="dark"] .modal-header { border-bottom-color: var(--border-color); }
-        [data-theme="dark"] .btn-close { filter: invert(1) grayscale(100%) brightness(200%); }
-
-        /* Dark Mode for FullCalendar */
-        [data-theme="dark"] .fc { color: var(--text-color); }
-        [data-theme="dark"] .fc .fc-col-header-cell-cushion, [data-theme="dark"] .fc .fc-daygrid-day-number { color: var(--text-muted-color); }
-        [data-theme="dark"] .fc .fc-day-today { background-color: rgba(255, 255, 255, 0.1) !important; }
-        [data-theme="dark"] .fc-button-primary { background-color: var(--primary-color) !important; border-color: var(--primary-color) !important; }
-        [data-theme="dark"] .fc-button { background-color: var(--input-bg); color: var(--text-color); }
-
-        /* Login Screen */
+        /* --- LOGIN SCREEN --- */
         #auth-section { height: 100vh; display: flex; align-items: center; justify-content: center; background-color: var(--bg-color); }
         .login-card { width: 100%; max-width: 400px; }
     </style>
@@ -105,7 +102,7 @@
 <body>
 
     <!-- Authentication Screen -->
-    <div id="auth-section" style="display: none;">
+    <div id="auth-section">
         <div class="card login-card text-center p-4">
             <div class="card-body">
                 <h2 class="card-title mb-4">Personal Dashboard</h2>
@@ -151,8 +148,8 @@
                 <input type="radio" class="btn-check" name="view-mode" id="personal-mode" autocomplete="off" checked><label class="btn btn-outline-primary" for="personal-mode"><i class="bi bi-person-fill"></i> Personal</label>
                 <input type="radio" class="btn-check" name="view-mode" id="shared-mode" autocomplete="off"><label class="btn btn-outline-primary" for="shared-mode"><i class="bi bi-people-fill"></i> Shared</label>
             </div>
-            <!-- Sections go here -->
-            <div id="calendar-section" class="section active-section card"><div class="card-body p-4"><div class="d-flex justify-content-between align-items-center mb-3"><h3>Calendar</h3><p class="text-muted mb-0">Click on a date to add an event</p></div><div id='calendar'></div></div></div>
+
+            <div id="calendar-section" class="section active-section card"><div class="card-body p-4"><div class="d-flex justify-content-between align-items-center mb-3"><h3>Calendar</h3><button id="add-event-today-btn" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Add Event for Today</button></div><p class="text-muted">Click on any date to add a new event or click an existing event to delete it.</p><div id='calendar-container'></div></div></div>
             <div id="todos-section" class="section card"><div class="card-body p-4"><h3>To-Do List</h3><form id="todo-form" class="d-flex mb-3"><input type="text" id="todo-input" class="form-control me-2" placeholder="New Task..." required><button type="submit" class="btn btn-primary">Add</button></form><ul id="todo-list" class="list-group"></ul></div></div>
             <div id="notes-section" class="section card"><div class="card-body p-4"><h3>Notes</h3><form id="note-form" class="mb-4"><div class="mb-3"><input type="text" id="note-title" class="form-control" placeholder="Note Title" required></div><div class="mb-3"><textarea id="note-content" class="form-control" placeholder="Note Content..." rows="4"></textarea></div><button type="submit" class="btn btn-warning">Save Note</button></form><div id="notes-list" class="row"></div></div></div>
             <div id="history-section" class="section card"><div class="card-body p-4"><h3>History Tracker</h3><form id="history-form" class="mb-4"><div class="mb-3"><input type="text" id="history-title" class="form-control" placeholder="Title" required></div><div class="mb-3"><textarea id="history-desc" class="form-control" placeholder="Description..."></textarea></div><div class="mb-3"><input type="date" id="history-date" class="form-control" required></div><button type="submit" class="btn btn-success">Add History</button></form><ul id="history-list" class="list-group"></ul></div></div>
@@ -204,7 +201,6 @@
             measurementId: "G-YCNG7QXRR2"
         };
         
-        // --- GLOBAL VARIABLES & INITIALIZATION ---
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
@@ -214,7 +210,6 @@
         const SHARED_CALENDAR_ID = 'mainSharedCalendar';
         let addEventModal;
 
-        // --- THEME MANAGEMENT ---
         const themeToggle = document.getElementById('theme-toggle');
         const setInitialTheme = () => {
             const savedTheme = localStorage.getItem('theme');
@@ -233,7 +228,6 @@
             localStorage.setItem('theme', theme);
         });
 
-        // --- DOMContentLoaded: Entry point for the script ---
         document.addEventListener('DOMContentLoaded', () => {
             setInitialTheme();
             addEventModal = new bootstrap.Modal(document.getElementById('addEventModal'));
@@ -251,11 +245,12 @@
                     currentUser = null;
                     authSection.style.display = 'flex';
                     mainContent.classList.add('d-none');
-                    if (calendar) calendar.destroy();
-                    calendar = null;
+                    if (calendar) {
+                        calendar.destroy();
+                        calendar = null;
+                    }
                 }
             });
-
             setupGlobalEventListeners();
         });
 
@@ -287,6 +282,11 @@
                 });
             });
 
+            document.getElementById('add-event-today-btn').addEventListener('click', () => {
+                const todayStr = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+                openEventModal(todayStr);
+            });
+
             document.getElementById('saveEventBtn').addEventListener('click', () => {
                 const form = document.getElementById('addEventForm');
                 const title = document.getElementById('eventTitleInput').value;
@@ -304,31 +304,38 @@
         }
         
         function updateUserInfoUI(user) {
-            document.getElementById('user-avatar').src = user.photoURL || `https://ui-avatars.com/api/?name=${user.displayName || user.email}&background=random&color=fff`;
+            document.getElementById('user-avatar').src = user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName || user.email)}&background=random&color=fff`;
             document.getElementById('user-name').textContent = user.displayName || 'No Name';
             document.getElementById('user-email').textContent = user.email;
         }
+        
+        function openEventModal(dateStr) {
+            document.getElementById('addEventForm').reset();
+            document.getElementById('eventStartDate').value = dateStr;
+            document.getElementById('modalTitle').innerText = 'Add Event on ' + new Date(dateStr + 'T00:00:00').toLocaleDateString(); // Fix timezone issue
+            addEventModal.show();
+        }
 
         function initializeCalendar() {
-            const calendarEl = document.getElementById('calendar');
+            console.log("Initializing calendar...");
+            const calendarEl = document.getElementById('calendar-container');
+            if (!calendarEl) {
+                console.error("Calendar container element not found!");
+                return;
+            }
             calendar = new FullCalendar.Calendar(calendarEl, {
                 initialView: 'dayGridMonth',
-                headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,listWeek' },
+                headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek' },
                 selectable: true,
-                editable: false, // Keep it simple, no drag-and-drop editing for now
-                select: (info) => {
-                    document.getElementById('addEventForm').reset();
-                    document.getElementById('eventStartDate').value = info.startStr;
-                    document.getElementById('modalTitle').innerText = 'Add Event on ' + new Date(info.startStr).toLocaleDateString();
-                    addEventModal.show();
-                },
+                dateClick: (info) => openEventModal(info.dateStr),
                 eventClick: (info) => {
                     if (confirm(`Are you sure you want to delete the event '${info.event.title}'?`)) {
-                        getCollectionRef('events').doc(info.event.id).delete();
+                        getCollectionRef('events').doc(info.event.id).delete().catch(err => console.error("Error deleting event:", err));
                     }
                 }
             });
             calendar.render();
+            console.log("Calendar rendered.");
         }
         
         function getCollectionRef(collectionName) {
@@ -336,93 +343,74 @@
             return base.collection(collectionName);
         }
 
-        // --- DATA LOADING & FORM SETUP ---
         function loadAllData() {
             if (!currentUser) return;
-            ['events', 'todos', 'notes', 'history'].forEach(loadData);
+            ['events', 'todos', 'notes', 'history'].forEach(dataType => dataLoaders[dataType]());
         }
         
-        // Generic loader
         const dataLoaders = {
-            events: () => {
-                getCollectionRef('events').onSnapshot(snapshot => {
-                    const events = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            events: () => getCollectionRef('events').onSnapshot(snapshot => {
+                const events = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                if (calendar) {
                     calendar.removeAllEventSources();
                     calendar.addEventSource(events);
+                }
+            }, err => console.error("Error loading events:", err)),
+            todos: () => getCollectionRef('todos').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
+                const list = document.getElementById('todo-list');
+                list.innerHTML = '';
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const item = document.createElement('li');
+                    item.className = 'list-group-item d-flex justify-content-between align-items-center';
+                    item.innerHTML = `<div><span style="${data.completed ? 'text-decoration: line-through; opacity: 0.6;' : ''}">${data.task}</span><small class="d-block text-muted">by ${data.createdBy || 'Unknown'}</small></div><div><button class="btn btn-sm ${data.completed ? 'btn-outline-secondary' : 'btn-outline-success'}"><i class="bi bi-check-lg"></i></button><button class="btn btn-sm btn-outline-danger ms-2"><i class="bi bi-trash"></i></button></div>`;
+                    item.querySelector('.btn-outline-success, .btn-outline-secondary').addEventListener('click', () => doc.ref.update({ completed: !data.completed }));
+                    item.querySelector('.btn-outline-danger').addEventListener('click', () => doc.ref.delete());
+                    list.appendChild(item);
                 });
-            },
-            todos: () => {
-                getCollectionRef('todos').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
-                    const list = document.getElementById('todo-list');
-                    list.innerHTML = '';
-                    snapshot.forEach(doc => {
-                        const data = doc.data();
-                        const item = document.createElement('li');
-                        item.className = 'list-group-item d-flex justify-content-between align-items-center';
-                        item.innerHTML = `<div><span style="${data.completed ? 'text-decoration: line-through; opacity: 0.6;' : ''}">${data.task}</span><small class="d-block text-muted">by ${data.createdBy || 'Unknown'}</small></div><div><button class="btn btn-sm ${data.completed ? 'btn-outline-secondary' : 'btn-outline-success'}"><i class="bi bi-check-lg"></i></button><button class="btn btn-sm btn-outline-danger ms-2"><i class="bi bi-trash"></i></button></div>`;
-                        item.querySelector('.btn-outline-success, .btn-outline-secondary').addEventListener('click', () => doc.ref.update({ completed: !data.completed }));
-                        item.querySelector('.btn-outline-danger').addEventListener('click', () => doc.ref.delete());
-                        list.appendChild(item);
-                    });
+            }, err => console.error("Error loading todos:", err)),
+            notes: () => getCollectionRef('notes').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
+                const list = document.getElementById('notes-list');
+                list.innerHTML = '';
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const col = document.createElement('div');
+                    col.className = 'col-md-6 col-lg-4 mb-3';
+                    col.innerHTML = `<div class="card h-100"><div class="card-body d-flex flex-column"><h5 class="card-title">${data.title}</h5><p class="card-text flex-grow-1">${data.content.substring(0, 150)}...</p><p class="card-text"><small class="text-muted">By ${data.createdBy || 'Unknown'}</small></p><button class="btn btn-sm btn-danger align-self-start"><i class="bi bi-trash"></i> Delete</button></div></div>`;
+                    col.querySelector('button').addEventListener('click', () => { if (confirm('Delete this note?')) doc.ref.delete(); });
+                    list.appendChild(col);
                 });
-            },
-            notes: () => {
-                getCollectionRef('notes').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
-                    const list = document.getElementById('notes-list');
-                    list.innerHTML = '';
-                    snapshot.forEach(doc => {
-                        const data = doc.data();
-                        const col = document.createElement('div');
-                        col.className = 'col-md-6 col-lg-4 mb-3';
-                        col.innerHTML = `<div class="card h-100"><div class="card-body d-flex flex-column"><h5 class="card-title">${data.title}</h5><p class="card-text flex-grow-1">${data.content.substring(0, 150)}...</p><p class="card-text"><small class="text-muted">By ${data.createdBy || 'Unknown'}</small></p><button class="btn btn-sm btn-danger align-self-start"><i class="bi bi-trash"></i> Delete</button></div></div>`;
-                        col.querySelector('button').addEventListener('click', () => { if (confirm('Delete this note?')) doc.ref.delete(); });
-                        list.appendChild(col);
-                    });
+            }, err => console.error("Error loading notes:", err)),
+            history: () => getCollectionRef('history').orderBy('date', 'desc').onSnapshot(snapshot => {
+                const list = document.getElementById('history-list');
+                list.innerHTML = '';
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const item = document.createElement('li');
+                    item.className = 'list-group-item';
+                    item.innerHTML = `<h6>${data.title} - ${new Date(data.date.seconds * 1000).toLocaleDateString()}</h6><p class="mb-1">${data.description}</p><small class="text-muted">Added by ${data.createdBy || 'Unknown'}</small>`;
+                    list.appendChild(item);
                 });
-            },
-            history: () => {
-                 getCollectionRef('history').orderBy('date', 'desc').onSnapshot(snapshot => {
-                    const list = document.getElementById('history-list');
-                    list.innerHTML = '';
-                    snapshot.forEach(doc => {
-                        const data = doc.data();
-                        const item = document.createElement('li');
-                        item.className = 'list-group-item';
-                        item.innerHTML = `<h6>${data.title} - ${new Date(data.date.seconds * 1000).toLocaleDateString()}</h6><p class="mb-1">${data.description}</p><small class="text-muted">Added by ${data.createdBy || 'Unknown'}</small>`;
-                        list.appendChild(item);
-                    });
-                });
-            }
+            }, err => console.error("Error loading history:", err))
         };
-        
-        function loadData(dataType) {
-            if(dataLoaders[dataType]) dataLoaders[dataType]();
-        }
 
         function setupForms() {
             const forms = {
-                'event-form': 'events', // Calendar is handled by the modal now
                 'todo-form': 'todos',
                 'note-form': 'notes',
                 'history-form': 'history'
             };
-            
             Object.keys(forms).forEach(formId => {
                 const form = document.getElementById(formId);
                 if (form) {
                     form.onsubmit = (e) => {
                         e.preventDefault();
                         const collectionName = forms[formId];
-                        let data = {
-                            createdBy: currentUser.displayName || currentUser.email,
-                            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                        };
-                        
-                        if (collectionName === 'todos') data.task = form.querySelector('input').value; data.completed = false;
-                        if (collectionName === 'notes') { data.title = form.querySelector('#note-title').value; data.content = form.querySelector('#note-content').value; }
+                        let data = { createdBy: currentUser.displayName || currentUser.email };
+                        if (collectionName === 'todos') { data.task = form.querySelector('input').value; data.completed = false; data.createdAt = firebase.firestore.FieldValue.serverTimestamp(); }
+                        if (collectionName === 'notes') { data.title = form.querySelector('#note-title').value; data.content = form.querySelector('#note-content').value; data.createdAt = firebase.firestore.FieldValue.serverTimestamp(); }
                         if (collectionName === 'history') { data.title = form.querySelector('#history-title').value; data.description = form.querySelector('#history-desc').value; data.date = new Date(form.querySelector('#history-date').value); }
-                        
-                        getCollectionRef(collectionName).add(data);
+                        getCollectionRef(collectionName).add(data).catch(err => console.error(`Error adding to ${collectionName}:`, err));
                         form.reset();
                     };
                 }

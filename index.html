@@ -8,19 +8,26 @@
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/pbxgit/Calendar/main/favicon.png">
 
-    <!-- Fonts -->
+    <!-- Preconnect for Font Performance -->
+    <link rel="preconnect" href="https://api.fontshare.com" crossorigin>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:wght@400;500&display=swap" rel="stylesheet">
+
+    <!-- Modern Fonts: Satoshi for Display, Inter for UI -->
+    <link href="https://api.fontshare.com/v2/css?f[]=satoshi@700,500,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 
     <!-- Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 
+    <!-- FullCalendar CSS -->
+    <link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/main.min.css' rel='stylesheet' />
+
     <style>
         /* --- 1. Design System & Core Styles --- */
         :root {
-            --font-sans: 'Inter', sans-serif;
-            --font-serif: 'Lora', serif;
+            --font-main: 'Satoshi', sans-serif;
+            --font-ui: 'Inter', sans-serif;
             
             --c-accent: #818cf8; --c-accent-rgb: 129, 140, 248;
             --c-accent-light: rgba(var(--c-accent-rgb), 0.1);
@@ -30,7 +37,6 @@
             --text-primary: #f9fafb; --text-secondary: #9ca3af; --text-tertiary: #6b7280;
             --border-color: #374151;
             
-            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.15);
             --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.2), 0 2px 4px -2px rgb(0 0 0 / 0.15);
             --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.2), 0 4px 6px -4px rgb(0 0 0 / 0.2);
 
@@ -44,7 +50,7 @@
         @keyframes spin { to { transform: rotate(360deg); } }
         
         body {
-            font-family: var(--font-sans);
+            font-family: var(--font-main);
             background-color: var(--bg-base);
             color: var(--text-primary);
             margin: 0;
@@ -68,124 +74,93 @@
         .auth-container {
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             height: 100vh; text-align: center; padding: 2rem;
-            opacity: 0; visibility: hidden;
+            opacity: 0; visibility: hidden; position: fixed; inset: 0;
         }
         .auth-card {
             background-color: var(--bg-surface); border-radius: var(--border-radius);
             padding: 48px; border: 1px solid var(--border-color); box-shadow: var(--shadow-lg);
-            max-width: 420px;
+            max-width: 420px; width: 100%;
         }
-        .auth-card h1 { font-family: var(--font-serif); font-size: 2rem; margin: 1rem 0 0.5rem; }
-        .auth-card p { color: var(--text-secondary); margin-bottom: 2rem; }
+        .auth-card h1 { font-family: var(--font-main); font-weight: 700; font-size: 2.25rem; margin: 1rem 0 0.5rem; }
+        .auth-card p { color: var(--text-secondary); margin-bottom: 2rem; line-height: 1.6; }
         .auth-buttons { display: flex; flex-direction: column; gap: 1rem; }
         
         /* --- 4. Main App Layout --- */
         .app-container {
             display: grid; height: 100vh;
-            grid-template-columns: 80px 1fr;
+            grid-template-columns: 260px 1fr;
             grid-template-rows: 1fr;
             opacity: 0; visibility: hidden;
         }
-        .main-content {
-            padding: 40px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-        }
+        .main-content { padding: 40px; overflow-y: auto; display: flex; flex-direction: column; }
         .app-view { display: none; flex-direction: column; height: 100%; }
         .app-view.active { display: flex; }
         
         /* --- 5. Sidebar Navigation --- */
         .sidebar {
             background-color: var(--bg-surface); border-right: 1px solid var(--border-color);
-            display: flex; flex-direction: column; align-items: center;
-            padding: 24px 0;
+            display: flex; flex-direction: column; padding: 24px;
         }
-        .sidebar-header { margin-bottom: 40px; }
-        .nav-group { display: flex; flex-direction: column; gap: 1rem; }
+        .sidebar-header { display: flex; align-items: center; gap: 12px; margin-bottom: 40px; }
+        .sidebar-header h2 { font-size: 1.5rem; font-weight: 700; margin: 0; }
+        .nav-group { display: flex; flex-direction: column; gap: 0.5rem; }
         .nav-item {
-            display: grid; place-items: center;
-            width: 48px; height: 48px;
-            border-radius: 12px;
-            cursor: pointer;
-            color: var(--text-secondary);
-            transition: all var(--transition-duration) var(--transition-curve);
-            position: relative;
+            display: flex; align-items: center; gap: 12px; padding: 12px 16px;
+            border-radius: 10px; cursor: pointer; font-weight: 500; font-size: 1rem;
+            color: var(--text-secondary); transition: all var(--transition-duration) var(--transition-curve);
+            font-family: var(--font-ui);
         }
         .nav-item i { font-size: 1.25rem; }
-        .nav-item:hover { color: var(--c-accent); background-color: var(--c-accent-light); }
-        .nav-item.active { color: white; background-color: var(--c-accent); }
-        .nav-item .tooltip {
-            position: absolute; left: 120%; top: 50%; transform: translateY(-50%);
-            background-color: var(--bg-muted); color: var(--text-primary);
-            padding: 6px 12px; border-radius: 8px; font-weight: 500;
-            white-space: nowrap; font-size: 0.9rem;
-            opacity: 0; visibility: hidden; transition: all 0.2s var(--transition-curve);
-        }
-        .nav-item:hover .tooltip { opacity: 1; visibility: visible; left: 110%; }
-        .sidebar-footer { margin-top: auto; display: flex; flex-direction: column; align-items: center; gap: 1rem; }
-        .user-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border-color); }
+        .nav-item:hover { color: var(--text-primary); background-color: var(--bg-muted); }
+        .nav-item.active { color: var(--text-primary); background-color: var(--c-accent); font-weight: 600; }
+        .sidebar-footer { margin-top: auto; }
+        .user-profile { display: flex; align-items: center; gap: 12px; padding: 8px; margin-top: 1rem; }
+        .user-avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; }
         
-        /* --- 6. Feature & Component Styles --- */
+        /* --- 6. Component Styles --- */
         .btn {
-            border-radius: 10px; padding: 12px 18px; font-weight: 600;
+            font-family: var(--font-ui); border-radius: 10px; padding: 12px 18px; font-weight: 600;
             border: 1px solid var(--border-color); background-color: var(--bg-surface);
             color: var(--text-primary); transition: all var(--transition-duration) var(--transition-curve);
             display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer;
-            box-shadow: var(--shadow-sm);
         }
-        .btn:hover { background-color: var(--bg-muted); border-color: var(--text-tertiary); }
+        .btn:hover { background-color: var(--bg-muted); border-color: var(--text-tertiary); transform: translateY(-2px); }
         .btn-primary { background-color: var(--c-accent); color: white; border-color: var(--c-accent); }
         .btn-primary:hover { background-color: var(--c-accent-dark); border-color: var(--c-accent-dark); }
 
         .form-control {
-            width: 100%; padding: 12px 16px; border-radius: 10px;
-            border: 1px solid var(--border-color); background-color: var(--bg-surface);
-            color: var(--text-primary); font-family: var(--font-sans);
-            font-size: 1rem; transition: all var(--transition-duration) var(--transition-curve);
+            font-family: var(--font-ui); width: 100%; padding: 12px 16px; border-radius: 10px;
+            border: 1px solid var(--border-color); background-color: var(--bg-base);
+            color: var(--text-primary); font-size: 1rem; transition: all var(--transition-duration) var(--transition-curve);
         }
         .form-control:focus { border-color: var(--c-accent); box-shadow: 0 0 0 3px var(--c-accent-light); outline: none; }
         
-        /* --- Calendar View --- */
-        .calendar-header {
-            display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;
-        }
-        .calendar-header h1 { font-size: 2.25rem; font-weight: 700; margin: 0; }
+        h1 { font-size: 2.5rem; font-weight: 700; margin: 0 0 2rem 0; }
+        
+        /* --- FullCalendar Overrides --- */
         #calendar-container {
-            flex-grow: 1; display: grid; grid-template-columns: repeat(7, 1fr);
-            grid-auto-rows: minmax(120px, 1fr); gap: 1px;
-            background-color: var(--border-color); border: 1px solid var(--border-color);
-            border-radius: var(--border-radius); overflow: hidden;
+            flex-grow: 1; background-color: var(--bg-surface); border: 1px solid var(--border-color);
+            border-radius: var(--border-radius); padding: 24px;
         }
-        .calendar-day {
-            background-color: var(--bg-surface); padding: 12px; cursor: pointer;
-            transition: background-color 0.2s; position: relative;
+        .fc { border: none !important; height: 100%; }
+        .fc .fc-toolbar-title { font-size: 1.75em !important; font-weight: 700; font-family: var(--font-main); }
+        .fc .fc-button {
+            background-color: var(--bg-muted) !important; color: var(--text-primary) !important;
+            border: 1px solid var(--border-color) !important; box-shadow: none !important;
+            transition: var(--transition-duration) var(--transition-curve) !important;
         }
-        .calendar-day:hover { background-color: var(--bg-muted); }
-        .calendar-day.today { background-color: rgba(var(--c-accent-rgb), 0.05); }
-        .calendar-day .day-number { font-weight: 600; font-size: 0.9rem; }
-        .calendar-day.not-current-month .day-number { color: var(--text-tertiary); }
-        
-        /* --- Focus Panel (Detail View) --- */
-        .focus-panel {
-            position: fixed; top: 0; right: 0; width: 400px; height: 100%;
-            background-color: var(--bg-base); border-left: 1px solid var(--border-color);
-            z-index: 100; padding: 32px;
-            transform: translateX(100%); transition: transform 0.5s var(--transition-curve);
-        }
-        .app-container.panel-open .focus-panel { transform: translateX(0); }
-        
+        .fc .fc-button:hover { background-color: var(--c-accent) !important; border-color: var(--c-accent) !important; }
+        .fc-daygrid-day.fc-day-today { background-color: var(--c-accent-light) !important; }
+        .fc-day-header { font-family: var(--font-ui); font-weight: 500; border: none !important; }
+
         /* --- Utility --- */
         .d-none { display: none !important; }
-
     </style>
 </head>
 <body>
 
-    <!-- 1. Loading Overlay -->
     <div class="loading-overlay" id="loading-overlay"><div class="spinner"></div></div>
 
-    <!-- 2. Authentication Screen -->
     <div class="auth-container" id="auth-section">
         <div class="auth-card">
             <img src="https://raw.githubusercontent.com/pbxgit/Calendar/main/favicon.png" alt="OurCal Logo" width="50">
@@ -198,49 +173,38 @@
         </div>
     </div>
 
-    <!-- 3. Main Application -->
     <div class="app-container" id="app-container">
-        <!-- Sidebar Navigation -->
         <nav class="sidebar">
             <div class="sidebar-header">
                 <img src="https://raw.githubusercontent.com/pbxgit/Calendar/main/favicon.png" alt="logo" width="32">
+                <h2>OurCal</h2>
             </div>
             <div class="nav-group" id="app-navigation">
-                <div class="nav-item active" data-view="calendar"><i class="bi bi-calendar3"></i><span class="tooltip">Calendar</span></div>
-                <div class="nav-item" data-view="todo"><i class="bi bi-check2-square"></i><span class="tooltip">Tasks</span></div>
-                <div class="nav-item" data-view="chat"><i class="bi bi-chat-quote"></i><span class="tooltip">Chat</span></div>
+                <div class="nav-item active" data-view="calendar"><i class="bi bi-calendar3"></i><span>Calendar</span></div>
+                <div class="nav-item" data-view="todo"><i class="bi bi-check2-square"></i><span>Tasks</span></div>
+                <div class="nav-item" data-view="chat"><i class="bi bi-chat-quote"></i><span>Chat</span></div>
             </div>
             <div class="sidebar-footer">
-                <div id="user-profile" class="nav-item"></div>
-                <div class="nav-item" id="logout-btn"><i class="bi bi-box-arrow-left"></i><span class="tooltip">Logout</span></div>
+                <div id="user-profile" class="user-profile"></div>
+                <div class="nav-item" id="logout-btn"><i class="bi bi-box-arrow-left"></i><span>Logout</span></div>
             </div>
         </nav>
 
-        <!-- Main Content Area -->
         <main class="main-content">
             <div id="calendar-view" class="app-view active">
-                <div class="calendar-header">
-                     <h1 id="calendar-title"></h1>
-                     <div style="display:flex; gap: 0.5rem;">
-                        <button id="prev-month-btn" class="btn"><i class="bi bi-chevron-left"></i></button>
-                        <button id="next-month-btn" class="btn"><i class="bi bi-chevron-right"></i></button>
-                     </div>
-                </div>
+                <h1>Calendar</h1>
                 <div id="calendar-container"></div>
             </div>
-            <!-- Other views (Tasks, Chat) would be structured similarly -->
-            <div id="todo-view" class="app-view"><h1>Tasks</h1></div>
-            <div id="chat-view" class="app-view"><h1>Chat</h1></div>
+            <div id="todo-view" class="app-view"><h1>Shared Tasks</h1></div>
+            <div id="chat-view" class="app-view"><h1>Team Chat</h1></div>
         </main>
-        
-        <!-- Details/Focus Panel -->
-        <aside class="focus-panel" id="focus-panel"></aside>
     </div>
 
     <!-- Core Libraries -->
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/main.min.js'></script>
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
     
     <script>
@@ -259,7 +223,8 @@
         const db = firebase.firestore();
 
         let currentUser = null;
-        let currentDate = new Date();
+        let calendar = null;
+        let authInitialized = false;
 
         const loadingOverlay = document.getElementById('loading-overlay');
         const authSection = document.getElementById('auth-section');
@@ -269,58 +234,78 @@
 
         function main() {
             setupStaticEventListeners();
-            handleAuthentication();
+            initializeAuthListener();
         }
 
-        // --- 2. AUTHENTICATION FLOW ---
-        function handleAuthentication() {
+        // --- 2. ROBUST AUTHENTICATION FLOW ---
+        function initializeAuthListener() {
+            // This is the single source of truth for the user's auth state.
             auth.onAuthStateChanged(user => {
-                if (user && !user.isAnonymous) {
-                    if (!currentUser) { // Prevent re-initialization
-                        currentUser = user;
-                        initializeApp();
+                // This block runs whenever the auth state changes.
+                // The `authInitialized` flag ensures we only run the initial screen transition once.
+                if (authInitialized) {
+                    // If we've already done the initial load, just update the state.
+                    if (user) {
+                        if (!currentUser) { // User just logged in
+                            currentUser = user;
+                            initializeApp();
+                        }
+                    } else { // User just logged out
+                        currentUser = null;
+                        showLoginScreen();
                     }
                 } else {
-                    currentUser = null;
-                    showLoginScreen();
+                    // This is the FIRST time onAuthStateChanged has run.
+                    // This is our chance to decide whether to show the app or the login screen.
+                    authInitialized = true;
+                    if (user) {
+                        currentUser = user;
+                        initializeApp();
+                    } else {
+                        showLoginScreen();
+                    }
                 }
+            });
+
+            // This handles the result from a Google/GitHub sign-in redirect.
+            // It runs BEFORE the onAuthStateChanged listener above resolves the user.
+            // We don't need to do anything in the .then() because onAuthStateChanged will handle the result.
+            auth.getRedirectResult().catch(error => {
+                console.error("Error during sign-in redirect:", error);
+                alert(`Login failed: ${error.message}`);
+                // If the redirect fails, force the login screen to show.
+                showLoginScreen(); 
             });
         }
 
         function showLoginScreen() {
-            gsap.to(loadingOverlay, { opacity: 0, duration: 0.5, onComplete: () => loadingOverlay.classList.add('d-none') });
-            appContainer.classList.remove('panel-open');
-            gsap.to(appContainer, { opacity: 0, duration: 0.5, onComplete: () => appContainer.style.visibility = 'hidden' });
+            gsap.to(appContainer, { opacity: 0, duration: 0.3, onComplete: () => appContainer.style.visibility = 'hidden' });
+            
             authSection.style.visibility = 'visible';
-            gsap.to(authSection, { opacity: 1, duration: 0.5, delay: 0.3 });
+            gsap.timeline({ delay: 0.3 })
+               .to(authSection, { opacity: 1, duration: 0.5 })
+               .from(".auth-card > *", { opacity: 0, y: 20, stagger: 0.1, duration: 0.4 });
+
+            gsap.to(loadingOverlay, { opacity: 0, duration: 0.5, onComplete: () => loadingOverlay.classList.add('d-none') });
         }
         
-        async function initializeApp() {
-            try {
-                // Setup UI with user data
-                const userProfile = document.getElementById('user-profile');
-                userProfile.innerHTML = `<img src="${currentUser.photoURL}" class="user-avatar" alt="${currentUser.displayName}"><span class="tooltip">${currentUser.displayName}</span>`;
+        function initializeApp() {
+            document.getElementById('user-profile').innerHTML = `
+                <img src="${currentUser.photoURL}" class="user-avatar" alt="${currentUser.displayName}">
+                <span>${currentUser.displayName}</span>
+            `;
+            
+            gsap.to(authSection, { opacity: 0, duration: 0.3, onComplete: () => authSection.style.visibility = 'hidden' });
+            
+            appContainer.style.visibility = 'visible';
+            gsap.timeline({ delay: 0.3 })
+                .to(appContainer, { opacity: 1, duration: 0.5 })
+                .from(".sidebar > *", { opacity: 0, x: -30, stagger: 0.1, duration: 0.4 })
+                .from(".main-content > .app-view.active > *", { opacity: 0, y: 20, stagger: 0.1, duration: 0.4 }, "-=0.5");
 
-                // Animate transition from loading/login to app
-                gsap.to(loadingOverlay, { opacity: 0, duration: 0.5, onComplete: () => loadingOverlay.classList.add('d-none') });
-                gsap.to(authSection, { opacity: 0, duration: 0.5, onComplete: () => authSection.style.visibility = 'hidden' });
-                
-                appContainer.style.visibility = 'visible';
-                gsap.to(appContainer, { opacity: 1, duration: 0.5, delay: 0.3 });
-                gsap.from(".sidebar .nav-item", {
-                    opacity: 0,
-                    x: -30,
-                    duration: 0.5,
-                    stagger: 0.1,
-                    delay: 0.6
-                });
+            gsap.to(loadingOverlay, { opacity: 0, duration: 0.5, onComplete: () => loadingOverlay.classList.add('d-none') });
 
-                renderCalendar();
-
-            } catch (error) {
-                console.error("Critical error during app initialization:", error);
-                alert("Could not start the application. Please check the console.");
-            }
+            initializeCalendar();
         }
 
         // --- 3. EVENT LISTENERS ---
@@ -332,105 +317,49 @@
             };
             document.getElementById('google-login-btn').addEventListener('click', () => handleLogin(new firebase.auth.GoogleAuthProvider()));
             document.getElementById('github-login-btn').addEventListener('click', () => handleLogin(new firebase.auth.GithubAuthProvider()));
-            document.getElementById('logout-btn').addEventListener('click', () => auth.signOut());
             
-            document.getElementById('prev-month-btn').addEventListener('click', () => {
-                currentDate.setMonth(currentDate.getMonth() - 1);
-                renderCalendar();
-            });
-            document.getElementById('next-month-btn').addEventListener('click', () => {
-                currentDate.setMonth(currentDate.getMonth() + 1);
-                renderCalendar();
+            document.getElementById('logout-btn').addEventListener('click', () => {
+                auth.signOut();
             });
 
-             document.querySelector('main').addEventListener('click', () => {
-                if (appContainer.classList.contains('panel-open')) {
-                    appContainer.classList.remove('panel-open');
-                }
-            });
-            document.getElementById('focus-panel').addEventListener('click', (e) => e.stopPropagation());
-        }
+            document.querySelectorAll('.nav-item[data-view]').forEach(item => {
+                item.addEventListener('click', () => {
+                    document.querySelector('.nav-item.active').classList.remove('active');
+                    item.classList.add('active');
+                    const activeView = document.querySelector('.app-view.active');
+                    const targetView = document.getElementById(`${item.dataset.view}-view`);
 
-        // --- 4. CALENDAR LOGIC & RENDERING ---
-        function renderCalendar() {
-            const calendarContainer = document.getElementById('calendar-container');
-            calendarContainer.innerHTML = ''; // Clear previous month
-
-            const year = currentDate.getFullYear();
-            const month = currentDate.getMonth();
-
-            document.getElementById('calendar-title').textContent = new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric' }).format(currentDate);
-
-            const firstDayOfMonth = new Date(year, month, 1);
-            const lastDayOfMonth = new Date(year, month + 1, 0);
-            const daysInMonth = lastDayOfMonth.getDate();
-            
-            // Day of the week the month starts on (0=Sun, 1=Mon, ...)
-            const startDayOfWeek = firstDayOfMonth.getDay();
-
-            // Add day headers (Sun, Mon, etc.)
-            const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-            if(calendarContainer.children.length < 7) { // Add headers only once
-                dayNames.forEach(name => {
-                    const header = document.createElement('div');
-                    header.className = 'calendar-day-header';
-                    header.textContent = name;
-                    header.style.cssText = `padding: 12px; text-align: center; font-weight: 600; color: var(--text-secondary);`;
-                    calendarContainer.appendChild(header);
+                    gsap.timeline()
+                        .to(activeView, { opacity: 0, duration: 0.2, onComplete: () => activeView.classList.remove('active') })
+                        .set(targetView, { opacity: 0, display: 'flex' })
+                        .to(targetView, { opacity: 1, duration: 0.3, onComplete: () => targetView.classList.add('active') });
                 });
-            }
-
-            // Create blank tiles for days before the 1st of the month
-            for (let i = 0; i < startDayOfWeek; i++) {
-                const blankDay = document.createElement('div');
-                blankDay.className = 'calendar-day not-current-month';
-                calendarContainer.appendChild(blankDay);
-            }
-            
-            // Create day tiles for the current month
-            for (let day = 1; day <= daysInMonth; day++) {
-                const dayEl = document.createElement('div');
-                const date = new Date(year, month, day);
-                const dateStr = date.toISOString().split('T')[0];
-                
-                dayEl.className = 'calendar-day';
-                dayEl.dataset.date = dateStr;
-                dayEl.innerHTML = `<div class="day-number">${day}</div>`;
-
-                if (date.toDateString() === new Date().toDateString()) {
-                    dayEl.classList.add('today');
-                }
-                
-                dayEl.addEventListener('click', () => openFocusPanel(dateStr));
-                calendarContainer.appendChild(dayEl);
-            }
+            });
         }
 
-        // --- 5. FOCUS PANEL LOGIC ---
-        function openFocusPanel(dateStr) {
-            appContainer.classList.add('panel-open');
-            const date = new Date(dateStr + 'T00:00:00');
-            const panel = document.getElementById('focus-panel');
-            
-            // Basic panel structure, can be expanded with real data
-            panel.innerHTML = `
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <h2 style="font-family: var(--font-serif); font-size: 1.75rem;">${date.toLocaleDateString(undefined, { month: 'long', day: 'numeric' })}</h2>
-                    <button id="close-panel-btn" class="btn" style="width: 40px; height: 40px; padding: 0;"><i class="bi bi-x-lg"></i></button>
-                </div>
-                <p style="color: var(--text-secondary); margin-top: 2rem;">Events and tasks for this day will be shown here.</p>
-                 <form id="add-event-form" style="display:flex; gap:8px; margin-top:1.5rem;">
-                        <input id="event-input" class="form-control" placeholder="Add new event..." required>
-                        <button type="submit" class="btn btn-primary" style="padding: 0 16px;">Add</button>
-                </form>
-            `;
-
-            panel.querySelector('#close-panel-btn').onclick = () => appContainer.classList.remove('panel-open');
-             panel.querySelector('#add-event-form').onsubmit = e => {
-                e.preventDefault();
-                alert('Add event functionality would be wired up here.');
-            };
-
+        // --- 4. CALENDAR LOGIC ---
+        function initializeCalendar() {
+            const calendarEl = document.getElementById('calendar-container');
+            if (calendar) {
+                calendar.destroy();
+            }
+            calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                },
+                height: '100%',
+                editable: true,
+                selectable: true,
+                events: [
+                    // Example events, this would be loaded from Firestore
+                    { title: 'Team Sync', start: new Date() },
+                    { title: 'Project Deadline', start: new Date(Date.now() + 24 * 60 * 60 * 1000) }
+                ]
+            });
+            calendar.render();
         }
 
     </script>

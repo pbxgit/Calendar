@@ -25,36 +25,63 @@
                 <p>Focus on what matters, together.</p>
             </div>
             <div class="login-actions">
-                <button id="google-login-btn" class="login-button">
-                    <img src="https://raw.githubusercontent.com/pbxgit/Calendar/main/google-logo.svg" alt="Google Logo">
-                    <span>Continue with Google</span>
-                </button>
-                <button id="github-login-btn" class="login-button">
-                    <img src="https://raw.githubusercontent.com/pbxgit/Calendar/main/github-logo.svg" alt="GitHub Logo">
-                    <span>Continue with GitHub</span>
-                </button>
+                <h2>Get Started</h2>
+                <div class="login-buttons-container">
+                    <button id="google-login-btn" class="login-button">
+                        <img src="https://raw.githubusercontent.com/pbxgit/Calendar/main/google-logo.svg" alt="Google Logo">
+                        <span>Google</span>
+                    </button>
+                    <button id="github-login-btn" class="login-button">
+                        <img src="https://raw.githubusercontent.com/pbxgit/Calendar/main/github-logo.svg" alt="GitHub Logo">
+                        <span>GitHub</span>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
+    
+    <!-- Sidebar Navigation -->
+    <div id="sidebar-overlay"></div>
+    <aside id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">OurCal</div>
+        </div>
+        <nav class="sidebar-nav">
+            <p>Future features will live here:</p>
+            <ul>
+                <li>Settings</li>
+                <li>Search</li>
+                <li>Integrations</li>
+            </ul>
+        </nav>
+    </aside>
 
     <!-- Main App Screen -->
     <main id="app-screen">
         <header class="calendar-header">
             <div class="header-left">
+                <button id="sidebar-toggle-btn" class="nav-button" title="Open Menu">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                </button>
                 <h1><span id="month-name">Month</span> <span id="year">Year</span></h1>
                  <div class="header-nav">
                     <button id="prev-month-btn" class="nav-button" title="Previous Month">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
                     </button>
                     <button id="today-btn">Today</button>
                     <button id="next-month-btn" class="nav-button" title="Next Month">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
                     </button>
                 </div>
             </div>
             <div class="header-right">
                 <button id="add-event-btn" class="button-primary">Add Event</button>
-                <button id="logout-btn">Logout</button>
+                <div id="user-profile" class="hidden">
+                    <img id="user-avatar" src="" alt="User Avatar">
+                    <div class="profile-dropdown">
+                        <button id="logout-btn">Logout</button>
+                    </div>
+                </div>
             </div>
         </header>
         
@@ -68,7 +95,7 @@
         </div>
     </main>
 
-    <!-- Event Modal -->
+    <!-- Event Modal (Structure remains the same) -->
     <div id="event-modal" class="modal">
         <div class="modal-content">
             <h3 id="modal-title">New Event</h3>
@@ -107,6 +134,5 @@
 
     <!-- Firebase SDK Module -->
     <script type="module" src="app.js"></script>
-
 </body>
 </html>

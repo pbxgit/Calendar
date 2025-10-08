@@ -1,0 +1,290 @@
+/* --- Base & Typography --- */
+:root {
+    --background: #f8f9fa;
+    --text-primary: #212529;
+    --text-secondary: #6c757d;
+    --accent: #007bff;
+    --accent-hover: #0056b3;
+    --border-color: #dee2e6;
+    --surface-color: #ffffff;
+    --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    
+    --cat-blue: #007bff;
+    --cat-green: #28a745;
+    --cat-purple: #6f42c1;
+    --cat-orange: #fd7e14;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background-color: var(--background);
+    color: var(--text-primary);
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    overflow: hidden;
+}
+
+/* --- Screen Transitions --- */
+#login-screen, #app-screen {
+    transition: opacity 0.5s ease-in-out, visibility 0.5s;
+}
+#app-screen {
+    opacity: 0;
+    visibility: hidden;
+}
+.visible {
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+/* --- Login Screen --- */
+#login-screen {
+    text-align: center;
+}
+#login-screen h1 {
+    font-weight: 600;
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+}
+#login-screen p {
+    color: var(--text-secondary);
+    margin-top: 0;
+    margin-bottom: 2.5rem;
+    font-size: 1.1rem;
+}
+.login-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 24px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--surface-color);
+    cursor: pointer;
+    font-size: 1rem;
+    width: 280px;
+    margin: 0 auto 1rem;
+    transition: all 0.2s ease;
+}
+.login-button:hover {
+    border-color: #adb5bd;
+    box-shadow: var(--shadow);
+    transform: translateY(-2px);
+}
+.login-button img {
+    width: 24px;
+    height: 24px;
+    margin-right: 16px;
+}
+
+/* --- App Screen --- */
+#app-screen {
+    width: 100%;
+    height: 100vh;
+    max-width: 900px;
+    display: flex;
+    flex-direction: column;
+    padding: 2rem;
+    box-sizing: border-box;
+}
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    flex-shrink: 0;
+}
+header h2 {
+    margin: 0;
+    font-weight: 600;
+}
+button {
+    background: none;
+    border: 1px solid var(--border-color);
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-family: 'Inter', sans-serif;
+    transition: all 0.2s ease;
+}
+button:hover {
+    border-color: #adb5bd;
+}
+.header-controls {
+    display: flex;
+    gap: 1rem;
+}
+.button-primary {
+    background-color: var(--accent);
+    color: white;
+    border: none;
+}
+.button-primary:hover {
+    background-color: var(--accent-hover);
+    border: none;
+}
+.button-danger {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+}
+.button-danger:hover {
+    background-color: #c82333;
+    border: none;
+}
+
+/* --- Calendar Container --- */
+#calendar-container {
+    flex-grow: 1;
+    overflow-y: auto;
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    background: var(--surface-color);
+    box-shadow: var(--shadow);
+    padding: 1rem;
+}
+.event-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.25rem 1rem;
+    border-bottom: 1px solid #e9ecef;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+.event-item:last-child { border-bottom: none; }
+.event-item:hover { background-color: #f8f9fa; }
+
+.event-category-indicator {
+    width: 6px;
+    height: 40px;
+    border-radius: 3px;
+    flex-shrink: 0;
+}
+.event-details { flex-grow: 1; }
+.event-title {
+    font-weight: 500;
+    font-size: 1.1rem;
+    margin: 0 0 0.25rem 0;
+}
+.event-time {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+.event-creator {
+    font-size: 0.8rem;
+    color: #adb5bd;
+    margin-top: 4px;
+}
+/* Category Colors */
+.cat-blue { background-color: var(--cat-blue); }
+.cat-green { background-color: var(--cat-green); }
+.cat-purple { background-color: var(--cat-purple); }
+.cat-orange { background-color: var(--cat-orange); }
+
+/* --- Modal --- */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 100;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+.modal-content {
+    background-color: var(--surface-color);
+    margin: 10% auto;
+    padding: 24px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+    transform: translateY(-20px);
+    transition: transform 0.3s ease;
+}
+.modal.visible {
+    display: block;
+    opacity: 1;
+}
+.modal.visible .modal-content {
+    transform: translateY(0);
+}
+.modal h3 { margin-top: 0; }
+.modal label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+.modal input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    box-sizing: border-box;
+    font-size: 1rem;
+    font-family: 'Inter', sans-serif;
+}
+.form-row {
+    display: flex;
+    gap: 1rem;
+}
+.form-group {
+    flex: 1;
+}
+.category-selector {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+.category-option {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 3px solid transparent;
+    transition: border-color 0.2s ease;
+}
+.category-option.selected {
+    border-color: var(--surface-color);
+    box-shadow: 0 0 0 2px var(--accent);
+}
+.modal-buttons {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1.5rem;
+}
+.main-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+/* --- Utility Classes --- */
+.hidden { display: none !important; }
+.loader {
+    width: 48px;
+    height: 48px;
+    border: 5px solid #FFF;
+    border-bottom-color: var(--accent);
+    border-radius: 50%;
+    display: block;
+    box-sizing: border-box;
+    animation: rotation 1s linear infinite;
+    margin: 4rem auto;
+}
+@keyframes rotation {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}

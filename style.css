@@ -14,6 +14,11 @@
     --cat-green: #17a966; --cat-green-bg: #dff9ee;
     --cat-purple: #6f42c1; --cat-purple-bg: #f3eefc;
     --cat-orange: #f56c1b; --cat-orange-bg: #fff0e8;
+
+    /* Fluid Typography */
+    --font-size-h1: clamp(2rem, 4vw + 1rem, 3.5rem);
+    --font-size-h2: clamp(1.25rem, 2vw + 0.75rem, 1.75rem);
+    --font-size-base: clamp(0.9rem, 1vw + 0.5rem, 1rem);
 }
 body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -21,107 +26,85 @@ body {
     color: var(--text-primary);
     margin: 0;
     -webkit-font-smoothing: antialiased;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
+    font-size: var(--font-size-base);
+    overflow: hidden; /* Prevent scrollbars on main body */
 }
+.logo { font-size: 1.5rem; font-weight: 700; color: var(--accent); }
 
 /* --- Screen Transitions --- */
-#login-screen, #app-screen { transition: opacity 0.5s ease-in-out, visibility 0.5s; }
+#login-screen, #app-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; transition: opacity 0.5s ease-in-out, visibility 0.5s; }
 #app-screen { opacity: 0; visibility: hidden; pointer-events: none; }
 .visible { opacity: 1 !important; visibility: visible !important; pointer-events: auto !important; }
 
 /* --- Redesigned Login Screen --- */
-#login-screen {
-    width: 100%;
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 2rem;
-}
-.login-panel {
-    display: flex;
-    width: 100%;
-    max-width: 900px;
-    min-height: 500px;
-    background: var(--surface-color);
-    border-radius: 24px;
-    box-shadow: var(--shadow);
-    overflow: hidden;
-}
-.login-intro {
-    flex-basis: 50%;
-    padding: 3rem;
-    background: #1a1a1a;
-    color: #fff;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
-.login-intro .logo { font-size: 1.5rem; font-weight: 700; margin-bottom: 2rem; }
-.login-intro h1 { font-size: 2rem; line-height: 1.3; margin-bottom: 1rem; }
-.login-intro p { font-size: 1rem; color: #a0aec0; }
-.login-actions {
-    flex-basis: 50%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 3rem;
-}
-.login-button { display: flex; align-items: center; justify-content: center; padding: 12px 24px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--surface-color); cursor: pointer; font-size: 1rem; width: 100%; max-width: 300px; margin-bottom: 1rem; transition: all 0.2s ease; }
+#login-screen { display: flex; justify-content: center; align-items: center; padding: 2rem; }
+.login-panel { display: flex; width: 100%; max-width: 900px; min-height: 500px; background: var(--surface-color); border-radius: 24px; box-shadow: var(--shadow); overflow: hidden; }
+.login-intro { flex-basis: 50%; padding: clamp(1.5rem, 5vw, 3rem); background: #1a1a1a; color: #fff; display: flex; flex-direction: column; justify-content: center; }
+.login-intro .logo { color: #fff; }
+.login-intro h1 { font-size: var(--font-size-h1); line-height: 1.3; margin: 2rem 0 1rem; }
+.login-intro p { font-size: var(--font-size-base); color: #a0aec0; max-width: 35ch; }
+.login-actions { flex-basis: 50%; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: clamp(1.5rem, 5vw, 3rem); }
+.login-actions h2 { font-size: var(--font-size-h2); color: var(--text-primary); margin: 0 0 2rem 0; }
+.login-buttons-container { display: flex; gap: 1rem; }
+.login-button { display: flex; align-items: center; justify-content: center; padding: 12px 24px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--surface-color); cursor: pointer; transition: all 0.2s ease; }
 .login-button:hover { border-color: #adb5bd; background-color: #f8f9fa; transform: translateY(-2px); }
-.login-button img { width: 22px; height: 22px; margin-right: 16px; }
+.login-button img { width: 22px; height: 22px; margin-right: 12px; }
+
+/* --- Sidebar --- */
+#sidebar { position: fixed; top: 0; left: 0; width: 280px; height: 100%; background: var(--surface-color); z-index: 1001; transform: translateX(-100%); transition: transform 0.3s ease-in-out; border-right: 1px solid var(--border-color); }
+#sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 1000; opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s; }
+body.sidebar-open #sidebar { transform: translateX(0); }
+body.sidebar-open #sidebar-overlay { opacity: 1; visibility: visible; }
+.sidebar-header { padding: 1.5rem; border-bottom: 1px solid var(--border-color); }
+.sidebar-nav { padding: 1rem; }
+.sidebar-nav p { font-size: 0.8rem; color: var(--text-secondary); padding: 0 0.5rem; }
+.sidebar-nav ul { list-style: none; padding: 0; margin: 0; }
 
 /* --- Main App Layout --- */
-main#app-screen {
-    width: 95%;
-    height: 95vh;
-    max-width: 1400px;
-    display: flex;
-    flex-direction: column;
-    background: var(--surface-color);
-    border-radius: 20px;
-    box-shadow: var(--shadow);
-    padding: 1.5rem 2rem;
-    overflow: hidden;
-}
+main#app-screen { display: flex; flex-direction: column; padding: clamp(1rem, 2vw, 1.5rem) clamp(1rem, 2vw, 2rem); }
 
 /* --- Calendar Header --- */
 .calendar-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 1.5rem; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); flex-shrink: 0; }
 .header-left { display: flex; align-items: center; gap: 1.5rem; }
-.calendar-header h1 { margin: 0; font-size: 1.75rem; font-weight: 600; }
+.calendar-header h1 { margin: 0; font-size: var(--font-size-h2); font-weight: 600; white-space: nowrap; }
 .header-nav { display: flex; align-items: center; gap: 0.5rem; }
-.header-right { display: flex; gap: 0.5rem; }
+.header-right { display: flex; align-items: center; gap: 1rem; }
 button { font-family: 'Inter', sans-serif; font-size: 0.9rem; border-radius: 8px; padding: 8px 16px; cursor: pointer; border: 1px solid var(--border-color); background-color: var(--surface-color); transition: all 0.2s ease; }
 button:hover { border-color: #adb5bd; background-color: #f8f9fa; }
-.nav-button { display: inline-flex; justify-content: center; align-items: center; padding: 8px; }
+.nav-button { display: inline-flex; justify-content: center; align-items: center; padding: 8px; color: var(--text-secondary); }
+.nav-button:hover { color: var(--text-primary); }
 .button-primary { background-color: var(--accent); color: white; border-color: var(--accent); }
 .button-primary:hover { background-color: var(--accent-hover); border-color: var(--accent-hover); }
 
-/* --- Calendar Body --- */
+/* User Profile Bubble */
+#user-profile { position: relative; }
+#user-avatar { width: 38px; height: 38px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: border-color 0.2s; }
+#user-profile:hover #user-avatar { border-color: var(--accent); }
+.profile-dropdown { position: absolute; top: 120%; right: 0; background: var(--surface-color); border-radius: 8px; box-shadow: var(--shadow); border: 1px solid var(--border-color); padding: 0.5rem; width: 150px; opacity: 0; visibility: hidden; transform: translateY(10px); transition: all 0.2s ease; }
+#user-profile:hover .profile-dropdown { opacity: 1; visibility: visible; transform: translateY(0); }
+.profile-dropdown button { width: 100%; text-align: left; }
+
+/* --- Calendar Body --- (Rest is mostly the same as previous state-of-the-art) */
 .calendar-body { display: flex; flex-direction: column; flex-grow: 1; overflow: hidden; }
 .day-names { display: grid; grid-template-columns: repeat(7, 1fr); text-align: right; padding: 0 0.75rem 0.75rem; font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); border-bottom: 1px solid var(--border-color); }
 .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); grid-auto-rows: minmax(100px, auto); flex-grow: 1; border-left: 1px solid var(--border-color); }
-.day { border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); padding: 0.5rem; transition: background-color 0.2s; cursor: pointer; overflow-y: auto; }
+.day { border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); padding: 0.5rem; overflow-y: auto; }
 .day:hover { background-color: #fcfdff; }
 .day.other-month .day-number { color: #cbd5e0; }
 .day.today .day-number { color: var(--accent); font-weight: 700; }
 .day-number { text-align: right; margin-bottom: 0.5rem; }
-.events-container::-webkit-scrollbar { width: 4px; }
-.events-container::-webkit-scrollbar-thumb { background-color: #d1d5db; border-radius: 2px; }
 .event-pill { font-size: 0.8rem; padding: 4px 8px; border-radius: 6px; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
 .event-pill.cat-blue { background-color: var(--cat-blue-bg); color: #0041a3; }
 .event-pill.cat-green { background-color: var(--cat-green-bg); color: #0f5132; }
 .event-pill.cat-purple { background-color: var(--cat-purple-bg); color: #442a72; }
 .event-pill.cat-orange { background-color: var(--cat-orange-bg); color: #99410c; }
+.hidden { display: none !important; }
 
-/* --- Modal --- */
-.modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); backdrop-filter: blur(4px); opacity: 0; transition: opacity 0.3s ease; }
-.modal-content { background-color: var(--surface-color); margin: 10% auto; padding: 24px; border-radius: 12px; width: 90%; max-width: 500px; box-shadow: var(--shadow); transform: scale(0.95); transition: transform 0.3s ease; }
+/* --- Modal --- (Mostly unchanged, but inheriting new base styles) */
+.modal { display: none; position: fixed; z-index: 1001; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); backdrop-filter: blur(4px); opacity: 0; transition: opacity 0.3s ease; }
 .modal.visible { display: block; opacity: 1; }
+/* ... (rest of modal CSS is the same as previous) ... */
+.modal-content { background-color: var(--surface-color); margin: 10% auto; padding: 24px; border-radius: 12px; width: 90%; max-width: 500px; box-shadow: var(--shadow); transform: scale(0.95); transition: transform 0.3s ease; }
 .modal.visible .modal-content { transform: scale(1); }
 .modal h3 { margin-top: 0; } .modal label { display: block; margin-bottom: 0.5rem; font-size: 0.9rem; font-weight: 500; }
 .modal input, .modal select { width: 100%; padding: 10px; margin-bottom: 1rem; border: 1px solid var(--border-color); border-radius: 6px; font-size: 1rem; font-family: 'Inter', sans-serif; }
@@ -133,22 +116,22 @@ button:hover { border-color: #adb5bd; background-color: #f8f9fa; }
 .main-actions { display: flex; gap: 0.5rem; }
 .button-danger { background-color: #dc3545; color: white; border-color: #dc3545; }
 .button-danger:hover { background-color: #c82333; border-color: #c82333; }
-.hidden { display: none !important; }
 
-/* --- Responsive Design --- */
+
+/* --- Responsive Adjustments --- */
 @media (max-width: 960px) {
     .login-intro { display: none; }
     .login-actions { flex-basis: 100%; }
 }
 @media (max-width: 768px) {
-    main#app-screen { width: 100%; height: 100vh; border-radius: 0; padding: 1rem; }
+    body { font-size: 1rem; } /* Fix base font size for mobile */
+    main#app-screen { padding: 1rem; }
     .calendar-header { flex-direction: column; gap: 1rem; align-items: stretch; }
     .header-left { order: 1; display: flex; justify-content: space-between; }
-    .header-right { order: 2; width: 100%; display: flex; justify-content: space-between; }
+    .header-nav { order: -1; } /* Move nav buttons to the left of the month */
+    .header-right { order: 2; }
     .day-names { display: none; }
     .calendar-grid { grid-template-columns: 1fr; border: none; }
-    .day { border-right: none; padding: 1rem; display: flex; gap: 1rem; border-bottom: 1px solid var(--border-color); }
+    .day { border-right: none; padding: 1rem; display: flex; gap: 1rem; }
     .day.other-month { display: none; }
-    .day-number { font-weight: 600; font-size: 1.1rem; }
-    .day.today { background: #f7faff; }
 }

@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Personal Dashboard</title>
-    
+    <title>Collaborative Calendar</title>
+
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/pbxgit/Calendar/main/favicon.png">
 
@@ -30,7 +30,7 @@
             --text-muted-color: #6c757d;
             --border-color: #dee2e6;
             --primary-color: #0d6efd;
-            --primary-hover-bg: #e9f2ff;
+            --danger-color: #dc3545;
             --input-bg: #fff;
             --input-border: #ced4da;
         }
@@ -42,7 +42,6 @@
             --text-color: #e9ecef;
             --text-muted-color: #adb5bd;
             --border-color: #495057;
-            --primary-hover-bg: #2a2a2a;
             --input-bg: #2a2a2a;
             --input-border: #495057;
         }
@@ -51,61 +50,58 @@
             font-family: 'Poppins', sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
-            transition: background-color 0.3s, color 0.3s;
         }
         
-        /* --- LAYOUT & MAIN COMPONENTS --- */
+        /* --- LOGIN SCREEN --- */
+        #auth-section {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--bg-color);
+        }
+        .login-card { width: 100%; max-width: 420px; }
+
+        /* --- MAIN APP LAYOUT --- */
         .main-container { display: flex; }
-        .sidebar { width: 260px; height: 100vh; position: fixed; top: 0; left: 0; background-color: var(--sidebar-bg); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; transition: background-color 0.3s; }
-        .content { margin-left: 260px; width: calc(100% - 260px); padding: 30px; }
-        .section { display: none; animation: fadeIn 0.5s ease-in-out; }
-        .active-section { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .card { background-color: var(--card-bg); border: 1px solid var(--border-color); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); transition: background-color 0.3s, border-color 0.3s; }
+        .sidebar { width: 300px; height: 100vh; position: fixed; top: 0; left: 0; background-color: var(--sidebar-bg); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; z-index: 1030; }
+        .content { margin-left: 300px; width: calc(100% - 300px); padding: 2rem; }
+        .card { background-color: var(--card-bg); border: 1px solid var(--border-color); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); }
         
-        /* --- DARK MODE FIXES & TEXT VISIBILITY --- */
-        [data-theme="dark"] h1, [data-theme="dark"] h2, [data-theme="dark"] h3, [data-theme="dark"] h4, [data-theme="dark"] h5, [data-theme="dark"] h6,
-        [data-theme="dark"] p, [data-theme="dark"] label, [data-theme="dark"] li, [data-theme="dark"] .modal-title { color: var(--text-color); }
-        [data-theme="dark"] .form-control, [data-theme="dark"] .form-select { background-color: var(--input-bg); color: var(--text-color); border-color: var(--input-border); }
-        [data-theme="dark"] .form-control:focus, [data-theme="dark"] .form-select:focus { background-color: var(--input-bg); color: var(--text-color); border-color: var(--primary-color); box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25); }
+        /* --- DARK MODE FIXES --- */
+        [data-theme="dark"] h1, [data-theme="dark"] h2, [data-theme="dark"] h3, [data-theme="dark"] p, [data-theme="dark"] label, [data-theme="dark"] .modal-title { color: var(--text-color); }
+        [data-theme="dark"] .form-control { background-color: var(--input-bg); color: var(--text-color); border-color: var(--input-border); }
         [data-theme="dark"] .list-group-item { background-color: var(--card-bg); border-color: var(--border-color); }
         [data-theme="dark"] .modal-content { background-color: var(--sidebar-bg); }
-        [data-theme="dark"] .modal-header { border-bottom-color: var(--border-color); }
         [data-theme="dark"] .btn-close { filter: invert(1) grayscale(100%) brightness(200%); }
-
-        /* Dark Mode for FullCalendar */
         [data-theme="dark"] .fc { color: var(--text-color); }
-        [data-theme="dark"] .fc .fc-col-header-cell-cushion, [data-theme="dark"] .fc .fc-daygrid-day-number { color: var(--text-muted-color); text-decoration: none; }
         [data-theme="dark"] .fc .fc-day-today { background-color: rgba(255, 255, 255, 0.1) !important; }
-        [data-theme="dark"] .fc-button-primary { background-color: var(--primary-color) !important; border-color: var(--primary-color) !important; }
-        [data-theme="dark"] .fc-button { background-color: var(--input-bg); color: var(--text-color); }
 
-        /* --- SIDEBAR & USER PROFILE --- */
-        .sidebar .navbar-brand { font-weight: 600; margin: 1rem 1.5rem; }
-        .sidebar .nav-link { color: var(--text-muted-color); font-weight: 500; padding: 12px 24px; display: flex; align-items: center; gap: 12px; border-left: 3px solid transparent; cursor: pointer; transition: color 0.2s, background-color 0.2s; }
-        .sidebar .nav-link .bi { font-size: 1.2rem; }
-        .sidebar .nav-link.active, .sidebar .nav-link:hover { color: var(--primary-color); background-color: var(--primary-hover-bg); border-left: 3px solid var(--primary-color); }
-        .sidebar-footer { margin-top: auto; padding: 1rem; border-top: 1px solid var(--border-color); }
-        .user-profile { display: flex; align-items: center; gap: 10px; margin-bottom: 1rem; }
-        .user-profile img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
-        .user-profile .user-info { line-height: 1.2; overflow: hidden; }
-        .user-profile .user-name { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .user-profile .user-email { font-size: 0.8rem; color: var(--text-muted-color); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        /* --- SIDEBAR & HISTORY --- */
+        .sidebar-header { padding: 1.5rem; border-bottom: 1px solid var(--border-color); }
+        .sidebar-header .navbar-brand { font-weight: 600; font-size: 1.5rem; }
+        .history-log { flex-grow: 1; overflow-y: auto; padding: 1rem; }
+        .history-log h5 { padding: 0 0.5rem 0.5rem; border-bottom: 1px solid var(--border-color); margin-bottom: 1rem; }
+        .history-item { font-size: 0.9rem; margin-bottom: 1rem; padding-left: 1.5rem; position: relative; }
+        .history-item::before { content: ''; position: absolute; left: 0; top: 5px; width: 10px; height: 10px; border-radius: 50%; background-color: var(--primary-color); }
+        .history-item.deleted::before { background-color: var(--danger-color); }
+        .history-item .actor { font-weight: 600; }
+        .history-item .time { font-size: 0.75rem; color: var(--text-muted-color); display: block; }
+        .sidebar-footer { padding: 1rem; border-top: 1px solid var(--border-color); }
         .theme-switch-wrapper { display: flex; align-items: center; justify-content: space-between; padding: .5rem 0; }
-        .form-check-input { cursor: pointer; }
-
-        /* --- LOGIN SCREEN --- */
-        #auth-section { height: 100vh; display: flex; align-items: center; justify-content: center; background-color: var(--bg-color); }
-        .login-card { width: 100%; max-width: 400px; }
+        
+        /* --- FULLCALENDAR --- */
+        #calendar-container { height: calc(100vh - 4rem); }
+        .fc-event { cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <!-- Authentication Screen -->
+    <!-- Authentication Screen (Shown when logged out) -->
     <div id="auth-section">
         <div class="card login-card text-center p-4">
             <div class="card-body">
-                <h2 class="card-title mb-4">Personal Dashboard</h2>
+                <h2 class="card-title mb-2">Collaborative Calendar</h2>
                 <p class="text-muted mb-4">Please sign in to continue</p>
                 <div class="d-grid gap-3">
                     <button id="google-login-btn" class="btn btn-light border d-flex align-items-center justify-content-center gap-2"><img src="https://raw.githubusercontent.com/pbxgit/Calendar/main/google-logo.svg" alt="Google" width="20"> Sign in with Google</button>
@@ -115,69 +111,40 @@
         </div>
     </div>
     
-    <!-- Main Application -->
+    <!-- Main Application (Shown when logged in) -->
     <div class="main-container d-none" id="main-content">
         <nav class="sidebar">
-            <div>
-                <a class="navbar-brand" href="#">Dashboard</a>
-                <ul class="nav flex-column">
-                    <li class="nav-item"><a class="nav-link active" href="#" data-section="calendar"><i class="bi bi-calendar-event"></i> Calendar</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#" data-section="todos"><i class="bi bi-check2-square"></i> To-Do List</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#" data-section="notes"><i class="bi bi-journal-text"></i> Notes</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#" data-section="history"><i class="bi bi-clock-history"></i> History Tracker</a></li>
-                </ul>
+            <div class="sidebar-header">
+                <a class="navbar-brand" href="#">Collaborative Calendar</a>
+                <p class="text-muted mb-0">A real-time shared calendar for your team.</p>
             </div>
+            
+            <div class="history-log">
+                <h5 class="mb-3"><i class="bi bi-clock-history"></i> Edit History</h5>
+                <ul id="history-list" class="list-unstyled"></ul>
+            </div>
+
             <div class="sidebar-footer">
-                <div id="user-profile" class="user-profile">
-                    <img id="user-avatar" src="" alt="User">
-                    <div class="user-info">
-                        <div id="user-name" class="user-name"></div>
-                        <div id="user-email" class="user-email"></div>
-                    </div>
+                <div id="user-profile" class="d-flex align-items-center mb-3">
+                    <!-- User info will be injected here -->
                 </div>
-                <div class="theme-switch-wrapper">
+                <div class="theme-switch-wrapper mb-2">
                     <label for="theme-toggle">Dark Mode</label>
                     <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="theme-toggle"></div>
                 </div>
-                <button id="logout-btn" class="btn btn-outline-danger w-100 mt-2"><i class="bi bi-box-arrow-right"></i> Logout</button>
+                <button id="logout-btn" class="btn btn-outline-danger w-100"><i class="bi bi-box-arrow-right"></i> Logout</button>
             </div>
         </nav>
 
         <main class="content">
-            <div class="view-switcher btn-group w-100 mb-4" role="group">
-                <input type="radio" class="btn-check" name="view-mode" id="personal-mode" autocomplete="off" checked><label class="btn btn-outline-primary" for="personal-mode"><i class="bi bi-person-fill"></i> Personal</label>
-                <input type="radio" class="btn-check" name="view-mode" id="shared-mode" autocomplete="off"><label class="btn btn-outline-primary" for="shared-mode"><i class="bi bi-people-fill"></i> Shared</label>
-            </div>
-
-            <div id="calendar-section" class="section active-section card"><div class="card-body p-4"><div class="d-flex justify-content-between align-items-center mb-3"><h3>Calendar</h3><button id="add-event-today-btn" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Add Event for Today</button></div><p class="text-muted">Click on any date to add a new event or click an existing event to delete it.</p><div id='calendar-container'></div></div></div>
-            <div id="todos-section" class="section card"><div class="card-body p-4"><h3>To-Do List</h3><form id="todo-form" class="d-flex mb-3"><input type="text" id="todo-input" class="form-control me-2" placeholder="New Task..." required><button type="submit" class="btn btn-primary">Add</button></form><ul id="todo-list" class="list-group"></ul></div></div>
-            <div id="notes-section" class="section card"><div class="card-body p-4"><h3>Notes</h3><form id="note-form" class="mb-4"><div class="mb-3"><input type="text" id="note-title" class="form-control" placeholder="Note Title" required></div><div class="mb-3"><textarea id="note-content" class="form-control" placeholder="Note Content..." rows="4"></textarea></div><button type="submit" class="btn btn-warning">Save Note</button></form><div id="notes-list" class="row"></div></div></div>
-            <div id="history-section" class="section card"><div class="card-body p-4"><h3>History Tracker</h3><form id="history-form" class="mb-4"><div class="mb-3"><input type="text" id="history-title" class="form-control" placeholder="Title" required></div><div class="mb-3"><textarea id="history-desc" class="form-control" placeholder="Description..."></textarea></div><div class="mb-3"><input type="date" id="history-date" class="form-control" required></div><button type="submit" class="btn btn-success">Add History</button></form><ul id="history-list" class="list-group"></ul></div></div>
+            <div id='calendar-container' class="card p-3"></div>
         </main>
     </div>
 
-    <!-- Add Event Modal -->
-    <div class="modal fade" id="addEventModal" tabindex="-1">
+    <!-- Event Modal -->
+    <div class="modal fade" id="eventModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modalTitle">Add Event</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="addEventForm">
-                        <input type="hidden" id="eventStartDate">
-                        <div class="mb-3">
-                            <label for="eventTitleInput" class="form-label">Event Title</label>
-                            <input type="text" class="form-control" id="eventTitleInput" required>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" id="saveEventBtn">Save Event</button>
-                </div>
-            </div>
+            <div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="modalTitle">Add Event</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="eventForm"><input type="hidden" id="eventStartDate"><div class="mb-3"><label for="eventTitleInput" class="form-label">Event Title</label><input type="text" class="form-control" id="eventTitleInput" placeholder="Enter a title for your event" required></div></form></div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button><button type="button" class="btn btn-primary" id="saveEventBtn">Save Event</button></div></div>
         </div>
     </div>
 
@@ -204,23 +171,20 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
+        
         let calendar;
         let currentUser = null;
-        let currentViewMode = 'personal';
-        const SHARED_CALENDAR_ID = 'mainSharedCalendar';
-        let addEventModal;
+        let eventModal;
 
+        const authSection = document.getElementById('auth-section');
+        const mainContent = document.getElementById('main-content');
+        
+        // --- THEME MANAGEMENT ---
         const themeToggle = document.getElementById('theme-toggle');
         const setInitialTheme = () => {
-            const savedTheme = localStorage.getItem('theme');
-            const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
-                document.documentElement.setAttribute('data-theme', 'dark');
-                themeToggle.checked = true;
-            } else {
-                document.documentElement.setAttribute('data-theme', 'light');
-                themeToggle.checked = false;
-            }
+            const savedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            themeToggle.checked = savedTheme === 'dark';
         };
         themeToggle.addEventListener('change', () => {
             const theme = themeToggle.checked ? 'dark' : 'light';
@@ -228,21 +192,23 @@
             localStorage.setItem('theme', theme);
         });
 
+        // --- APP INITIALIZATION ---
         document.addEventListener('DOMContentLoaded', () => {
             setInitialTheme();
-            addEventModal = new bootstrap.Modal(document.getElementById('addEventModal'));
-            const authSection = document.getElementById('auth-section');
-            const mainContent = document.getElementById('main-content');
+            eventModal = new bootstrap.Modal(document.getElementById('eventModal'));
             
             auth.onAuthStateChanged(user => {
-                if (user) {
+                // IMPORTANT: Block anonymous users
+                if (user && !user.isAnonymous) {
                     currentUser = user;
+                    // User is signed in, show the main app
                     authSection.style.display = 'none';
                     mainContent.classList.remove('d-none');
                     updateUserInfoUI(user);
                     initializeApp();
                 } else {
                     currentUser = null;
+                    // User is logged out or anonymous, show the login screen
                     authSection.style.display = 'flex';
                     mainContent.classList.add('d-none');
                     if (calendar) {
@@ -251,168 +217,120 @@
                     }
                 }
             });
-            setupGlobalEventListeners();
+
+            setupAuthEventListeners();
         });
 
         function initializeApp() {
             if (!calendar) initializeCalendar();
-            setupForms();
-            loadAllData();
+            loadCalendarEvents();
+            loadHistory();
+            setupAppEventListeners();
         }
 
-        function setupGlobalEventListeners() {
-            document.getElementById('google-login-btn').addEventListener('click', () => auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(err => console.error(err)));
-            document.getElementById('github-login-btn').addEventListener('click', () => auth.signInWithPopup(new firebase.auth.GithubAuthProvider()).catch(err => console.error(err)));
-            document.getElementById('logout-btn').addEventListener('click', () => auth.signOut());
-
-            document.querySelectorAll('input[name="view-mode"]').forEach(radio => {
-                radio.addEventListener('change', (e) => {
-                    currentViewMode = e.target.id === 'personal-mode' ? 'personal' : 'shared';
-                    loadAllData();
-                });
-            });
-
-            document.querySelectorAll('.sidebar .nav-link').forEach(link => {
-                link.addEventListener('click', e => {
-                    e.preventDefault();
-                    document.querySelector('.sidebar .nav-link.active').classList.remove('active');
-                    link.classList.add('active');
-                    document.querySelector('.section.active-section').classList.remove('active-section');
-                    document.getElementById(link.dataset.section + '-section').classList.add('active-section');
-                });
-            });
-
-            document.getElementById('add-event-today-btn').addEventListener('click', () => {
-                const todayStr = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
-                openEventModal(todayStr);
-            });
-
-            document.getElementById('saveEventBtn').addEventListener('click', () => {
-                const form = document.getElementById('addEventForm');
-                const title = document.getElementById('eventTitleInput').value;
-                const startDate = document.getElementById('eventStartDate').value;
-                if (title && startDate) {
-                    getCollectionRef('events').add({
-                        title: title,
-                        start: startDate,
-                        createdBy: currentUser.displayName || currentUser.email
-                    });
-                    addEventModal.hide();
-                    form.reset();
-                }
-            });
-        }
-        
+        // --- UI & AUTHENTICATION ---
         function updateUserInfoUI(user) {
-            document.getElementById('user-avatar').src = user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName || user.email)}&background=random&color=fff`;
-            document.getElementById('user-name').textContent = user.displayName || 'No Name';
-            document.getElementById('user-email').textContent = user.email;
+            const profileContainer = document.getElementById('user-profile');
+            profileContainer.innerHTML = `
+                <img src="${user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName || 'A')}&background=random&color=fff`}" class="rounded-circle" width="35" height="35" alt="Avatar">
+                <div class="ms-2 small">
+                    <strong class="d-block text-truncate">${user.displayName || 'No Name'}</strong>
+                    <span class="text-muted text-truncate">${user.email || 'No Email'}</span>
+                </div>
+            `;
         }
         
-        function openEventModal(dateStr) {
-            document.getElementById('addEventForm').reset();
-            document.getElementById('eventStartDate').value = dateStr;
-            document.getElementById('modalTitle').innerText = 'Add Event on ' + new Date(dateStr + 'T00:00:00').toLocaleDateString(); // Fix timezone issue
-            addEventModal.show();
+        function setupAuthEventListeners() {
+            document.getElementById('google-login-btn').addEventListener('click', () => auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(err => console.error(err.message)));
+            document.getElementById('github-login-btn').addEventListener('click', () => auth.signInWithPopup(new firebase.auth.GithubAuthProvider()).catch(err => console.error(err.message)));
+            // Logout is inside main content, so its listener is set up later
         }
 
+        // --- CALENDAR LOGIC ---
         function initializeCalendar() {
-            console.log("Initializing calendar...");
             const calendarEl = document.getElementById('calendar-container');
-            if (!calendarEl) {
-                console.error("Calendar container element not found!");
-                return;
-            }
             calendar = new FullCalendar.Calendar(calendarEl, {
                 initialView: 'dayGridMonth',
-                headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek' },
+                headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay' },
                 selectable: true,
+                editable: true,
                 dateClick: (info) => openEventModal(info.dateStr),
                 eventClick: (info) => {
                     if (confirm(`Are you sure you want to delete the event '${info.event.title}'?`)) {
-                        getCollectionRef('events').doc(info.event.id).delete().catch(err => console.error("Error deleting event:", err));
+                        const eventData = { title: info.event.title, start: info.event.start.toISOString() };
+                        db.collection('events').doc(info.event.id).delete()
+                          .then(() => logHistory('deleted', eventData));
                     }
+                },
+                eventDrop: (info) => {
+                    const eventData = { title: info.event.title, start: info.event.start.toISOString() };
+                    db.collection('events').doc(info.event.id).update({
+                        start: info.event.start.toISOString(),
+                        end: info.event.end ? info.event.end.toISOString() : null,
+                    }).then(() => logHistory('moved', eventData));
                 }
             });
             calendar.render();
-            console.log("Calendar rendered.");
-        }
-        
-        function getCollectionRef(collectionName) {
-            const base = currentViewMode === 'personal' ? db.collection('users').doc(currentUser.uid) : db.collection('sharedSpaces').doc(SHARED_CALENDAR_ID);
-            return base.collection(collectionName);
         }
 
-        function loadAllData() {
-            if (!currentUser) return;
-            ['events', 'todos', 'notes', 'history'].forEach(dataType => dataLoaders[dataType]());
-        }
-        
-        const dataLoaders = {
-            events: () => getCollectionRef('events').onSnapshot(snapshot => {
+        function loadCalendarEvents() {
+            db.collection('events').onSnapshot(snapshot => {
                 const events = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 if (calendar) {
                     calendar.removeAllEventSources();
                     calendar.addEventSource(events);
                 }
-            }, err => console.error("Error loading events:", err)),
-            todos: () => getCollectionRef('todos').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
-                const list = document.getElementById('todo-list');
-                list.innerHTML = '';
-                snapshot.forEach(doc => {
-                    const data = doc.data();
-                    const item = document.createElement('li');
-                    item.className = 'list-group-item d-flex justify-content-between align-items-center';
-                    item.innerHTML = `<div><span style="${data.completed ? 'text-decoration: line-through; opacity: 0.6;' : ''}">${data.task}</span><small class="d-block text-muted">by ${data.createdBy || 'Unknown'}</small></div><div><button class="btn btn-sm ${data.completed ? 'btn-outline-secondary' : 'btn-outline-success'}"><i class="bi bi-check-lg"></i></button><button class="btn btn-sm btn-outline-danger ms-2"><i class="bi bi-trash"></i></button></div>`;
-                    item.querySelector('.btn-outline-success, .btn-outline-secondary').addEventListener('click', () => doc.ref.update({ completed: !data.completed }));
-                    item.querySelector('.btn-outline-danger').addEventListener('click', () => doc.ref.delete());
-                    list.appendChild(item);
-                });
-            }, err => console.error("Error loading todos:", err)),
-            notes: () => getCollectionRef('notes').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
-                const list = document.getElementById('notes-list');
-                list.innerHTML = '';
-                snapshot.forEach(doc => {
-                    const data = doc.data();
-                    const col = document.createElement('div');
-                    col.className = 'col-md-6 col-lg-4 mb-3';
-                    col.innerHTML = `<div class="card h-100"><div class="card-body d-flex flex-column"><h5 class="card-title">${data.title}</h5><p class="card-text flex-grow-1">${data.content.substring(0, 150)}...</p><p class="card-text"><small class="text-muted">By ${data.createdBy || 'Unknown'}</small></p><button class="btn btn-sm btn-danger align-self-start"><i class="bi bi-trash"></i> Delete</button></div></div>`;
-                    col.querySelector('button').addEventListener('click', () => { if (confirm('Delete this note?')) doc.ref.delete(); });
-                    list.appendChild(col);
-                });
-            }, err => console.error("Error loading notes:", err)),
-            history: () => getCollectionRef('history').orderBy('date', 'desc').onSnapshot(snapshot => {
-                const list = document.getElementById('history-list');
-                list.innerHTML = '';
-                snapshot.forEach(doc => {
-                    const data = doc.data();
-                    const item = document.createElement('li');
-                    item.className = 'list-group-item';
-                    item.innerHTML = `<h6>${data.title} - ${new Date(data.date.seconds * 1000).toLocaleDateString()}</h6><p class="mb-1">${data.description}</p><small class="text-muted">Added by ${data.createdBy || 'Unknown'}</small>`;
-                    list.appendChild(item);
-                });
-            }, err => console.error("Error loading history:", err))
-        };
+            }, err => console.error("Error loading events: ", err));
+        }
 
-        function setupForms() {
-            const forms = {
-                'todo-form': 'todos',
-                'note-form': 'notes',
-                'history-form': 'history'
-            };
-            Object.keys(forms).forEach(formId => {
-                const form = document.getElementById(formId);
-                if (form) {
-                    form.onsubmit = (e) => {
-                        e.preventDefault();
-                        const collectionName = forms[formId];
-                        let data = { createdBy: currentUser.displayName || currentUser.email };
-                        if (collectionName === 'todos') { data.task = form.querySelector('input').value; data.completed = false; data.createdAt = firebase.firestore.FieldValue.serverTimestamp(); }
-                        if (collectionName === 'notes') { data.title = form.querySelector('#note-title').value; data.content = form.querySelector('#note-content').value; data.createdAt = firebase.firestore.FieldValue.serverTimestamp(); }
-                        if (collectionName === 'history') { data.title = form.querySelector('#history-title').value; data.description = form.querySelector('#history-desc').value; data.date = new Date(form.querySelector('#history-date').value); }
-                        getCollectionRef(collectionName).add(data).catch(err => console.error(`Error adding to ${collectionName}:`, err));
-                        form.reset();
-                    };
+        function openEventModal(dateStr) {
+            document.getElementById('eventForm').reset();
+            document.getElementById('eventStartDate').value = dateStr;
+            document.getElementById('modalTitle').innerText = 'Add Event on ' + new Date(dateStr + 'T00:00:00').toLocaleDateString();
+            eventModal.show();
+        }
+
+        // --- DATA & HISTORY LOGIC ---
+        function logHistory(action, eventData) {
+            db.collection('history').add({
+                action: action,
+                eventTitle: eventData.title,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                user: currentUser.displayName || 'Unknown User',
+                userAvatar: currentUser.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.displayName || 'A')}`
+            });
+        }
+
+        function loadHistory() {
+            db.collection('history').orderBy('timestamp', 'desc').limit(50).onSnapshot(snapshot => {
+                const historyList = document.getElementById('history-list');
+                historyList.innerHTML = '';
+                if (snapshot.empty) {
+                    historyList.innerHTML = '<li class="text-muted small p-2">No recent activity.</li>';
+                    return;
+                }
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const item = document.createElement('li');
+                    item.className = `history-item ${data.action}`;
+                    item.innerHTML = `<div><span class="actor">${data.user}</span> ${data.action} <strong>${data.eventTitle}</strong></div><span class="time">${data.timestamp ? data.timestamp.toDate().toLocaleString() : ''}</span>`;
+                    historyList.appendChild(item);
+                });
+            }, err => console.error("Error loading history: ", err));
+        }
+        
+        function setupAppEventListeners() {
+            document.getElementById('logout-btn').addEventListener('click', () => auth.signOut());
+            
+            document.getElementById('saveEventBtn').addEventListener('click', () => {
+                const title = document.getElementById('eventTitleInput').value.trim();
+                const startDate = document.getElementById('eventStartDate').value;
+                if (title && startDate) {
+                    const newEvent = { title, start: startDate, createdBy: currentUser.displayName, uid: currentUser.uid };
+                    db.collection('events').add(newEvent).then(() => {
+                        logHistory('created', newEvent);
+                    });
+                    eventModal.hide();
                 }
             });
         }

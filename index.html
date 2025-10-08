@@ -165,16 +165,18 @@
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/main.min.js'></script>
     
     <script>
-        // --- FIX: Firebase config updated with your provided credentials.
+        // --- Firebase config updated with your provided credentials.
         const firebaseConfig = {
             apiKey: "AIzaSyBghGrPLr7_iC46u1Phs83vd1i-47zstUs",
             authDomain: "calendar-pbx21.firebaseapp.com",
             projectId: "calendar-pbx21",
-            storageBucket: "calendar-pbx21.firebasestorage.app",
+            // Corrected storageBucket domain from .firebasestorage.app to .appspot.com
+            storageBucket: "calendar-pbx21.appspot.com", 
             messagingSenderId: "304190482123",
             appId: "1:304190482123:web:2a8415125467565a1e9d4e"
         };
         
+        console.log('Firebase config loaded. Initializing app...');
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
@@ -191,6 +193,7 @@
 
         // --- Core Application Flow ---
         document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM Content Loaded. Setting up listeners and auth handler.');
             const savedTheme = localStorage.getItem('theme') || 'light';
             document.documentElement.setAttribute('data-theme', savedTheme);
             setupStaticEventListeners();
@@ -198,20 +201,24 @@
         });
 
         function handleAuthentication() {
-            auth.getRedirectResult()
-                .catch(error => {
-                    console.error("Redirect Result Error:", error);
-                    alert(`Login failed: ${error.message}`);
-                    loadingOverlay.classList.add('d-none');
-                });
+            console.log('handleAuthentication() called.');
             
+            // This listener is the single source of truth for auth state
             auth.onAuthStateChanged(user => {
+                // --- CRITICAL DEBUGGING STEP ---
+                console.log('onAuthStateChanged FIRED. User object:', user);
+
                 if (user && !user.isAnonymous) {
+                    console.log('User is authenticated:', user.displayName);
                     if (!currentUser) { 
+                        console.log('Current user is not set. Initializing app...');
                         currentUser = user;
                         initializeApp();
+                    } else {
+                        console.log('App already initialized for this user.');
                     }
                 } else {
+                    console.log('User is not authenticated or is anonymous. Showing login screen.');
                     currentUser = null;
                     Object.values(activeUnsubscribes).forEach(unsub => unsub());
                     activeUnsubscribes = {};
@@ -220,28 +227,45 @@
                     loadingOverlay.classList.add('d-none');
                 }
             });
+
+            auth.getRedirectResult()
+                .then(result => {
+                    console.log("getRedirectResult SUCCESS:", result);
+                    if (result.user) {
+                        console.log("Login via redirect successful for:", result.user.displayName);
+                    }
+                })
+                .catch(error => {
+                    console.error("getRedirectResult ERROR:", error);
+                    alert(`Login failed: ${error.message}`);
+                    loadingOverlay.classList.add('d-none'); 
+                });
         }
         
         function initializeApp() {
+            console.log('initializeApp() CALLED. Hiding auth screen and showing app container.');
             document.getElementById('user-profile').innerHTML = `<img src="${currentUser.photoURL}" class="user-avatar"><span class="nav-item-title">${currentUser.displayName}</span>`;
-            loadAllData();
+            
             authSection.classList.add('d-none');
             appContainer.classList.remove('d-none');
             loadingOverlay.classList.add('d-none');
+            
+            console.log('UI updated. Loading all data...');
+            loadAllData();
         }
+
+        // --- All other functions (setupStaticEventListeners, loadAllData, etc.) remain the same ---
+        // (The previous bug fixes for error handling are still included here)
 
         function setupStaticEventListeners() {
             const handleLogin = (provider) => {
                 loadingOverlay.classList.remove('d-none');
                 auth.signInWithRedirect(provider);
             };
-
             document.getElementById('google-login-btn').addEventListener('click', () => handleLogin(new firebase.auth.GoogleAuthProvider()));
             document.getElementById('github-login-btn').addEventListener('click', () => handleLogin(new firebase.auth.GithubAuthProvider()));
-
             document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
             document.getElementById('logout-btn').addEventListener('click', () => auth.signOut());
-
             document.querySelectorAll('.nav-item[data-view]').forEach(item => {
                 item.addEventListener('click', () => {
                     document.querySelector('.nav-item.active').classList.remove('active');
@@ -250,11 +274,8 @@
                     document.getElementById(`${item.dataset.view}-view`).classList.add('active');
                 });
             });
-
             document.getElementById('add-todo-form').addEventListener('submit', handleAddTodo);
             document.getElementById('chat-form').addEventListener('submit', handleSendMessage);
-            
-            // --- FIX: Add event listeners to close detail panel on outside click
             mainContent.addEventListener('click', () => {
                 if (appContainer.classList.contains('panel-open')) {
                     appContainer.classList.remove('panel-open');
@@ -262,19 +283,16 @@
             });
             detailPanel.addEventListener('click', (e) => e.stopPropagation());
         }
-        
         function loadAllData() {
             initializeCalendar();
             loadTodos();
             loadChatMessages();
         }
-
         function toggleTheme() {
             const newTheme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
             localStorage.setItem('theme', newTheme);
             document.documentElement.setAttribute('data-theme', newTheme);
         }
-
         function initializeCalendar() {
             const calendarEl = document.getElementById('calendar-container');
             if (calendar) calendar.destroy();
@@ -285,17 +303,15 @@
                 dateClick: (info) => openDetailPanel(info.dateStr),
                 eventClick: (info) => openDetailPanel(info.event.startStr.split('T')[0]),
                 eventDrop: (info) => {
-                    // --- FIX: Add error handling
                     db.collection('events').doc(info.event.id).update({ start: info.event.start.toISOString().split('T')[0] })
                         .catch(err => {
                             console.error("Error updating event:", err);
                             alert("Failed to move event. Please try again.");
-                            info.revert(); // Revert the change on error
+                            info.revert();
                         });
                 }
             });
             calendar.render();
-            
             if (activeUnsubscribes.events) activeUnsubscribes.events();
             activeUnsubscribes.events = db.collection('events').onSnapshot(snapshot => {
                 const events = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -306,11 +322,9 @@
                 alert("Could not load calendar events. Check security rules and network.");
             });
         }
-        
         function openDetailPanel(dateStr) {
             appContainer.classList.add('panel-open');
             const date = new Date(dateStr + 'T00:00:00');
-            
             if (activeUnsubscribes.detail) activeUnsubscribes.detail();
             activeUnsubscribes.detail = db.collection('events').where('start', '==', dateStr).orderBy('createdAt').onSnapshot(snapshot => {
                 detailPanel.innerHTML = `
@@ -330,7 +344,6 @@
                 detailPanel.querySelector('#add-event-form').onsubmit = e => handleAddEvent(e, dateStr);
                 detailPanel.querySelectorAll('.bi-trash3-fill').forEach(btn => {
                     btn.onclick = e => {
-                        // --- FIX: Add error handling
                         db.collection('events').doc(e.target.dataset.id).delete().catch(err => {
                             console.error("Error deleting event:", err);
                             alert("Failed to delete event.");
@@ -342,25 +355,22 @@
                 detailPanel.innerHTML = `<p class="text-secondary">Error loading events.</p>`;
             });
         }
-        
         function handleAddEvent(e, dateStr) {
             e.preventDefault();
             const input = detailPanel.querySelector('#event-input');
             if (input.value.trim()) {
-                // --- FIX: Add error handling
                 db.collection('events').add({ 
                     title: input.value, 
                     start: dateStr, 
                     createdAt: firebase.firestore.FieldValue.serverTimestamp() 
                 }).then(() => {
-                    input.value = ''; // Clear on success
+                    input.value = '';
                 }).catch(err => {
                     console.error("Error adding event:", err);
                     alert("Failed to add event.");
                 });
             }
         }
-
         function loadTodos() {
             if (activeUnsubscribes.todos) activeUnsubscribes.todos();
             activeUnsubscribes.todos = db.collection('todos').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
@@ -374,7 +384,6 @@
                 `).join('');
                 todoList.querySelectorAll('input[type="checkbox"]').forEach(box => {
                     box.onchange = e => {
-                        // --- FIX: Add error handling
                         db.collection('todos').doc(e.target.dataset.id).update({ completed: e.target.checked }).catch(err => {
                             console.error("Error updating task status:", err);
                             alert("Could not update task.");
@@ -383,7 +392,6 @@
                 });
                 todoList.querySelectorAll('.bi-trash3-fill').forEach(btn => {
                     btn.onclick = e => {
-                        // --- FIX: Add error handling
                         db.collection('todos').doc(e.target.dataset.id).delete().catch(err => {
                             console.error("Error deleting task:", err);
                             alert("Could not delete task.");
@@ -395,25 +403,22 @@
                 alert("Could not load tasks. Check security rules and network.");
             });
         }
-        
         function handleAddTodo(e) {
             e.preventDefault();
             const input = document.getElementById('todo-input');
             if (input.value.trim()) {
-                // --- FIX: Add error handling
                 db.collection('todos').add({ 
                     task: input.value, 
                     completed: false, 
                     createdAt: firebase.firestore.FieldValue.serverTimestamp() 
                 }).then(() => {
-                    input.value = ''; // Clear on success
+                    input.value = '';
                 }).catch(err => {
                     console.error("Error adding task:", err);
                     alert("Failed to add task.");
                 });
             }
         }
-
         function loadChatMessages() {
             const chatWindow = document.getElementById('chat-window');
             if (activeUnsubscribes.chat) activeUnsubscribes.chat();
@@ -421,7 +426,6 @@
                 chatWindow.innerHTML = snapshot.docs.map(doc => {
                     const msg = doc.data();
                     const isUser = msg.uid === currentUser.uid;
-                    // --- FIX: Display sender's name for other users' messages
                     return `
                         <div class="chat-message ${isUser ? 'is-user' : ''}">
                             ${!isUser ? `<img src="${msg.photoURL}" style="width:32px; height:32px; border-radius:50%;" alt="${msg.displayName}">` : ''}
@@ -437,12 +441,10 @@
                 alert("Could not load chat. Check security rules and network.");
             });
         }
-
         function handleSendMessage(e) {
             e.preventDefault();
             const input = document.getElementById('chat-input');
             if (input.value.trim()) {
-                // --- FIX: Add error handling
                 db.collection('chatMessages').add({
                     text: input.value,
                     uid: currentUser.uid,
@@ -450,7 +452,7 @@
                     photoURL: currentUser.photoURL,
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 }).then(() => {
-                    input.value = ''; // Clear on success
+                    input.value = '';
                 }).catch(err => {
                     console.error("Error sending message:", err);
                     alert("Message could not be sent.");

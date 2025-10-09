@@ -41,15 +41,17 @@
 
         <main class="main-content">
             <header class="main-header">
-                <button id="hamburger-menu" class="hamburger-button">
-                    <svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
-                </button>
+                <div class="header-left">
+                    <button id="hamburger-menu" class="hamburger-button">
+                        <svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                    </button>
+                </div>
                 <div class="calendar-controls">
                     <button id="prev-month" class="nav-button">&lt;</button>
                     <h2 id="current-month"></h2>
                     <button id="next-month" class="nav-button">&gt;</button>
                 </div>
-                <div class="header-actions">
+                <div class="header-right">
                     <div id="notifications-bell" class="notification-bell">
                         <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
                         <span id="notification-dot" class="notification-dot" style="display: none;"></span>
@@ -60,6 +62,7 @@
                     </div>
                 </div>
             </header>
+
             <div class="calendar-weekdays">
                 <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
             </div>
@@ -121,8 +124,6 @@
     </div>
 
     <div id="sidebar-overlay"></div>
-
-    <!-- SCRIPT TAG IS MOVED TO THE END OF BODY AND GIVEN THE 'defer' ATTRIBUTE -->
     <script src="script.js" defer></script>
 </body>
 </html>

@@ -25,187 +25,317 @@ let currentMonth = new Date().getMonth();
 let currentYear = new Date().getFullYear();
 let unsubscribers = [];
 
-// DOM Elements
-const loginScreen = document.getElementById('loginScreen');
-const mainApp = document.getElementById('mainApp');
-const googleLoginBtn = document.getElementById('googleLogin');
-const githubLoginBtn = document.getElementById('githubLogin');
-const logoutBtn = document.getElementById('logoutBtn');
-const userAvatar = document.getElementById('userAvatar');
-const userName = document.getElementById('userName');
-const darkModeToggle = document.getElementById('darkModeToggle');
-
-// ==================== AUTHENTICATION ====================
-
-// Google Sign In
-googleLoginBtn.addEventListener('click', async () => {
-    try {
-        const result = await signInWithPopup(auth, googleProvider);
-        await saveUserToFirestore(result.user);
-    } catch (error) {
-        console.error('Google sign in error:', error);
-        alert('Failed to sign in with Google. Please try again.');
-    }
+// Wait for DOM to be fully loaded
+document.addEventListener('DOMContentLoaded', function() {
+    initializeEventListeners();
 });
 
-// GitHub Sign In
-githubLoginBtn.addEventListener('click', async () => {
-    try {
-        const result = await signInWithPopup(auth, githubProvider);
-        await saveUserToFirestore(result.user);
-    } catch (error) {
-        console.error('GitHub sign in error:', error);
-        alert('Failed to sign in with GitHub. Please try again.');
-    }
-});
+// Initialize all event listeners
+function initializeEventListeners() {
+    // DOM Elements
+    const googleLoginBtn = document.getElementById('googleLogin');
+    const githubLoginBtn = document.getElementById('githubLogin');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const darkModeToggle = document.getElementById('darkModeToggle');
+    const prevMonthBtn = document.getElementById('prevMonth');
+    const nextMonthBtn = document.getElementById('nextMonth');
+    const addEventBtn = document.getElementById('addEventBtn');
+    const saveEventBtn = document.getElementById('saveEventBtn');
+    const addTaskBtn = document.getElementById('addTaskBtn');
+    const saveTaskBtn = document.getElementById('saveTaskBtn');
+    const sendMessageBtn = document.getElementById('sendMessage');
+    const chatInput = document.getElementById('chatInput');
+    const fabBtn = document.getElementById('fabBtn');
+    const eventModal = document.getElementById('eventModal');
+    const taskModal = document.getElementById('taskModal');
 
-// Logout
-logoutBtn.addEventListener('click', async () => {
-    try {
-        // Unsubscribe all listeners
-        unsubscribers.forEach(unsub => unsub());
-        unsubscribers = [];
-        
-        await signOut(auth);
-        loginScreen.classList.remove('hidden');
-        mainApp.classList.add('hidden');
-    } catch (error) {
-        console.error('Logout error:', error);
+    // ==================== AUTHENTICATION ====================
+
+    // Google Sign In
+    if (googleLoginBtn) {
+        googleLoginBtn.addEventListener('click', async () => {
+            console.log('Google login clicked');
+            try {
+                const result = await signInWithPopup(auth, googleProvider);
+                console.log('Google login successful:', result.user);
+                await saveUserToFirestore(result.user);
+            } catch (error) {
+                console.error('Google sign in error:', error);
+                alert('Failed to sign in with Google: ' + error.message);
+            }
+        });
     }
-});
+
+    // GitHub Sign In
+    if (githubLoginBtn) {
+        githubLoginBtn.addEventListener('click', async () => {
+            console.log('GitHub login clicked');
+            try {
+                const result = await signInWithPopup(auth, githubProvider);
+                console.log('GitHub login successful:', result.user);
+                await saveUserToFirestore(result.user);
+            } catch (error) {
+                console.error('GitHub sign in error:', error);
+                alert('Failed to sign in with GitHub: ' + error.message);
+            }
+        });
+    }
+
+    // Logout
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', async () => {
+            try {
+                // Unsubscribe all listeners
+                unsubscribers.forEach(unsub => unsub());
+                unsubscribers = [];
+                
+                await signOut(auth);
+                document.getElementById('loginScreen').classList.remove('hidden');
+                document.getElementById('mainApp').classList.add('hidden');
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+        });
+    }
+
+    // ==================== DARK MODE ====================
+
+    // Check for saved theme preference
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+
+    if (darkModeToggle) {
+        darkModeToggle.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        });
+    }
+
+    // ==================== NAVIGATION ====================
+
+    const navButtons = document.querySelectorAll('.nav-btn');
+    const contentSections = document.querySelectorAll('.content-section');
+
+    navButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const targetSection = btn.dataset.section;
+            
+            // Update active states
+            navButtons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            // Show target section
+            contentSections.forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById(`${targetSection}Section`).classList.add('active');
+        });
+    });
+
+    // ==================== CALENDAR ====================
+
+    if (prevMonthBtn) {
+        prevMonthBtn.addEventListener('click', () => {
+            currentMonth--;
+            if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            }
+            renderCalendar();
+        });
+    }
+
+    if (nextMonthBtn) {
+        nextMonthBtn.addEventListener('click', () => {
+            currentMonth++;
+            if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            }
+            renderCalendar();
+        });
+    }
+
+    if (addEventBtn) {
+        addEventBtn.addEventListener('click', () => {
+            openEventModal();
+        });
+    }
+
+    if (saveEventBtn) {
+        saveEventBtn.addEventListener('click', async () => {
+            const title = document.getElementById('eventTitle').value.trim();
+            const description = document.getElementById('eventDescription').value.trim();
+            const date = document.getElementById('eventDate').value;
+            const time = document.getElementById('eventTime').value;
+            
+            if (!title || !date) {
+                alert('Please fill in title and date');
+                return;
+            }
+            
+            try {
+                await addDoc(collection(db, 'events'), {
+                    title,
+                    description,
+                    date,
+                    time,
+                    createdBy: currentUser.uid,
+                    createdByName: currentUser.displayName,
+                    createdAt: serverTimestamp()
+                });
+                
+                // Log activity
+                await logActivity(`${currentUser.displayName} added event "${title}" on ${formatDate(date)}`);
+                
+                closeEventModal();
+            } catch (error) {
+                console.error('Error adding event:', error);
+                alert('Failed to add event: ' + error.message);
+            }
+        });
+    }
+
+    // ==================== TASKS ====================
+
+    if (addTaskBtn) {
+        addTaskBtn.addEventListener('click', () => {
+            openTaskModal();
+        });
+    }
+
+    if (saveTaskBtn) {
+        saveTaskBtn.addEventListener('click', async () => {
+            const title = document.getElementById('taskTitle').value.trim();
+            const date = document.getElementById('taskDate').value;
+            
+            if (!title) {
+                alert('Please enter a task');
+                return;
+            }
+            
+            try {
+                await addDoc(collection(db, 'tasks'), {
+                    title,
+                    date: date || null,
+                    completed: false,
+                    createdBy: currentUser.uid,
+                    createdByName: currentUser.displayName,
+                    createdAt: serverTimestamp()
+                });
+                
+                // Log activity
+                await logActivity(`${currentUser.displayName} added task "${title}"`);
+                
+                closeTaskModal();
+            } catch (error) {
+                console.error('Error adding task:', error);
+                alert('Failed to add task: ' + error.message);
+            }
+        });
+    }
+
+    // ==================== CHAT ====================
+
+    if (sendMessageBtn) {
+        sendMessageBtn.addEventListener('click', sendChatMessage);
+    }
+
+    if (chatInput) {
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendChatMessage();
+            }
+        });
+    }
+
+    // ==================== FAB ====================
+
+    if (fabBtn) {
+        fabBtn.addEventListener('click', () => {
+            const activeSection = document.querySelector('.nav-btn.active')?.dataset.section;
+            
+            if (activeSection === 'calendar') {
+                openEventModal();
+            } else if (activeSection === 'tasks') {
+                openTaskModal();
+            } else if (activeSection === 'chat') {
+                chatInput?.focus();
+            }
+        });
+    }
+
+    // Close modals when clicking outside
+    if (eventModal) {
+        eventModal.addEventListener('click', (e) => {
+            if (e.target === eventModal) {
+                closeEventModal();
+            }
+        });
+    }
+
+    if (taskModal) {
+        taskModal.addEventListener('click', (e) => {
+            if (e.target === taskModal) {
+                closeTaskModal();
+            }
+        });
+    }
+}
+
+// ==================== AUTH FUNCTIONS ====================
 
 // Save user info to Firestore
 async function saveUserToFirestore(user) {
-    const userRef = doc(db, 'users', user.uid);
-    await setDoc(userRef, {
-        uid: user.uid,
-        displayName: user.displayName,
-        email: user.email,
-        photoURL: user.photoURL,
-        lastLogin: serverTimestamp()
-    }, { merge: true });
+    try {
+        const userRef = doc(db, 'users', user.uid);
+        await setDoc(userRef, {
+            uid: user.uid,
+            displayName: user.displayName,
+            email: user.email,
+            photoURL: user.photoURL,
+            lastLogin: serverTimestamp()
+        }, { merge: true });
+    } catch (error) {
+        console.error('Error saving user:', error);
+    }
 }
 
 // Auth state observer
 onAuthStateChanged(auth, async (user) => {
+    console.log('Auth state changed:', user);
     if (user) {
         currentUser = user;
-        userAvatar.src = user.photoURL || 'https://via.placeholder.com/40';
-        userName.textContent = user.displayName || 'User';
+        const userAvatar = document.getElementById('userAvatar');
+        const userName = document.getElementById('userName');
         
-        loginScreen.classList.add('hidden');
-        mainApp.classList.remove('hidden');
+        if (userAvatar) userAvatar.src = user.photoURL || 'https://via.placeholder.com/40';
+        if (userName) userName.textContent = user.displayName || 'User';
+        
+        document.getElementById('loginScreen').classList.add('hidden');
+        document.getElementById('mainApp').classList.remove('hidden');
         
         // Initialize app
         initializeApp();
     } else {
         currentUser = null;
-        loginScreen.classList.remove('hidden');
-        mainApp.classList.add('hidden');
+        document.getElementById('loginScreen').classList.remove('hidden');
+        document.getElementById('mainApp').classList.add('hidden');
     }
 });
 
-// ==================== DARK MODE ====================
-
-// Check for saved theme preference
-const savedTheme = localStorage.getItem('theme') || 'light';
-document.documentElement.setAttribute('data-theme', savedTheme);
-
-darkModeToggle.addEventListener('click', () => {
-    const currentTheme = document.documentElement.getAttribute('data-theme');
-    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-    document.documentElement.setAttribute('data-theme', newTheme);
-    localStorage.setItem('theme', newTheme);
-});
-
-// ==================== NAVIGATION ====================
-
-const navButtons = document.querySelectorAll('.nav-btn');
-const contentSections = document.querySelectorAll('.content-section');
-
-navButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
-        const targetSection = btn.dataset.section;
-        
-        // Update active states
-        navButtons.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        
-        // Show target section
-        contentSections.forEach(section => {
-            section.classList.remove('active');
-        });
-        document.getElementById(`${targetSection}Section`).classList.add('active');
-    });
-});
-
-// ==================== CALENDAR ====================
-
-const calendarGrid = document.getElementById('calendar');
-const currentMonthEl = document.getElementById('currentMonth');
-const prevMonthBtn = document.getElementById('prevMonth');
-const nextMonthBtn = document.getElementById('nextMonth');
-const addEventBtn = document.getElementById('addEventBtn');
-const eventModal = document.getElementById('eventModal');
-const saveEventBtn = document.getElementById('saveEventBtn');
+// ==================== CALENDAR FUNCTIONS ====================
 
 let eventsData = [];
 
-prevMonthBtn.addEventListener('click', () => {
-    currentMonth--;
-    if (currentMonth < 0) {
-        currentMonth = 11;
-        currentYear--;
-    }
-    renderCalendar();
-});
-
-nextMonthBtn.addEventListener('click', () => {
-    currentMonth++;
-    if (currentMonth > 11) {
-        currentMonth = 0;
-        currentYear++;
-    }
-    renderCalendar();
-});
-
-addEventBtn.addEventListener('click', () => {
-    openEventModal();
-});
-
-saveEventBtn.addEventListener('click', async () => {
-    const title = document.getElementById('eventTitle').value.trim();
-    const description = document.getElementById('eventDescription').value.trim();
-    const date = document.getElementById('eventDate').value;
-    const time = document.getElementById('eventTime').value;
-    
-    if (!title || !date) {
-        alert('Please fill in all required fields');
-        return;
-    }
-    
-    try {
-        await addDoc(collection(db, 'events'), {
-            title,
-            description,
-            date,
-            time,
-            createdBy: currentUser.uid,
-            createdByName: currentUser.displayName,
-            createdAt: serverTimestamp()
-        });
-        
-        // Log activity
-        await logActivity(`${currentUser.displayName} added event "${title}" on ${formatDate(date)}`);
-        
-        closeEventModal();
-    } catch (error) {
-        console.error('Error adding event:', error);
-        alert('Failed to add event');
-    }
-});
-
 function renderCalendar() {
+    const calendarGrid = document.getElementById('calendar');
+    const currentMonthEl = document.getElementById('currentMonth');
+    
+    if (!calendarGrid || !currentMonthEl) return;
+    
     const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
                        'July', 'August', 'September', 'October', 'November', 'December'];
     
@@ -308,11 +438,11 @@ function openEventModal(date = '') {
     document.getElementById('eventDescription').value = '';
     document.getElementById('eventDate').value = date || new Date().toISOString().split('T')[0];
     document.getElementById('eventTime').value = '';
-    eventModal.classList.remove('hidden');
+    document.getElementById('eventModal').classList.remove('hidden');
 }
 
 window.closeEventModal = function() {
-    eventModal.classList.add('hidden');
+    document.getElementById('eventModal').classList.add('hidden');
 };
 
 // Listen to events
@@ -329,57 +459,18 @@ function listenToEvents() {
     unsubscribers.push(unsubscribe);
 }
 
-// ==================== TASKS ====================
-
-const addTaskBtn = document.getElementById('addTaskBtn');
-const taskModal = document.getElementById('taskModal');
-const saveTaskBtn = document.getElementById('saveTaskBtn');
-const datedTasksEl = document.getElementById('datedTasks');
-const undatedTasksEl = document.getElementById('undatedTasks');
+// ==================== TASKS FUNCTIONS ====================
 
 let tasksData = [];
-
-addTaskBtn.addEventListener('click', () => {
-    openTaskModal();
-});
-
-saveTaskBtn.addEventListener('click', async () => {
-    const title = document.getElementById('taskTitle').value.trim();
-    const date = document.getElementById('taskDate').value;
-    
-    if (!title) {
-        alert('Please enter a task');
-        return;
-    }
-    
-    try {
-        await addDoc(collection(db, 'tasks'), {
-            title,
-            date: date || null,
-            completed: false,
-            createdBy: currentUser.uid,
-            createdByName: currentUser.displayName,
-            createdAt: serverTimestamp()
-        });
-        
-        // Log activity
-        await logActivity(`${currentUser.displayName} added task "${title}"`);
-        
-        closeTaskModal();
-    } catch (error) {
-        console.error('Error adding task:', error);
-        alert('Failed to add task');
-    }
-});
 
 function openTaskModal() {
     document.getElementById('taskTitle').value = '';
     document.getElementById('taskDate').value = '';
-    taskModal.classList.remove('hidden');
+    document.getElementById('taskModal').classList.remove('hidden');
 }
 
 window.closeTaskModal = function() {
-    taskModal.classList.add('hidden');
+    document.getElementById('taskModal').classList.add('hidden');
 };
 
 // Listen to tasks
@@ -397,6 +488,9 @@ function listenToTasks() {
 }
 
 function renderDatedTasks() {
+    const datedTasksEl = document.getElementById('datedTasks');
+    if (!datedTasksEl) return;
+    
     const datedTasks = tasksData.filter(task => task.date);
     datedTasksEl.innerHTML = '';
     
@@ -414,6 +508,9 @@ function renderDatedTasks() {
 }
 
 function renderUndatedTasks() {
+    const undatedTasksEl = document.getElementById('undatedTasks');
+    if (!undatedTasksEl) return;
+    
     const undatedTasks = tasksData.filter(task => !task.date);
     undatedTasksEl.innerHTML = '';
     
@@ -498,7 +595,6 @@ async function deleteTask(taskId, taskTitle) {
 
 // ==================== ACTIVITY LOG ====================
 
-const activityFeed = document.getElementById('activityFeed');
 let activitiesData = [];
 
 function listenToActivity() {
@@ -514,6 +610,9 @@ function listenToActivity() {
 }
 
 function renderActivity() {
+    const activityFeed = document.getElementById('activityFeed');
+    if (!activityFeed) return;
+    
     activityFeed.innerHTML = '';
     
     if (activitiesData.length === 0) {
@@ -556,20 +655,12 @@ async function logActivity(message) {
 
 // ==================== CHAT ====================
 
-const chatMessages = document.getElementById('chatMessages');
-const chatInput = document.getElementById('chatInput');
-const sendMessageBtn = document.getElementById('sendMessage');
-
 let messagesData = [];
 
-sendMessageBtn.addEventListener('click', sendChatMessage);
-chatInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
-        sendChatMessage();
-    }
-});
-
 async function sendChatMessage() {
+    const chatInput = document.getElementById('chatInput');
+    if (!chatInput) return;
+    
     const message = chatInput.value.trim();
     
     if (!message) return;
@@ -605,6 +696,9 @@ function listenToChat() {
 }
 
 function renderChat() {
+    const chatMessages = document.getElementById('chatMessages');
+    if (!chatMessages) return;
+    
     chatMessages.innerHTML = '';
     
     if (messagesData.length === 0) {
@@ -633,22 +727,6 @@ function renderChat() {
     // Auto-scroll to bottom
     chatMessages.scrollTop = chatMessages.scrollHeight;
 }
-
-// ==================== FAB ====================
-
-const fabBtn = document.getElementById('fabBtn');
-
-fabBtn.addEventListener('click', () => {
-    const activeSection = document.querySelector('.nav-btn.active').dataset.section;
-    
-    if (activeSection === 'calendar') {
-        openEventModal();
-    } else if (activeSection === 'tasks') {
-        openTaskModal();
-    } else if (activeSection === 'chat') {
-        chatInput.focus();
-    }
-});
 
 // ==================== UTILITY FUNCTIONS ====================
 
@@ -692,16 +770,3 @@ function initializeApp() {
     listenToActivity();
     listenToChat();
 }
-
-// Close modals when clicking outside
-eventModal.addEventListener('click', (e) => {
-    if (e.target === eventModal) {
-        closeEventModal();
-    }
-});
-
-taskModal.addEventListener('click', (e) => {
-    if (e.target === taskModal) {
-        closeTaskModal();
-    }
-});
